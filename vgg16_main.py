@@ -22,7 +22,7 @@ from tensorflow.python.client import device_lib
 #import matplotlib.pyplot as plt
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 4680 
+NUM_ITERATIONS = 10
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -557,70 +557,63 @@ class VGG16(object):
 	   
 
            if (random_count % FLAGS.num_iterations  == 0):
-#	print("random0:"+str(random_count))
-	        
-	        _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-	        _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-                _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
-                _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
-	        
-                """
-	        global  mentor_preloss_list
-	        mentor_preloss_list = []
-                mentor_preloss_list.append(tf.convert_to_tensor(sess.run(self.mentor_data_dict.conv1_2,feed_dict=feed_dict), dtype=tf.float32, name = "mentor_conv1_2_interval"))
-                mentor_preloss_list.append(tf.convert_to_tensor(sess.run(self.mentor_data_dict.conv2_1,feed_dict=feed_dict), dtype=tf.float32,name = "mentor_conv2_1_interval" ))
-                mentor_preloss_list.append(tf.convert_to_tensor(sess.run(self.mentor_data_dict.conv3_1,feed_dict=feed_dict), dtype=tf.float32,name = "mentor_conv3_1_interval"))
-                mentor_preloss_list.append(tf.convert_to_tensor(sess.run(self.mentor_data_dict.conv4_2,feed_dict=feed_dict), dtype=tf.float32,name = "mentor_conv4_2_interval"))
-                mentor_preloss_list.append(tf.convert_to_tensor(sess.run(self.mentor_data_dict.conv5_2,feed_dict=feed_dict), dtype=tf.float32,name = "mentor_conv5_2_interval"))
-	        print(self.mentor_data_dict.conv1_2)
-	        print(self.mentor_data_dict.conv2_1)
-	        print(self.mentor_data_dict.conv3_1)
-	        print(self.mentor_data_dict.conv4_2)
-	        print(self.mentor_data_dict.conv5_2)
-	        for e in mentor_preloss_list:
-		      print(e)
-		print(len(mentor_preloss_list))
-	        """
-	       
-	        global t1,t2,t3,t4,t5
-		t1 = tf.convert_to_tensor(self.loss_value1, dtype=tf.float32)
-		t2 = tf.convert_to_tensor(self.loss_value2, dtype=tf.float32)
-		t3 = tf.convert_to_tensor(self.loss_value3, dtype=tf.float32)
-		t4 = tf.convert_to_tensor(self.loss_value4, dtype=tf.float32)
-		t5 = tf.convert_to_tensor(self.loss_value5, dtype=tf.float32)
+               _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+               _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+               _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+               _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+               _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
+               _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
+
+               """
+               global  mentor_preloss_list
+               mentor_preloss_list = []
+               mentor_preloss_list.append(tf.convert_to_tensor(sess.run(self.mentor_data_dict.conv1_2,feed_dict=feed_dict), dtype=tf.float32, name = "mentor_conv1_2_interval"))
+               mentor_preloss_list.append(tf.convert_to_tensor(sess.run(self.mentor_data_dict.conv2_1,feed_dict=feed_dict), dtype=tf.float32,name = "mentor_conv2_1_interval" ))
+               mentor_preloss_list.append(tf.convert_to_tensor(sess.run(self.mentor_data_dict.conv3_1,feed_dict=feed_dict), dtype=tf.float32,name = "mentor_conv3_1_interval"))
+               mentor_preloss_list.append(tf.convert_to_tensor(sess.run(self.mentor_data_dict.conv4_2,feed_dict=feed_dict), dtype=tf.float32,name = "mentor_conv4_2_interval"))
+               mentor_preloss_list.append(tf.convert_to_tensor(sess.run(self.mentor_data_dict.conv5_2,feed_dict=feed_dict), dtype=tf.float32,name = "mentor_conv5_2_interval"))
+               print(self.mentor_data_dict.conv1_2)
+               print(self.mentor_data_dict.conv2_1)
+               print(self.mentor_data_dict.conv3_1)
+               print(self.mentor_data_dict.conv4_2)
+               print(self.mentor_data_dict.conv5_2)
+               for e in mentor_preloss_list:
+               print(e)
+               print(len(mentor_preloss_list))
+               """
+               global t1,t2,t3,t4,t5
+               t1 = tf.convert_to_tensor(self.loss_value1, dtype=tf.float32)
+               t2 = tf.convert_to_tensor(self.loss_value2, dtype=tf.float32)
+               t3 = tf.convert_to_tensor(self.loss_value3, dtype=tf.float32)
+               t4 = tf.convert_to_tensor(self.loss_value4, dtype=tf.float32)
+               t5 = tf.convert_to_tensor(self.loss_value5, dtype=tf.float32)
+           else:
+               _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+               _, self.loss_value1 = sess.run([self.train_op1_interval, t1], feed_dict=feed_dict)
+               _, self.loss_value2 = sess.run([self.train_op2_interval, t2], feed_dict=feed_dict)
+               _, self.loss_value3 = sess.run([self.train_op3_interval, t3], feed_dict=feed_dict)
+               _, self.loss_value4 = sess.run([self.train_op4_interval, t4], feed_dict=feed_dict)
+               _, self.loss_value5 = sess.run([self.train_op5_interval, t5], feed_dict=feed_dict)
+               """
+	           print("random:"+str(random_count))
+	           for e in mentor_preloss_list:
+	           print(e)
 	
-	   else:
-	        _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                _, self.loss_value1 = sess.run([self.train_op1_interval, t1], feed_dict=feed_dict)
-                _, self.loss_value2 = sess.run([self.train_op2_interval, t2], feed_dict=feed_dict)
-                _, self.loss_value3 = sess.run([self.train_op3_interval, t3], feed_dict=feed_dict)
-                _, self.loss_value4 = sess.run([self.train_op4_interval, t4], feed_dict=feed_dict)
-                _, self.loss_value5 = sess.run([self.train_op5_interval, t5], feed_dict=feed_dict)
-#self.train_op_for_multiple_optimizers_interval(lr)
-	        """
-		print("random:"+str(random_count))
-		for e in mentor_preloss_list:
-		      print(e)
-	
-                self.rmse_loss_interval(mentor_preloss_list, self.mentee_data_dict)
-	        _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                _, self.loss_value1 = sess.run([self.train_op1_interval, self.l1_interval], feed_dict=feed_dict)
-                _, self.loss_value2 = sess.run([self.train_op2_interval, self.l2_interval], feed_dict=feed_dict)
-                _, self.loss_value3 = sess.run([self.train_op3_interval, self.l3_interval], feed_dict=feed_dict)
-                _, self.loss_value4 = sess.run([self.train_op4_interval, self.l4_interval], feed_dict=feed_dict)
-                _, self.loss_value5 = sess.run([self.train_op5_interval, self.l5_interval], feed_dict=feed_dict)
-	        print(self.loss_value0)
-	        print(self.loss_value1)
-	        print(self.loss_value2)
-	        print(self.loss_value3)
-	        print(self.loss_value4)
-	        print(self.loss_value5)
-                """
-        elif FLAGS.multiple_optimizers_l6:                             
-            
-            # print("caculate loss: multiple optimizers l6") 
+               self.rmse_loss_interval(mentor_preloss_list, self.mentee_data_dict)
+	           _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+               _, self.loss_value1 = sess.run([self.train_op1_interval, self.l1_interval], feed_dict=feed_dict)
+               _, self.loss_value2 = sess.run([self.train_op2_interval, self.l2_interval], feed_dict=feed_dict)
+               _, self.loss_value3 = sess.run([self.train_op3_interval, self.l3_interval], feed_dict=feed_dict)
+               _, self.loss_value4 = sess.run([self.train_op4_interval, self.l4_interval], feed_dict=feed_dict)
+               _, self.loss_value5 = sess.run([self.train_op5_interval, self.l5_interval], feed_dict=feed_dict)
+	           print(self.loss_value0)
+	           print(self.loss_value1)
+	           print(self.loss_value2)
+	           print(self.loss_value3)
+	           print(self.loss_value4)
+	           print(self.loss_value5)
+               """
+        elif FLAGS.multiple_optimizers_l6:
             if (random_count % FLAGS.num_iterations  ==0):
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
@@ -695,14 +688,14 @@ class VGG16(object):
         l4_var_list = []
         l5_var_list = []
         l6_var_list = []
-        
-	"""
-	self.l1_interval = self.l1
-	self.l2_interval = self.l2
-	self.l3_interval = self.l3
-	self.l4_interval = self.l4
-	self.l5_interval = self.l5
 
+        """
+        self.l1_interval = self.l1
+        self.l2_interval = self.l2
+        self.l3_interval = self.l3
+        self.l4_interval = self.l4
+        self.l5_interval = self.l5
+    
         print("define multiple optimizers interval")
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
         self.train_op1_interval = tf.train.AdamOptimizer(lr).minimize(self.l1_interval, var_list = self.l1_weights_of_mentee(l1_var_list))
@@ -710,20 +703,19 @@ class VGG16(object):
         self.train_op3_interval = tf.train.AdamOptimizer(lr).minimize(self.l3_interval, var_list = self.l3_weights_of_mentee(l3_var_list))
         self.train_op4_interval = tf.train.AdamOptimizer(lr).minimize(self.l4_interval, var_list = self.l4_weights_of_mentee(l4_var_list))
         self.train_op5_interval = tf.train.AdamOptimizer(lr).minimize(self.l5_interval, var_list = self.l5_weights_of_mentee(l5_var_list))
+           
+        t1 = tf.convert_to_tensor(4.0, dtype=tf.float32)
+        t2 = tf.convert_to_tensor(0.6, dtype=tf.float32)
+        t3 = tf.convert_to_tensor(0.6, dtype=tf.float32)
+        t4 = tf.convert_to_tensor(0.6, dtype=tf.float32)
+        t5 = tf.convert_to_tensor(0.6, dtype=tf.float32)
+        print(t1)
         """
-        """
-	t1 = tf.convert_to_tensor(4.0, dtype=tf.float32)
-	t2 = tf.convert_to_tensor(0.6, dtype=tf.float32)
-	t3 = tf.convert_to_tensor(0.6, dtype=tf.float32)
-	t4 = tf.convert_to_tensor(0.6, dtype=tf.float32)
-	t5 = tf.convert_to_tensor(0.6, dtype=tf.float32)
-	print(t1)
-	"""
-	t1 = self.l1
-	t2 = self.l2
-	t3 = self.l3
-	t4 = self.l4
-	t5 = self.l5
+        t1 = self.l1
+        t2 = self.l2
+        t3 = self.l3
+        t4 = self.l4
+        t5 = self.l5
         print("define multiple optimizers interval")
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
         self.train_op1_interval = tf.train.AdamOptimizer(lr).minimize(t1, var_list = self.l1_weights_of_mentee(l1_var_list))
@@ -870,7 +862,7 @@ class VGG16(object):
         """
         #cosine1, cosine2, cosine3, cosine4, cosine5, cosine6, cosine7, cosine8, cosine9, cosine10, cosine11, cosine12, cosine13 = self.cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess)
         
-#self.cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess)
+        #self.cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess)
         
         self.softmax = self.mentee_data_dict.softmax
         mentor_variables_to_restore = self.get_mentor_variables_to_restore()
@@ -922,60 +914,60 @@ class VGG16(object):
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
 
-	"""
-	print("initialization")
-	for var in tf.global_variables():
-		if var.op.name=="mentor_conv1_1/mentor_weights":
-                     self.mentee_data_dict.parameters[0].assign(var.eval(session = sess)).eval(session = sess)
-		
-	        if var.op.name=="mentor_conv2_1/mentor_weights":
-                     self.mentee_data_dict.parameters[2].assign(var.eval(session = sess)).eval(session = sess)
-       
-	        if var.op.name=="mentor_conv3_1/mentor_weights":
-                     self.mentee_data_dict.parameters[4].assign(var.eval(session = sess)).eval(session = sess)
-       
-	        if var.op.name=="mentor_conv4_1/mentor_weights":
-                     self.mentee_data_dict.parameters[6].assign(var.eval(session = sess)).eval(session = sess)
-       
-	        if var.op.name=="mentor_conv5_1/mentor_weights":
-                     self.mentee_data_dict.parameters[8].assign(var.eval(session = sess)).eval(session = sess)
-       
-                if var.op.name=="mentor_fc1/mentor_weights":
-                     self.mentee_data_dict.parameters[10].assign(var.eval(session = sess)).eval(session = sess)
-       
-	        if var.op.name=="mentor_fc3/mentor_weights":
-                     self.mentee_data_dict.parameters[12].assign(var.eval(session = sess)).eval(session = sess)
-       
-        print("222")
-        print(sess.run(self.mentee_data_dict.parameters[0][0][0][0][0]))
-        print(sess.run(self.mentee_data_dict.parameters[2][0][0][0][0]))
-        print(sess.run(self.mentee_data_dict.parameters[4][0][0][0][0]))
-        print(sess.run(self.mentee_data_dict.parameters[6][0][0][0][0]))
-        print(sess.run(self.mentee_data_dict.parameters[8][0][0][0][0]))
-        print(sess.run(self.mentee_data_dict.parameters[14][0]))
-        print(sess.run(self.mentee_data_dict.parameters[16][0]))
-	for var in tf.global_variables():
-		if var.op.name=="mentee_conv1_1/mentee_weights":
-           	     print(sess.run(var[0][0][0][0]))
-
-		if var.op.name=="mentee_conv2_1/mentee_weights":
-           	     print(sess.run(var[0][0][0][0]))
-
-		if var.op.name=="mentee_conv3_1/mentee_weights":
-           	     print(sess.run(var[0][0][0][0]))
-
-		if var.op.name=="mentee_conv4_1/mentee_weights":
-           	     print(sess.run(var[0][0][0][0]))
-
-		if var.op.name=="mentee_conv5_1/mentee_weights":
-           	     print(sess.run(var[0][0][0][0]))
-
-		if var.op.name=="mentee_fc2/mentee_weights":
-           	     print(sess.run(var[0]))
-
-		if var.op.name=="mentee_fc3/mentee_weights":
-           	     print(sess.run(var[0]))
-         """
+        """
+        print("initialization")
+        for var in tf.global_variables():
+            if var.op.name=="mentor_conv1_1/mentor_weights":
+                         self.mentee_data_dict.parameters[0].assign(var.eval(session = sess)).eval(session = sess)
+            
+                if var.op.name=="mentor_conv2_1/mentor_weights":
+                         self.mentee_data_dict.parameters[2].assign(var.eval(session = sess)).eval(session = sess)
+           
+                if var.op.name=="mentor_conv3_1/mentor_weights":
+                         self.mentee_data_dict.parameters[4].assign(var.eval(session = sess)).eval(session = sess)
+           
+                if var.op.name=="mentor_conv4_1/mentor_weights":
+                         self.mentee_data_dict.parameters[6].assign(var.eval(session = sess)).eval(session = sess)
+           
+                if var.op.name=="mentor_conv5_1/mentor_weights":
+                         self.mentee_data_dict.parameters[8].assign(var.eval(session = sess)).eval(session = sess)
+           
+                    if var.op.name=="mentor_fc1/mentor_weights":
+                         self.mentee_data_dict.parameters[10].assign(var.eval(session = sess)).eval(session = sess)
+           
+                if var.op.name=="mentor_fc3/mentor_weights":
+                         self.mentee_data_dict.parameters[12].assign(var.eval(session = sess)).eval(session = sess)
+           
+            print("222")
+            print(sess.run(self.mentee_data_dict.parameters[0][0][0][0][0]))
+            print(sess.run(self.mentee_data_dict.parameters[2][0][0][0][0]))
+            print(sess.run(self.mentee_data_dict.parameters[4][0][0][0][0]))
+            print(sess.run(self.mentee_data_dict.parameters[6][0][0][0][0]))
+            print(sess.run(self.mentee_data_dict.parameters[8][0][0][0][0]))
+            print(sess.run(self.mentee_data_dict.parameters[14][0]))
+            print(sess.run(self.mentee_data_dict.parameters[16][0]))
+        for var in tf.global_variables():
+            if var.op.name=="mentee_conv1_1/mentee_weights":
+                     print(sess.run(var[0][0][0][0]))
+    
+            if var.op.name=="mentee_conv2_1/mentee_weights":
+                     print(sess.run(var[0][0][0][0]))
+    
+            if var.op.name=="mentee_conv3_1/mentee_weights":
+                     print(sess.run(var[0][0][0][0]))
+    
+            if var.op.name=="mentee_conv4_1/mentee_weights":
+                     print(sess.run(var[0][0][0][0]))
+    
+            if var.op.name=="mentee_conv5_1/mentee_weights":
+                     print(sess.run(var[0][0][0][0]))
+    
+            if var.op.name=="mentee_fc2/mentee_weights":
+                     print(sess.run(var[0]))
+    
+            if var.op.name=="mentee_fc3/mentee_weights":
+                     print(sess.run(var[0]))
+             """
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess, phase_train):
         
         try:
@@ -1017,7 +1009,7 @@ class VGG16(object):
                         #   print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
 
                 if FLAGS.dependent_student and FLAGS.multiple_optimizers:
-#self.normalize_the_outputs_of_mentor_mentee_of_different_widths(sess, feed_dict)
+                    #self.normalize_the_outputs_of_mentor_mentee_of_different_widths(sess, feed_dict)
                     #self.cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess,feed_dict)
                     #self.visualization_of_filters(sess)
                     
@@ -1032,6 +1024,7 @@ class VGG16(object):
 
                             print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
+
                         elif FLAGS.multiple_optimizers_l2:
                             if (random_count % FLAGS.num_iterations  == 0):
                                 print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
@@ -1060,8 +1053,9 @@ class VGG16(object):
                             print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
                             print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
                             print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
-			    print ("\n")
-		        elif FLAGS.multiple_optimizers_l6:
+                            print ("\n")
+
+                        elif FLAGS.multiple_optimizers_l6:
                             print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
@@ -1076,62 +1070,62 @@ class VGG16(object):
                         summary_writer.add_summary(summary_str, i)
                         summary_writer.flush()
                         """
-                if (i) %(FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN//FLAGS.batch_size)  == 0 or (i) == NUM_ITERATIONS-1:
-                                            
-                    checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
-                    if FLAGS.teacher:
-                        self.saver.save(sess, FLAGS.teacher_weights_filename)
-                    """
-                    elif FLAGS.student:
-                        saver.save(sess, FLAGS.student_filename)
-                    """
-                    """                                            
-                    elif FLAGS.dependent_student:
-                        saver_new = tf.train.Saver()
-                        saver_new.save(sess, FLAGS.dependent_student_filename)
-                    """
-                                            
-                    if FLAGS.dataset == 'mnist':
-                        print('validation accuracy::MNIST')
-                        self.do_eval(sess, 
-                            eval_correct,
-                            softmax,
-                            images_placeholder,
-                            labels_placeholder,
-                            mnist, 
-                            'Validation', phase_train)
+                    if (i) %(FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN//FLAGS.batch_size)  == 0 or (i) == NUM_ITERATIONS-1:
 
-                        print('test accuracy::MNIST')
-                        self.do_eval(sess, 
-                            eval_correct,
-                            softmax,
-                            images_placeholder,
-                            labels_placeholder,
-                            mnist, 
-                            'Test', phase_train)
-                                                
-                    else:
-                        print ("Training Data Eval:")
-                        self.do_eval(sess, 
-                            eval_correct,
-                            self.softmax,
-                            images_placeholder,
-                            labels_placeholder,
-                            data_input_train, 
-                            'Train', phase_train)
+                        checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
+                        if FLAGS.teacher:
+                            self.saver.save(sess, FLAGS.teacher_weights_filename)
+                            """
+                            elif FLAGS.student:
+                                saver.save(sess, FLAGS.student_filename)
+                            """
+                            """                                            
+                            elif FLAGS.dependent_student:
+                                saver_new = tf.train.Saver()
+                                saver_new.save(sess, FLAGS.dependent_student_filename)
+                            """
 
-                        print ("Test  Data Eval:")
-                        self.do_eval(sess, 
-                            eval_correct,
-                            self.softmax,
-                            images_placeholder,
-                            labels_placeholder,
-                            data_input_test, 
-                            'Test', phase_train)
-                        print ("max accuracy % f", max(test_accuracy_list))
-                        #print ("test accuracy", test_accuracy_list)
-                random_count = random_count + 1
-#                print( "--- %s seconds ---" % (time.time() - start_time))    
+                        if FLAGS.dataset == 'mnist':
+                            print('validation accuracy::MNIST')
+                            self.do_eval(sess,
+                                eval_correct,
+                                softmax,
+                                images_placeholder,
+                                labels_placeholder,
+                                mnist,
+                                'Validation', phase_train)
+
+                            print('test accuracy::MNIST')
+                            self.do_eval(sess,
+                                eval_correct,
+                                softmax,
+                                images_placeholder,
+                                labels_placeholder,
+                                mnist,
+                                'Test', phase_train)
+
+                        else:
+                            print ("Training Data Eval:")
+                            self.do_eval(sess,
+                                eval_correct,
+                                self.softmax,
+                                images_placeholder,
+                                labels_placeholder,
+                                data_input_train,
+                                'Train', phase_train)
+
+                            print ("Test  Data Eval:")
+                            self.do_eval(sess,
+                                eval_correct,
+                                self.softmax,
+                                images_placeholder,
+                                labels_placeholder,
+                                data_input_test,
+                                'Test', phase_train)
+                            print ("max accuracy % f", max(test_accuracy_list))
+                            #print ("test accuracy", test_accuracy_list)
+                    random_count = random_count + 1
+    #                print( "--- %s seconds ---" % (time.time() - start_time))
         except Exception as e:
             print(e)
     
@@ -1140,109 +1134,109 @@ class VGG16(object):
             start_time = time.time()
             with tf.Graph().as_default():
                     
-		    print("test whether to use gpu")
-		    print(device_lib.list_local_devices())
-	            print(str(NUM_ITERATIONS))
-                    ## This line allows the code to use only sufficient memory and does not block entire GPU
-                    config = tf.ConfigProto(gpu_options = tf.GPUOptions(allow_growth = True))
-                    #print('11111'+FLAGS.dataset)
-                    if FLAGS.dataset == 'mnist':
-                        print('dataset is mnist')
-                        mnist = read_mnist_data()
+                print("test whether to use gpu")
+                print(device_lib.list_local_devices())
+                print(str(NUM_ITERATIONS))
+                ## This line allows the code to use only sufficient memory and does not block entire GPU
+                config = tf.ConfigProto(gpu_options = tf.GPUOptions(allow_growth = True))
+                #print('11111'+FLAGS.dataset)
+                if FLAGS.dataset == 'mnist':
+                    print('dataset is mnist')
+                    mnist = read_mnist_data()
 
-                    ## set the seed so that we have same loss values and initializations for every run.
-                    tf.set_random_seed(seed)
-                    
-                    data_input_train = DataInput(dataset_path, FLAGS.train_dataset, FLAGS.batch_size, FLAGS.num_training_examples, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels, seed, FLAGS.dataset)
+                ## set the seed so that we have same loss values and initializations for every run.
+                tf.set_random_seed(seed)
 
-                    data_input_test = DataInput(dataset_path, FLAGS.test_dataset, FLAGS.batch_size, FLAGS.num_testing_examples, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels, seed, FLAGS.dataset)
+                data_input_train = DataInput(dataset_path, FLAGS.train_dataset, FLAGS.batch_size, FLAGS.num_training_examples, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels, seed, FLAGS.dataset)
 
-                    data_input_validation = DataInput(dataset_path, FLAGS.validation_dataset,FLAGS.batch_size, FLAGS.num_validation_examples, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels, seed, FLAGS.dataset)
-                    images_placeholder, labels_placeholder = self.placeholder_inputs(FLAGS.batch_size)
+                data_input_test = DataInput(dataset_path, FLAGS.test_dataset, FLAGS.batch_size, FLAGS.num_testing_examples, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels, seed, FLAGS.dataset)
+
+                data_input_validation = DataInput(dataset_path, FLAGS.validation_dataset,FLAGS.batch_size, FLAGS.num_validation_examples, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels, seed, FLAGS.dataset)
+                images_placeholder, labels_placeholder = self.placeholder_inputs(FLAGS.batch_size)
+
+                #config = tf.ConfigProto(allow_soft_placement=True)
+                config = tf.ConfigProto()
+                config.gpu_options.allocator_type = 'BFC'
+                #config.gpu_options.per_process_gpu_memory_fraction = 0.90
+
+                sess = tf.Session(config = config)
+                ## this line is used to enable tensorboard debugger
+                #sess = tf_debug.TensorBoardDebugWrapperSession(sess, 'localhost:6064')
+                summary_writer = tf.summary.FileWriter(SUMMARY_LOG_DIR, sess.graph)
+                coord = tf.train.Coordinator()
+                threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+                global_step = tf.Variable(0, name='global_step', trainable=False)
+                phase_train = tf.placeholder(tf.bool, name = 'phase_train')
+                summary = tf.summary.merge_all()
+
+                if FLAGS.student:
+                    self.train_independent_student(images_placeholder, labels_placeholder, seed, phase_train, global_step, sess)
+
+                elif FLAGS.teacher:
+                    self.train_teacher(images_placeholder, labels_placeholder, phase_train, global_step, sess)
+
+                elif FLAGS.dependent_student:
+                    self.train_dependent_student(images_placeholder, labels_placeholder, phase_train, seed, global_step, sess)
+
+                self.train_model(data_input_train, data_input_test, images_placeholder, labels_placeholder, sess, phase_train)
+                """
+                if FLAGS.dependent_student:
+                   if FLAGS.multiple_optimizers:		
+                        file1="output/dependent_student/multiple_optimizers/"
+
+                        if FLAGS.multiple_optimizers_l5:
+                            print("write to multiple_optimizers_l5")
+                            openfile = open(file1 + "5layers/" + "addWeight"+str(FLAGS.add_weight)+"_"+str(FLAGS.num_iterations) + ".csv", 'wb')
+
+                        if FLAGS.multiple_optimizers_l6:
+                            print("write to multiple_optimizers_l6")
+                            openfile = open(file1 + "6layers/" + str(FLAGS.num_iterations) + ".csv", 'wb')
+
+                        if FLAGS.multiple_optimizers_l4:
+                            print("write to multiple_optimizers_l4")
+                            openfile = open(file1 + "4layers/" + str(FLAGS.num_iterations) + ".csv", 'wb')
+
+                        if FLAGS.multiple_optimizers_l3:
+                            print("write to multiple_optimizers_l3")
+                            openfile = open(file1 + "3layers/" + str(FLAGS.num_iterations) + ".csv", 'wb')
+
+                        if FLAGS.multiple_optimizers_l2:
+                            print("write to multiple_optimizers_l2")
+                            openfile = open(file1 + "2layers/" + str(FLAGS.num_iterations) + ".csv", 'wb')
+
+                        if FLAGS.multiple_optimizers_l1:
+                            print("write to multiple_optimizers_l1")
+                            openfile = open(file1 + "1layers/" + str(FLAGS.num_iterations) + ".csv", 'wb')
+
+                   if FLAGS.single_optimizer:
+                        file2 = "output/dependent_student/single_optimizer/"
+
+                        if FLAGS.single_optimizer_l5:
+                           print("write to single_optimizer_l5")
+                           openfile = open(file2 + "5layers/" + "addWeight"+str(FLAGS.add_weight)+"_"+str(FLAGS.num_iterations) + ".csv", 'wb')
+
+
+                   wr = csv.writer(openfile, dialect='excel')
+                   print(test_accuracy_list)
+                   wr.writerow(test_accuracy_list)
                 
-                    #config = tf.ConfigProto(allow_soft_placement=True)
-                    config = tf.ConfigProto()
-                    config.gpu_options.allocator_type = 'BFC'
-                    #config.gpu_options.per_process_gpu_memory_fraction = 0.90
-
-                    sess = tf.Session(config = config)
-                    ## this line is used to enable tensorboard debugger
-                    #sess = tf_debug.TensorBoardDebugWrapperSession(sess, 'localhost:6064') 
-                    summary_writer = tf.summary.FileWriter(SUMMARY_LOG_DIR, sess.graph)
-                    coord = tf.train.Coordinator()
-                    threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-                    global_step = tf.Variable(0, name='global_step', trainable=False)
-                    phase_train = tf.placeholder(tf.bool, name = 'phase_train')
-                    summary = tf.summary.merge_all()
-	            
-                    if FLAGS.student:
-                        self.train_independent_student(images_placeholder, labels_placeholder, seed, phase_train, global_step, sess)
-
-                    elif FLAGS.teacher:
-                        self.train_teacher(images_placeholder, labels_placeholder, phase_train, global_step, sess)
-
-                    elif FLAGS.dependent_student:
-                        self.train_dependent_student(images_placeholder, labels_placeholder, phase_train, seed, global_step, sess) 
-                    
-                    self.train_model(data_input_train, data_input_test, images_placeholder, labels_placeholder, sess, phase_train)
-                    """
-                    if FLAGS.dependent_student:
-                       if FLAGS.multiple_optimizers:		
-                            file1="output/dependent_student/multiple_optimizers/"
-
-                            if FLAGS.multiple_optimizers_l5:
-                                print("write to multiple_optimizers_l5")
-                                openfile = open(file1 + "5layers/" + "addWeight"+str(FLAGS.add_weight)+"_"+str(FLAGS.num_iterations) + ".csv", 'wb')
-
-                            if FLAGS.multiple_optimizers_l6:
-                                print("write to multiple_optimizers_l6")
-                                openfile = open(file1 + "6layers/" + str(FLAGS.num_iterations) + ".csv", 'wb')
-
-                            if FLAGS.multiple_optimizers_l4:
-                                print("write to multiple_optimizers_l4")
-                                openfile = open(file1 + "4layers/" + str(FLAGS.num_iterations) + ".csv", 'wb')
-
-                            if FLAGS.multiple_optimizers_l3:
-                                print("write to multiple_optimizers_l3")
-                                openfile = open(file1 + "3layers/" + str(FLAGS.num_iterations) + ".csv", 'wb')
-
-                            if FLAGS.multiple_optimizers_l2:
-                                print("write to multiple_optimizers_l2")
-                                openfile = open(file1 + "2layers/" + str(FLAGS.num_iterations) + ".csv", 'wb')
-
-                            if FLAGS.multiple_optimizers_l1:
-                                print("write to multiple_optimizers_l1")
-                                openfile = open(file1 + "1layers/" + str(FLAGS.num_iterations) + ".csv", 'wb')
-
-                       if FLAGS.single_optimizer:
-                            file2 = "output/dependent_student/single_optimizer/"
-
-                            if FLAGS.single_optimizer_l5:
-                               print("write to single_optimizer_l5")
-                               openfile = open(file2 + "5layers/" + "addWeight"+str(FLAGS.add_weight)+"_"+str(FLAGS.num_iterations) + ".csv", 'wb')
-
-
-                       wr = csv.writer(openfile, dialect='excel')
-                       print(test_accuracy_list)
-                       wr.writerow(test_accuracy_list)
-                    
-                    if FLAGS.teacher:
-                       print("write to teacher_accuracy.csv")
-                       openfile = open("output/teacher/teacher_accuracy_std1102.csv",'wb')
-                       wr = csv.writer(openfile, dialect='excel')
-                       print(test_accuracy_list)
-                       wr.writerow(test_accuracy_list)
-                    """
-                    print(test_accuracy_list)
-	            coord.request_stop()
-                    coord.join(threads)
+                if FLAGS.teacher:
+                   print("write to teacher_accuracy.csv")
+                   openfile = open("output/teacher/teacher_accuracy_std1102.csv",'wb')
+                   wr = csv.writer(openfile, dialect='excel')
+                   print(test_accuracy_list)
+                   wr.writerow(test_accuracy_list)
+                """
+                print(test_accuracy_list)
+                coord.request_stop()
+                coord.join(threads)
 
             sess.close()
             summary_writer.close()
 	    
-	    end_time = time.time()
-	    runtime  =  round((end_time - start_time)/(60*60),2)
-	    print("run time is: "+str(runtime)+" hour")
+            end_time = time.time()
+            runtime  =  round((end_time - start_time)/(60*60),2)
+            print("run time is: "+str(runtime)+" hour")
 
 if __name__ == '__main__':
         parser = argparse.ArgumentParser()
@@ -1251,13 +1245,13 @@ if __name__ == '__main__':
             type = bool,
             help = 'train teacher',
             default = False
-	)
-	parser.add_argument(
-            '--dependent_student',
-            type = bool,
-            help = 'train dependent student',
-            default = False
         )
+        parser.add_argument(
+                '--dependent_student',
+                type = bool,
+                help = 'train dependent student',
+                default = False
+            )
         parser.add_argument(
             '--student',
             type = bool,

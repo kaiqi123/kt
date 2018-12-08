@@ -9,11 +9,11 @@ class DataInput(object):
 		self.dataset_path = dataset_path
 		self.train_labels_file = train_labels_file
 		self.num_examples = num_examples
-                self.image_height = image_height
-                self.image_width = image_width
-                self.num_channels = num_channels
-                self.seed = seed
-                self.dataset = dataset
+		self.image_height = image_height
+		self.image_width = image_width
+		self.num_channels = num_channels
+		self.seed = seed
+		self.dataset = dataset
 
 		# Create the File Name queue
 		self.filename_queue = tf.train.string_input_producer([self.dataset_path + self.train_labels_file], num_epochs=None)
@@ -45,21 +45,21 @@ class DataInput(object):
 	def decode_jpeg(self):
 		
 		file_content = tf.read_file(self.col2)
-                if self.dataset == 'caltech101': 
-		    self.train_image = tf.image.decode_jpeg(file_content, channels=self.num_channels)
-                    distorted_image = tf.image.random_flip_left_right(self.train_image)
-                    self.train_image = tf.image.per_image_standardization(distorted_image)
-                    #std_image = tf.image.per_image_standardization(distorted_image)
-                    #self.train_image = tf.div(tf.subtract(std_image,tf.reduce_min(std_image)),tf.subtract(tf.reduce_max(std_image),tf.reduce_min(std_image))) 
-                    #self.train_image = tf.image.resize_images(distorted_image, [self.image_width, self.image_height])
-                    self.train_image = tf.image.resize_images(self.train_image, [self.image_width, self.image_height])
 
-                if self.dataset == 'cifar10':
+		if self.dataset == 'caltech101':
+			self.train_image = tf.image.decode_jpeg(file_content, channels=self.num_channels)
+			distorted_image = tf.image.random_flip_left_right(self.train_image)
+			self.train_image = tf.image.per_image_standardization(distorted_image)
+			#std_image = tf.image.per_image_standardization(distorted_image)
+			#self.train_image = tf.div(tf.subtract(std_image,tf.reduce_min(std_image)),tf.subtract(tf.reduce_max(std_image),tf.reduce_min(std_image)))
+			#self.train_image = tf.image.resize_images(distorted_image, [self.image_width, self.image_height])
+			self.train_image = tf.image.resize_images(self.train_image, [self.image_width, self.image_height])
 
-		    self.train_image = tf.image.decode_png(file_content, channels=self.num_channels)
-                    #self.train_image = tf.random_crop(self.train_image, [self.image_height, self.image_width])
-                    distorted_image = tf.image.random_flip_left_right(self.train_image)
-                    #distorted_image = tf.image.random_brightness(distorted_image, max_delta=63)
-                    #distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
-                    self.train_image = tf.image.per_image_standardization(distorted_image)
-		    self.train_image = tf.image.resize_images(self.train_image, [self.image_width, self.image_height])
+		if self.dataset == 'cifar10':
+			self.train_image = tf.image.decode_png(file_content, channels=self.num_channels)
+			#self.train_image = tf.random_crop(self.train_image, [self.image_height, self.image_width])
+			distorted_image = tf.image.random_flip_left_right(self.train_image)
+			#distorted_image = tf.image.random_brightness(distorted_image, max_delta=63)
+			#distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
+			self.train_image = tf.image.per_image_standardization(distorted_image)
+			self.train_image = tf.image.resize_images(self.train_image, [self.image_width, self.image_height])
