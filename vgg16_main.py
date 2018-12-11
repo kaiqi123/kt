@@ -22,7 +22,7 @@ from tensorflow.python.client import device_lib
 #import matplotlib.pyplot as plt
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 30
+NUM_ITERATIONS = 40
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
