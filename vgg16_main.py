@@ -22,7 +22,7 @@ from tensorflow.python.client import device_lib
 #import matplotlib.pyplot as plt
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 11
+NUM_ITERATIONS = 30
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -31,7 +31,7 @@ test_accuracy_list = []
 seed = 1234
 alpha = 0.2
 random_count = 0 
-
+global_step = tf.Variable(0, name='global_step', trainable=False)
 
 
 class VGG16(object):
@@ -523,8 +523,8 @@ class VGG16(object):
            if (random_count % FLAGS.num_iterations  == 0):
 
                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-               #global t0
-               #t0 = tf.convert_to_tensor(self.loss_value0, dtype=tf.float32)
+               global t0
+               t0 = tf.convert_to_tensor(self.loss_value0, dtype=tf.float32)
                """
                _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
@@ -557,8 +557,11 @@ class VGG16(object):
                t5 = tf.convert_to_tensor(self.loss_value5, dtype=tf.float32)
                """
            else:
-               #self.train_op0_interval = tf.train.AdamOptimizer(lr).minimize(t0)
-               #_, self.loss_value0 = sess.run([self.train_op0_interval, t0], feed_dict=feed_dict)
+               num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
+               decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
+               lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR, staircase=True)
+               self.train_op0_interval = tf.train.AdamOptimizer(lr).minimize(t0)
+               _, self.loss_value0 = sess.run([self.train_op0_interval, t0], feed_dict=feed_dict)
                """
                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                _, self.loss_value1 = sess.run([self.train_op1_interval, t1], feed_dict=feed_dict)
@@ -820,8 +823,8 @@ class VGG16(object):
             print("Train dependent student (caltech101)")
             vgg16_mentor = Mentor(False)
         
-        num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
-        decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
+
+
         vgg16_mentee = Mentee(FLAGS.num_channels)
         self.mentor_data_dict = vgg16_mentor.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
 
@@ -837,6 +840,8 @@ class VGG16(object):
         self.softmax = self.mentee_data_dict.softmax
         mentor_variables_to_restore = self.get_mentor_variables_to_restore()
         self.loss = vgg16_mentee.loss(labels_placeholder)
+        num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
+        decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
         lr = tf.train.exponential_decay(FLAGS.learning_rate,global_step, decay_steps,LEARNING_RATE_DECAY_FACTOR,staircase=True)
         
         if FLAGS.single_optimizer and FLAGS.layers_with_same_width:
@@ -1139,7 +1144,7 @@ class VGG16(object):
                 summary_writer = tf.summary.FileWriter(SUMMARY_LOG_DIR, sess.graph)
                 coord = tf.train.Coordinator()
                 threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-                global_step = tf.Variable(0, name='global_step', trainable=False)
+                #
                 phase_train = tf.placeholder(tf.bool, name = 'phase_train')
                 summary = tf.summary.merge_all()
 
