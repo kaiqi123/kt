@@ -1144,6 +1144,7 @@ class VGG16(object):
                 summary_writer = tf.summary.FileWriter(SUMMARY_LOG_DIR, sess.graph)
                 coord = tf.train.Coordinator()
                 threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+                global global_step
                 global_step = tf.Variable(0, name='global_step', trainable=False)
                 phase_train = tf.placeholder(tf.bool, name = 'phase_train')
                 summary = tf.summary.merge_all()
