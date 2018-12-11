@@ -31,7 +31,7 @@ test_accuracy_list = []
 seed = 1234
 alpha = 0.2
 random_count = 0 
-global_step = tf.Variable(0, name='global_step', trainable=False)
+
 
 
 class VGG16(object):
@@ -1144,7 +1144,7 @@ class VGG16(object):
                 summary_writer = tf.summary.FileWriter(SUMMARY_LOG_DIR, sess.graph)
                 coord = tf.train.Coordinator()
                 threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-                #
+                global_step = tf.Variable(0, name='global_step', trainable=False)
                 phase_train = tf.placeholder(tf.bool, name = 'phase_train')
                 summary = tf.summary.merge_all()
 
