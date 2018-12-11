@@ -22,7 +22,7 @@ from tensorflow.python.client import device_lib
 #import matplotlib.pyplot as plt
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 10
+NUM_ITERATIONS = 11
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -59,7 +59,6 @@ class VGG16(object):
 
             return images_placeholder, labels_placeholder
 
-    
     ### placeholders are filled with actual images and labels which are fed to the network while training.
     def fill_feed_dict(self, data_input, images_pl, labels_pl, sess, mode, phase_train):
             """
@@ -102,13 +101,7 @@ class VGG16(object):
             return feed_dict
 
     ## In this function, accuracy is calculated for the training set, test set and validation set
-    def do_eval(self, sess,
-                            eval_correct,
-                            logits,
-                            images_placeholder,
-                            labels_placeholder,
-                           dataset,mode, phase_train):
-
+    def do_eval(self, sess, eval_correct, logits, images_placeholder, labels_placeholder, dataset,mode, phase_train):
             true_count =0
             if mode == 'Test':
                 steps_per_epoch = FLAGS.num_testing_examples //FLAGS.batch_size 
@@ -152,16 +145,12 @@ class VGG16(object):
 
             return tf.reduce_sum(tf.cast(correct, tf.int32))
 
-
-
     ### while training dependent student, weights of the teacher network trained prior to the dependent student are loaded on to the teacher network to carry out inference
-    
     def get_mentor_variables_to_restore(self):
             """
             Returns:: names of the weights and biases of the teacher model
             """
             return [var for var in tf.global_variables() if var.op.name.startswith("mentor") and (var.op.name.endswith("biases") or var.op.name.endswith("weights")) and (var.op.name != ("mentor_fc3/mentor_weights") and  var.op.name != ("mentor_fc3/mentor_biases"))]
-
 
     ### returns 1st layer weight variable of mentee network
     def l1_weights_of_mentee(self, l1_mentee_weights):
@@ -169,7 +158,6 @@ class VGG16(object):
     #    l1_mentee_weights.append([var for var in tf.global_variables() if var.op.name=="mentee_conv1_1/mentee_biases"][0])
 
         return l1_mentee_weights
-
 
     ### returns 2nd layer weight variable of mentee network
     def l2_weights_of_mentee(self, l2_mentee_weights):
@@ -183,7 +171,6 @@ class VGG16(object):
       #  l3_mentee_weights.append([var for var in tf.global_variables() if var.op.name=="mentee_conv3_1/mentee_biases"][0])
         return l3_mentee_weights
 
-    
     ### returns 4th layer weight variable of mentee network
     def l4_weights_of_mentee(self, l4_mentee_weights):
         l4_mentee_weights.append([var for var in tf.global_variables() if var.op.name=="mentee_conv4_1/mentee_weights"][0])
@@ -393,8 +380,6 @@ class VGG16(object):
 
         self.cosine_similarity_of_different_widths(normalize_mentee_5, normalize_mentor, idx, sess, feed_dict)
 
-
-
     def cosine_similarity_of_different_widths(self, normalize_mentee, normalize_mentor, idx, sess, feed_dict):
 
         """
@@ -446,13 +431,11 @@ class VGG16(object):
         self.l1_d = embed_data_dict.loss_embed_3
         ## loss between the embed layers connecting mentor's 5th layer and mentee's 2nd layer
         self.l2_d = embed_data_dict.loss_embed_4
-#self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.conv3_2, mentee_data_dict.conv3_1))))
-#        self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.conv4_2, mentee_data_dict.conv4_1))))
-#        self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.conv5_2, mentee_data_dict.conv5_1))))
+        #self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.conv3_2, mentee_data_dict.conv3_1))))
+        #self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.conv4_2, mentee_data_dict.conv4_1))))
+        #self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.conv5_2, mentee_data_dict.conv5_1))))
         ## loss between mentor-mentee last layers before softmax
-#        self.l6 = (tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.fc3l, mentee_data_dict.fc3l))))
-
-    
+        #self.l6 = (tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.fc3l, mentee_data_dict.fc3l))))
 
     def visualization_of_filters(self, sess):
         
@@ -462,7 +445,6 @@ class VGG16(object):
         img2 = Image.fromarray(mentee_filter, 'RGB')
         img1.save('mentor_filter.png')
         img2.save('mentee_filter.png')
-
 
     def rmse_loss(self, mentor_data_dict, mentee_data_dict):
         
@@ -497,24 +479,6 @@ class VGG16(object):
         ## intermediate representations KT technique (single layer):: HT stands for hint based training which is phase 1 of intermediate representations KT technique.
         ## knowledge from 7th layer of mentor is given to 3rd layer of mentee.
         #self.HT = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.conv3_3, mentee_data_dict.conv3_1))))
-
-    def rmse_loss_interval(self, mentor_preloss_list, mentee_data_dict):
-        
-        """
-        Here layers of same width are mapped together. 
-
-        """
-        ## loss between mentor's 1st layer and mentee's 1st layer
-        self.l1_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_preloss_list[0], mentee_data_dict.conv1_1))))
-        
-        ## loss between mentor's 4th layer and mentee's 2nd layer
-        self.l2_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_preloss_list[1], mentee_data_dict.conv2_1))))
-        ## loss between mentor's 5th layer and mentee's 3rd layer
-        self.l3_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_preloss_list[2], mentee_data_dict.conv3_1))))
-        ## loss between mentor's 9th layer and mentee's 4th layer
-        self.l4_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_preloss_list[3], mentee_data_dict.conv4_1))))
-        ## loss between mentor's 12th layer and mentee's 5th layer
-        self.l5_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_preloss_list[4], mentee_data_dict.conv5_1))))
     
     def calculate_loss_with_multiple_optimizers(self, feed_dict, sess):
 
@@ -528,7 +492,7 @@ class VGG16(object):
             
         elif FLAGS.multiple_optimizers_l2:
            if (random_count % FLAGS.num_iterations  == 0):
-#print("mapping two layers")
+            #print("mapping two layers")
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
             _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
             _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
@@ -557,14 +521,18 @@ class VGG16(object):
 	   
 
            if (random_count % FLAGS.num_iterations  == 0):
+
                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+               #global t0
+               #t0 = tf.convert_to_tensor(self.loss_value0, dtype=tf.float32)
+               """
                _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
                _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
                _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
-               """
+               
                global  mentor_preloss_list
                mentor_preloss_list = []
                mentor_preloss_list.append(tf.convert_to_tensor(sess.run(self.mentor_data_dict.conv1_2,feed_dict=feed_dict), dtype=tf.float32, name = "mentor_conv1_2_interval"))
@@ -580,21 +548,25 @@ class VGG16(object):
                for e in mentor_preloss_list:
                print(e)
                print(len(mentor_preloss_list))
-               """
+               
                global t1,t2,t3,t4,t5
                t1 = tf.convert_to_tensor(self.loss_value1, dtype=tf.float32)
                t2 = tf.convert_to_tensor(self.loss_value2, dtype=tf.float32)
                t3 = tf.convert_to_tensor(self.loss_value3, dtype=tf.float32)
                t4 = tf.convert_to_tensor(self.loss_value4, dtype=tf.float32)
                t5 = tf.convert_to_tensor(self.loss_value5, dtype=tf.float32)
+               """
            else:
+               #self.train_op0_interval = tf.train.AdamOptimizer(lr).minimize(t0)
+               #_, self.loss_value0 = sess.run([self.train_op0_interval, t0], feed_dict=feed_dict)
+               """
                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                _, self.loss_value1 = sess.run([self.train_op1_interval, t1], feed_dict=feed_dict)
                _, self.loss_value2 = sess.run([self.train_op2_interval, t2], feed_dict=feed_dict)
                _, self.loss_value3 = sess.run([self.train_op3_interval, t3], feed_dict=feed_dict)
                _, self.loss_value4 = sess.run([self.train_op4_interval, t4], feed_dict=feed_dict)
                _, self.loss_value5 = sess.run([self.train_op5_interval, t5], feed_dict=feed_dict)
-               """
+               
 	           print("random:"+str(random_count))
 	           for e in mentor_preloss_list:
 	           print(e)
@@ -674,7 +646,7 @@ class VGG16(object):
         self.train_op3 = tf.train.AdamOptimizer(lr).minimize(self.l3, var_list = self.l3_weights_of_mentee(l3_var_list))
         self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list = self.l4_weights_of_mentee(l4_var_list))
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list = self.l5_weights_of_mentee(l5_var_list))
-        #self.train_op6 = tf.train.AdamOptimizer(lr).minimize(self.l6, var_list = self.l6_weights_of_mentee(l6_var_list))
+        self.train_op6 = tf.train.AdamOptimizer(lr).minimize(self.l6, var_list = self.l6_weights_of_mentee(l6_var_list))
             
 #       self.train_op1_d = tf.train.AdamOptimizer(lr).minimize(self.l1_d, var_list = self.l1_weights_of_mentee(l1_var_list))
 #       self.train_op2_d = tf.train.AdamOptimizer(lr).minimize(self.l2_d, var_list = self.l2_weights_of_mentee(l2_var_list))
@@ -798,9 +770,7 @@ class VGG16(object):
         sess.run(init)
         ## saver object is created to save all the variables to a file
         self.saver = tf.train.Saver()
-	
 
-    
     def train_teacher(self, images_placeholder, labels_placeholder, phase_train, global_step, sess):
 
         """
@@ -888,10 +858,11 @@ class VGG16(object):
 
         elif FLAGS.multiple_optimizers and FLAGS.layers_with_same_width:
             print("multiple_optimizers and layers_with_same_width")
-            self.rmse_loss(self.mentor_data_dict, self.mentee_data_dict)
-            self.train_op_for_multiple_optimizers(lr)
-            self.train_op_for_multiple_optimizers_interval(lr)
-            
+            #self.rmse_loss(self.mentor_data_dict, self.mentee_data_dict)
+            #self.train_op_for_multiple_optimizers(lr)
+            #self.train_op_for_multiple_optimizers_interval(lr)
+            self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
+
             init = tf.initialize_all_variables()
             sess.run(init)
 
@@ -968,6 +939,7 @@ class VGG16(object):
             if var.op.name=="mentee_fc3/mentee_weights":
                      print(sess.run(var[0]))
              """
+
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess, phase_train):
         
         try:
@@ -1046,14 +1018,16 @@ class VGG16(object):
                             print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
                             print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
                         elif FLAGS.multiple_optimizers_l5:
-                             
+
                             print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
+                            """
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
                             print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
                             print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
                             print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                             print ("\n")
+                            """
 
                         elif FLAGS.multiple_optimizers_l6:
                             print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
