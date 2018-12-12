@@ -92,7 +92,6 @@ class VGG16(object):
             }
         return feed_dict
 
-
     def evaluation(self, logits, labels):
             print('evaluation')
             if FLAGS.top_1_accuracy:
@@ -103,6 +102,40 @@ class VGG16(object):
                 correct = tf.nn.in_top_k(logits, labels, 5)
 
             return tf.reduce_sum(tf.cast(correct, tf.int32))
+
+            ## In this function, accuracy is calculated for the training set, test set and validation set
+
+    def do_eval(self, sess, eval_correct, logits, images_placeholder, labels_placeholder, dataset, mode, phase_train):
+        true_count = 0
+        if mode == 'Test':
+            steps_per_epoch = FLAGS.num_testing_examples // FLAGS.batch_size
+            num_examples = steps_per_epoch * FLAGS.batch_size
+        if mode == 'Train':
+            steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
+            num_examples = steps_per_epoch * FLAGS.batch_size
+        if mode == 'Validation':
+            steps_per_epoch = FLAGS.num_validation_examples // FLAGS.batch_size
+            num_examples = steps_per_epoch * FLAGS.batch_size
+
+        for step in xrange(steps_per_epoch):
+            if FLAGS.dataset == 'mnist':
+                feed_dict = {images_placeholder: np.reshape(dataset.test.next_batch(FLAGS.batch_size)[0],
+                                                            [FLAGS.batch_size, FLAGS.image_width, FLAGS.image_height,
+                                                             FLAGS.num_channels]),
+                             labels_placeholder: dataset.test.next_batch(FLAGS.batch_size)[1]}
+            else:
+                feed_dict = self.fill_feed_dict(dataset, images_placeholder,
+                                                labels_placeholder, sess, mode, phase_train)
+            count = sess.run(eval_correct, feed_dict=feed_dict)
+            true_count = true_count + count
+
+        precision = float(true_count) / num_examples
+        print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' %
+               (num_examples, true_count, precision))
+        if mode == 'Validation':
+            validation_accuracy_list.append(precision)
+        if mode == 'Test':
+            test_accuracy_list.append(precision)
 
     def get_mentor_variables_to_restore(self):
         """
