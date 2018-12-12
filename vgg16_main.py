@@ -557,10 +557,9 @@ class VGG16(object):
                t5 = tf.convert_to_tensor(self.loss_value5, dtype=tf.float32)
                """
            else:
-               num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
-               decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
-               lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR, staircase=True)
-               self.train_op0_interval = tf.train.AdamOptimizer(lr).minimize(t0)
+               #num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
+               #decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
+               #lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR, staircase=True)
                _, self.loss_value0 = sess.run([self.train_op0_interval, t0], feed_dict=feed_dict)
                """
                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
@@ -867,6 +866,7 @@ class VGG16(object):
             #self.train_op_for_multiple_optimizers(lr)
             #self.train_op_for_multiple_optimizers_interval(lr)
             self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
+            self.train_op0_interval = tf.train.AdamOptimizer(lr).minimize(t0)
 
             init = tf.initialize_all_variables()
             sess.run(init)
