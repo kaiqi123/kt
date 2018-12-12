@@ -33,24 +33,6 @@ random_count = 0
 
 class VGG16(object):
 
-    def placeholder_inputs(self, batch_size):
-        """
-            Args:
-                batch_size: batch size used to train the network
-
-            Returns:
-                images_placeholder: images_placeholder holds images of either caltech101 or cifar10 datasets
-                labels_placeholder: labels_placeholder holds labels of either caltech101 or cifar10 datasets
-
-        """
-        images_placeholder = tf.placeholder(tf.float32,
-                                            shape=(FLAGS.batch_size, FLAGS.image_height,
-                                                   FLAGS.image_width, FLAGS.num_channels))
-        labels_placeholder = tf.placeholder(tf.int32,
-                                            shape=(FLAGS.batch_size))
-
-        return images_placeholder, labels_placeholder
-
     ### placeholders are filled with actual images and labels which are fed to the network while training.
     def fill_feed_dict(self, data_input, images_pl, labels_pl, sess, mode, phase_train):
         """
@@ -347,7 +329,11 @@ class VGG16(object):
                                               FLAGS.num_validation_examples, FLAGS.image_width, FLAGS.image_height,
                                               FLAGS.num_channels, seed, FLAGS.dataset)
 
-            images_placeholder, labels_placeholder = self.placeholder_inputs(FLAGS.batch_size)
+            images_placeholder = tf.placeholder(tf.float32,
+                                                shape=(FLAGS.batch_size, FLAGS.image_height,
+                                                       FLAGS.image_width, FLAGS.num_channels))
+            labels_placeholder = tf.placeholder(tf.int32,
+                                                shape=(FLAGS.batch_size))
 
             # config = tf.ConfigProto(allow_soft_placement=True)
             config = tf.ConfigProto()
