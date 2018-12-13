@@ -1,3 +1,5 @@
+# python new_vgg16_main.py --dependent_student True --batch_size 25 --learning_rate 0.0001 --multiple_optimizers_l5 True --num_iterations 1
+# add initialization
 import tensorflow as tf
 import numpy as np
 import random
