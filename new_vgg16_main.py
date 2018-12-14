@@ -166,6 +166,37 @@ class VGG16(object):
         self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
 
+    def train_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
+
+        """
+            Student is trained without taking knowledge from teacher
+
+            Args:
+                images_placeholder: placeholder to hold images of dataset
+                labels_placeholder: placeholder to hold labels of the images of the dataset
+                seed: seed value to have sequence in the randomness
+                phase_train: determines test or train state of the network
+        """
+
+        student = Mentee(FLAGS.num_channels)
+        print("Independent student")
+        num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
+        ## number of steps after which learning rate should decay
+        decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
+
+        mentee_data_dict = student.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+        self.loss = student.loss(labels_placeholder)
+        ## learning rate is decayed exponentially with a decay factor of 0.9809 after every epoch
+        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,
+                                        staircase=True)
+        self.train_op = student.training(self.loss, lr, global_step)
+        self.softmax = mentee_data_dict.softmax
+        # initialize all the variables of the network
+        init = tf.initialize_all_variables()
+        sess.run(init)
+        ## saver object is created to save all the variables to a file
+        self.saver = tf.train.Saver()
+
     def train_dependent_student(self, images_placeholder, labels_placeholder, phase_train, seed, global_step, sess):
 
         """
