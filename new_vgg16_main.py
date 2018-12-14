@@ -29,7 +29,7 @@ test_accuracy_list = []
 seed = 1234
 alpha = 0.2
 random_count = 0
-global t1
+
 
 class VGG16(object):
 
