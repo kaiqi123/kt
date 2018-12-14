@@ -234,8 +234,19 @@ class VGG16(object):
         lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,
                                         staircase=True)
 
-        self.caculate_rmse_loss(self.mentor_data_dict, self.mentee_data_dict)
-        self.define_multiple_optimizers(lr)
+        # self.caculate_rmse_loss(self.mentor_data_dict, self.mentee_data_dict)
+        # self.define_multiple_optimizers(lr)
+
+        dataset_mentee = tf.data.Dataset.from_tensor_slices((images_placeholder, labels_placeholder, phase_train))
+        iterator_mentee = dataset_mentee.make_initializable_iterator()
+        images_place, labels_placeholder, phase_train = iterator_mentee.get_next()
+
+        self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
+        l1_var_list = []
+        l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
+        self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
+
+
 
         init = tf.initialize_all_variables()
         sess.run(init)
@@ -274,12 +285,12 @@ class VGG16(object):
         if FLAGS.multiple_optimizers_l5:
 
             if (i % FLAGS.num_iterations == 0):
-                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-                _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
-                _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
+                #_, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+                #_, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+                #_, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
+                #_, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
             else:
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
@@ -315,12 +326,12 @@ class VGG16(object):
                         # print("train function: dependent student, multiple optimizers")
                         if FLAGS.multiple_optimizers_l5:
 
-                            print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
+                            #print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
-                            print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
-                            print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
-                            print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
-                            print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
+                            #print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
+                            #print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
+                            #print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
+                            #print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                             print ("\n")
 
                     if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
