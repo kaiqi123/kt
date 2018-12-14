@@ -244,6 +244,8 @@ class VGG16(object):
         self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
 
         #init = tf.constant_initializer((25,224,224,64))
+        #temp = self.mentor_data_dict.conv1_2.shape
+        #print(sess.run(temp))
 
         self.t1 = tf.Variable(tf.truncated_normal([25,224,224,64], dtype=tf.float32,
                                                  stddev=1e-2, seed=seed), name='mentor_output_layer1')
@@ -299,9 +301,11 @@ class VGG16(object):
                 #_, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
             else:
+                print(i)
                 #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                _, self.loss_value1 = sess.run([self.train_op1_interval, self.l1_interval], feed_dict=feed_dict)
-
+                _, self.loss_value1_interval, self.loss_value1 = sess.run([self.train_op1_interval, self.l1_interval, self.l1], feed_dict=feed_dict)
+                print(self.loss_value1_interval)
+                print(self.loss_value1)
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
                     phase_train):
