@@ -20,7 +20,7 @@ import csv
 from tensorflow.python.client import device_lib
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 4680
+NUM_ITERATIONS = 20
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -339,40 +339,40 @@ class VGG16(object):
                             #print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                             print ("\n")
 
-                    if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
-                    i) == NUM_ITERATIONS - 1:
+                if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
+                i) == NUM_ITERATIONS - 1:
 
-                        checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
-                        if FLAGS.teacher:
-                            self.saver.save(sess, FLAGS.teacher_weights_filename)
-                        """
-                        elif FLAGS.student:
-                            saver.save(sess, FLAGS.student_filename)
-                        """
-                        """                                            
-                        elif FLAGS.dependent_student:
-                            saver_new = tf.train.Saver()
-                            saver_new.save(sess, FLAGS.dependent_student_filename)
-                        """
+                    checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
+                    if FLAGS.teacher:
+                        self.saver.save(sess, FLAGS.teacher_weights_filename)
+                    """
+                    elif FLAGS.student:
+                        saver.save(sess, FLAGS.student_filename)
+                    """
+                    """                                            
+                    elif FLAGS.dependent_student:
+                        saver_new = tf.train.Saver()
+                        saver_new.save(sess, FLAGS.dependent_student_filename)
+                    """
 
-                        print ("Training Data Eval:")
-                        self.do_eval(sess,
-                                     eval_correct,
-                                     self.softmax,
-                                     images_placeholder,
-                                     labels_placeholder,
-                                     data_input_train,
-                                     'Train', phase_train)
+                    print ("Training Data Eval:")
+                    self.do_eval(sess,
+                                 eval_correct,
+                                 self.softmax,
+                                 images_placeholder,
+                                 labels_placeholder,
+                                 data_input_train,
+                                 'Train', phase_train)
 
-                        print ("Test  Data Eval:")
-                        self.do_eval(sess,
-                                     eval_correct,
-                                     self.softmax,
-                                     images_placeholder,
-                                     labels_placeholder,
-                                     data_input_test,
-                                     'Test', phase_train)
-                        print ("max accuracy % f", max(test_accuracy_list))
+                    print ("Test  Data Eval:")
+                    self.do_eval(sess,
+                                 eval_correct,
+                                 self.softmax,
+                                 images_placeholder,
+                                 labels_placeholder,
+                                 data_input_test,
+                                 'Test', phase_train)
+                    print ("max accuracy % f", max(test_accuracy_list))
 
         except Exception as e:
             print(e)
