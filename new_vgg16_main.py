@@ -237,16 +237,15 @@ class VGG16(object):
         # self.caculate_rmse_loss(self.mentor_data_dict, self.mentee_data_dict)
         # self.define_multiple_optimizers(lr)
 
-        dataset_mentee = tf.data.Dataset.from_tensor_slices((images_placeholder, labels_placeholder, phase_train))
-        iterator_mentee = dataset_mentee.make_initializable_iterator()
-        images_place, labels_placeholder, phase_train = iterator_mentee.get_next()
-
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         l1_var_list = []
         l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
         self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
 
 
+        # t1 = tf.Variable(0.0, name="mentor_output_layer1")
+        #self.l1_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(t1, self.mentee_data_dict.conv1_1))))
+        #l1_var_list = []
 
         init = tf.initialize_all_variables()
         sess.run(init)
@@ -287,6 +286,7 @@ class VGG16(object):
             if (i % FLAGS.num_iterations == 0):
                 #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+                print(sess.run(self.mentor_data_dict.conv1_2, feed_dict=feed_dict))
                 #_, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
                 #_, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
                 #_, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
