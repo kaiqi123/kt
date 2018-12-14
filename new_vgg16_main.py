@@ -1,4 +1,4 @@
-# python new_vgg16_main.py --dependent_student True --batch_size 25 --learning_rate 0.0001 --multiple_optimizers_l5 True --num_iterations 10
+# independent student, not initialization
 
 import tensorflow as tf
 import numpy as np
@@ -242,9 +242,11 @@ class VGG16(object):
         l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
         self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
 
-        init = tf.constant_initializer((25,224,224,64))
+        #init = tf.constant_initializer((25,224,224,64))
+        t1 = tf.Variable(tf.truncated_normal([25,224,224,64], dtype=tf.float32,
+                                                 stddev=1e-2, seed=seed), name='mentor_output_layer1')
         # t1 = tf.Variable(0.0, name="mentor_output_layer1", shape = (25,224,224,64))
-        t1 = tf.get_variable('t1', shape=(25,224,224,64), initializer=init)
+        # t1 = tf.get_variable('t1', shape=[25,224,224,64], initializer=init)
         self.l1_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(t1, self.mentee_data_dict.conv1_1))))
         self.train_op1_interval = tf.train.AdamOptimizer(lr).minimize(self.l1_interval, var_list=l1_var_list)
         sess.run(t1.initializer)
