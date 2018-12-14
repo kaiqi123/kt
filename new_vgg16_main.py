@@ -249,7 +249,7 @@ class VGG16(object):
                                                  stddev=1e-2, seed=seed), name='mentor_output_layer1')
         # t1 = tf.Variable(0.0, name="mentor_output_layer1", shape = (25,224,224,64))
         # t1 = tf.get_variable('t1', shape=[25,224,224,64], initializer=init)
-        self.l1_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(t1, self.mentee_data_dict.conv1_1))))
+        self.l1_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.t1, self.mentee_data_dict.conv1_1))))
         self.train_op1_interval = tf.train.AdamOptimizer(lr).minimize(self.l1_interval, var_list=l1_var_list)
         #sess.run(t1.initializer)
 
