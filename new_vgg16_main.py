@@ -1,4 +1,4 @@
-# python new_vgg16_main.py --dependent_student True --batch_size 25 --learning_rate 0.0001 --multiple_optimizers_l5 True --num_iterations 10
+# independent student, not initialization
 
 import tensorflow as tf
 import numpy as np
@@ -20,7 +20,7 @@ import csv
 from tensorflow.python.client import device_lib
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 4680
+NUM_ITERATIONS = 20
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -242,9 +242,11 @@ class VGG16(object):
         l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
         self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
 
-        init = tf.constant_initializer((25,224,224,64))
+        #init = tf.constant_initializer((25,224,224,64))
+        t1 = tf.Variable(tf.truncated_normal([25,224,224,64], dtype=tf.float32,
+                                                 stddev=1e-2, seed=seed), name='mentor_output_layer1')
         # t1 = tf.Variable(0.0, name="mentor_output_layer1", shape = (25,224,224,64))
-        t1 = tf.get_variable('t1', shape=(25,224,224,64), initializer=init)
+        # t1 = tf.get_variable('t1', shape=[25,224,224,64], initializer=init)
         self.l1_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(t1, self.mentee_data_dict.conv1_1))))
         self.train_op1_interval = tf.train.AdamOptimizer(lr).minimize(self.l1_interval, var_list=l1_var_list)
         sess.run(t1.initializer)
@@ -337,40 +339,40 @@ class VGG16(object):
                             #print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                             print ("\n")
 
-                    if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
-                    i) == NUM_ITERATIONS - 1:
+                if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
+                i) == NUM_ITERATIONS - 1:
 
-                        checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
-                        if FLAGS.teacher:
-                            self.saver.save(sess, FLAGS.teacher_weights_filename)
-                        """
-                        elif FLAGS.student:
-                            saver.save(sess, FLAGS.student_filename)
-                        """
-                        """                                            
-                        elif FLAGS.dependent_student:
-                            saver_new = tf.train.Saver()
-                            saver_new.save(sess, FLAGS.dependent_student_filename)
-                        """
+                    checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
+                    if FLAGS.teacher:
+                        self.saver.save(sess, FLAGS.teacher_weights_filename)
+                    """
+                    elif FLAGS.student:
+                        saver.save(sess, FLAGS.student_filename)
+                    """
+                    """                                            
+                    elif FLAGS.dependent_student:
+                        saver_new = tf.train.Saver()
+                        saver_new.save(sess, FLAGS.dependent_student_filename)
+                    """
 
-                        print ("Training Data Eval:")
-                        self.do_eval(sess,
-                                     eval_correct,
-                                     self.softmax,
-                                     images_placeholder,
-                                     labels_placeholder,
-                                     data_input_train,
-                                     'Train', phase_train)
+                    print ("Training Data Eval:")
+                    self.do_eval(sess,
+                                 eval_correct,
+                                 self.softmax,
+                                 images_placeholder,
+                                 labels_placeholder,
+                                 data_input_train,
+                                 'Train', phase_train)
 
-                        print ("Test  Data Eval:")
-                        self.do_eval(sess,
-                                     eval_correct,
-                                     self.softmax,
-                                     images_placeholder,
-                                     labels_placeholder,
-                                     data_input_test,
-                                     'Test', phase_train)
-                        print ("max accuracy % f", max(test_accuracy_list))
+                    print ("Test  Data Eval:")
+                    self.do_eval(sess,
+                                 eval_correct,
+                                 self.softmax,
+                                 images_placeholder,
+                                 labels_placeholder,
+                                 data_input_test,
+                                 'Test', phase_train)
+                    print ("max accuracy % f", max(test_accuracy_list))
 
         except Exception as e:
             print(e)
