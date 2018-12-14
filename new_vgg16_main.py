@@ -237,6 +237,7 @@ class VGG16(object):
                 self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
 
 
+
     def run_dependent_student(self, feed_dict, sess, i):
 
         if FLAGS.multiple_optimizers_l5:
