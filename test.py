@@ -26,4 +26,15 @@ next_element = iterator.get_next()
 sess.run(iterator.initializer)
 print(type(dataset2))
 
+
+
+        dataset_mentee = tf.data.Dataset.from_tensor_slices((images_placeholder, labels_placeholder, phase_train))
+        iterator_mentee = dataset_mentee.make_initializable_iterator()
+        images_place, labels_placeholder, phase_train = iterator_mentee.get_next()
+
+        self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
+        l1_var_list = []
+        l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
+        self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
+
 """
