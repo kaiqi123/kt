@@ -167,6 +167,22 @@ class VGG16(object):
         self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
 
+    def define_11_loss_and_optimizers(self, lr):
+
+        l1_var_list = []
+        l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
+
+        self.l1 = tf.sqrt(
+            tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
+        self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
+
+        self.mentor_out1 = tf.Variable(tf.truncated_normal(self.mentor_data_dict.conv1_2.shape, dtype=tf.float32,
+                                                           stddev=1e-2, seed=seed), name='mentor_output_layer1')
+        self.l1_interval = tf.sqrt(
+            tf.reduce_mean(tf.square(tf.subtract(self.mentor_out1, self.mentee_data_dict.conv1_1))))
+        self.train_op1_interval = tf.train.AdamOptimizer(lr).minimize(self.l1_interval, var_list=l1_var_list)
+
+
     def train_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
 
         """
@@ -237,24 +253,7 @@ class VGG16(object):
 
         # self.caculate_rmse_loss(self.mentor_data_dict, self.mentee_data_dict)
         # self.define_multiple_optimizers(lr)
-
-        self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
-        l1_var_list = []
-        l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
-        self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
-
-        #init = tf.constant_initializer((25,224,224,64))
-
-        #temp = self.mentor_data_dict.conv1_2.shape
-        #print(sess.run(temp))
-        print(self.mentor_data_dict.conv1_2.shape)
-        self.t1 = tf.Variable(tf.truncated_normal(self.mentor_data_dict.conv1_2.shape, dtype=tf.float32,
-                                                 stddev=1e-2, seed=seed), name='mentor_output_layer1')
-        # t1 = tf.Variable(0.0, name="mentor_output_layer1", shape = (25,224,224,64))
-        # t1 = tf.get_variable('t1', shape=[25,224,224,64], initializer=init)
-        self.l1_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.t1, self.mentee_data_dict.conv1_1))))
-        self.train_op1_interval = tf.train.AdamOptimizer(lr).minimize(self.l1_interval, var_list=l1_var_list)
-        #sess.run(t1.initializer)
+        self.define_11_loss_and_optimizers(lr)
 
         init = tf.initialize_all_variables()
         sess.run(init)
@@ -295,7 +294,7 @@ class VGG16(object):
             if (i % FLAGS.num_iterations == 0):
                 #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                self.t1.assign(sess.run(self.mentor_data_dict.conv1_2, feed_dict=feed_dict))
+                self.mentor_out1.assign(sess.run(self.mentor_data_dict.conv1_2, feed_dict=feed_dict))
                 #_, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
                 #_, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
                 #_, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
@@ -304,9 +303,8 @@ class VGG16(object):
             else:
                 print(i)
                 #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                _, self.loss_value1_interval, self.loss_value1 = sess.run([self.train_op1_interval, self.l1_interval, self.l1], feed_dict=feed_dict)
-                print(self.loss_value1_interval)
-                print(self.loss_value1)
+                _, self.loss_value1 = sess.run([self.train_op1_interval, self.l1], feed_dict=feed_dict)
+
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
                     phase_train):
