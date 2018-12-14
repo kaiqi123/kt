@@ -5,8 +5,8 @@ import numpy as np
 import random
 from DataInput import DataInput
 
-#from vgg16mentee import Mentee
-from vgg16mentee_original import Mentee
+from vgg16mentee import Mentee
+# from vgg16mentee_original import Mentee
 
 from vgg16mentor import Mentor
 from vgg16embed import Embed
@@ -215,7 +215,7 @@ class VGG16(object):
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
 
-        """
+
         print("initialization")
         for var in tf.global_variables():
             if var.op.name == "mentor_conv1_1/mentor_weights":
@@ -238,30 +238,7 @@ class VGG16(object):
 
             if var.op.name == "mentor_fc3/mentor_weights":
                 self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
-        """
 
-        print("initialization")
-        for var in tf.global_variables():
-            if var.op.name == "mentor_conv1_1/mentor_weights":
-                self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
-
-            if var.op.name == "mentor_conv2_1/mentor_weights":
-                self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
-
-            if var.op.name == "mentor_conv3_1/mentor_weights":
-                self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
-
-            if var.op.name == "mentor_conv4_1/mentor_weights":
-                self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
-
-            if var.op.name == "mentor_conv5_1/mentor_weights":
-                self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
-
-            if var.op.name == "mentor_fc2/mentor_weights":
-                self.mentee_data_dict.parameters[14].assign(var.eval(session=sess)).eval(session=sess)
-
-            if var.op.name == "mentor_fc3/mentor_weights":
-                self.mentee_data_dict.parameters[16].assign(var.eval(session=sess)).eval(session=sess)
 
     def run_dependent_student(self, feed_dict, sess, i):
 
