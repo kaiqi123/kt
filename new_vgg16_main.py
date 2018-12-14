@@ -1,11 +1,10 @@
+# python new_vgg16_main.py --dependent_student True --batch_size 25 --learning_rate 0.0001 --multiple_optimizers_l5 True --num_iterations 10
+
 import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-
-#from vgg16mentee import Mentee
-from vgg16mentee_original import Mentee
-
+from vgg16mentee import Mentee
 from vgg16mentor import Mentor
 from vgg16embed import Embed
 from mentor import Teacher
@@ -212,6 +211,31 @@ class VGG16(object):
 
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
+
+
+        print("initialization")
+        for var in tf.global_variables():
+            if var.op.name == "mentor_conv1_1/mentor_weights":
+                self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
+
+            if var.op.name == "mentor_conv2_1/mentor_weights":
+                self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
+
+            if var.op.name == "mentor_conv3_1/mentor_weights":
+                self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
+
+            if var.op.name == "mentor_conv4_1/mentor_weights":
+                self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
+
+            if var.op.name == "mentor_conv5_1/mentor_weights":
+                self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
+
+            if var.op.name == "mentor_fc1/mentor_weights":
+                self.mentee_data_dict.parameters[10].assign(var.eval(session=sess)).eval(session=sess)
+
+            if var.op.name == "mentor_fc3/mentor_weights":
+                self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
+
 
     def run_dependent_student(self, feed_dict, sess, i):
 
