@@ -1,13 +1,10 @@
-# python new_vgg16_main.py --dependent_student True --batch_size 25 --learning_rate 0.0001 --multiple_optimizers_l5 True --num_iterations 1
-# add initialization
+# python new_vgg16_main.py --dependent_student True --batch_size 25 --learning_rate 0.0001 --multiple_optimizers_l5 True --num_iterations 10
+
 import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-
 from vgg16mentee import Mentee
-# from vgg16mentee_original import Mentee
-
 from vgg16mentor import Mentor
 from vgg16embed import Embed
 from mentor import Teacher
@@ -169,6 +166,37 @@ class VGG16(object):
         self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
 
+    def train_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
+
+        """
+            Student is trained without taking knowledge from teacher
+
+            Args:
+                images_placeholder: placeholder to hold images of dataset
+                labels_placeholder: placeholder to hold labels of the images of the dataset
+                seed: seed value to have sequence in the randomness
+                phase_train: determines test or train state of the network
+        """
+
+        student = Mentee(FLAGS.num_channels)
+        print("Independent student")
+        num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
+        ## number of steps after which learning rate should decay
+        decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
+
+        mentee_data_dict = student.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+        self.loss = student.loss(labels_placeholder)
+        ## learning rate is decayed exponentially with a decay factor of 0.9809 after every epoch
+        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,
+                                        staircase=True)
+        self.train_op = student.training(self.loss, lr, global_step)
+        self.softmax = mentee_data_dict.softmax
+        # initialize all the variables of the network
+        init = tf.initialize_all_variables()
+        sess.run(init)
+        ## saver object is created to save all the variables to a file
+        self.saver = tf.train.Saver()
+
     def train_dependent_student(self, images_placeholder, labels_placeholder, phase_train, seed, global_step, sess):
 
         """
@@ -206,8 +234,19 @@ class VGG16(object):
         lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,
                                         staircase=True)
 
-        self.caculate_rmse_loss(self.mentor_data_dict, self.mentee_data_dict)
-        self.define_multiple_optimizers(lr)
+        # self.caculate_rmse_loss(self.mentor_data_dict, self.mentee_data_dict)
+        # self.define_multiple_optimizers(lr)
+
+        dataset_mentee = tf.data.Dataset.from_tensor_slices((images_placeholder, labels_placeholder, phase_train))
+        iterator_mentee = dataset_mentee.make_initializable_iterator()
+        images_place, labels_placeholder, phase_train = iterator_mentee.get_next()
+
+        self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
+        l1_var_list = []
+        l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
+        self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
+
+
 
         init = tf.initialize_all_variables()
         sess.run(init)
@@ -240,17 +279,18 @@ class VGG16(object):
                 self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
 
 
+
     def run_dependent_student(self, feed_dict, sess, i):
 
         if FLAGS.multiple_optimizers_l5:
 
             if (i % FLAGS.num_iterations == 0):
-                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-                _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
-                _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
+                #_, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+                #_, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+                #_, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
+                #_, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
             else:
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
@@ -286,12 +326,12 @@ class VGG16(object):
                         # print("train function: dependent student, multiple optimizers")
                         if FLAGS.multiple_optimizers_l5:
 
-                            print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
+                            #print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
-                            print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
-                            print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
-                            print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
-                            print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
+                            #print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
+                            #print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
+                            #print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
+                            #print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                             print ("\n")
 
                     if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (

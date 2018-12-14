@@ -8,8 +8,8 @@ beta = 0.0005
 
 """
 Removed all kinds of regularizers such as dropout and batch normalization
-
 """
+
 class Mentor(object):
 
 	def __init__(self, trainable=True, dropout=0.5):

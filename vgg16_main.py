@@ -515,10 +515,8 @@ class VGG16(object):
             _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
             _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
             _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
-        
 
         elif FLAGS.multiple_optimizers_l5:
-	   
 
            if (random_count % FLAGS.num_iterations  == 0):
 
