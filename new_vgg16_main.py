@@ -248,7 +248,6 @@ class VGG16(object):
         #temp = self.mentor_data_dict.conv1_2.shape
         #print(sess.run(temp))
         print(self.mentor_data_dict.conv1_2.shape)
-
         self.t1 = tf.Variable(tf.truncated_normal(self.mentor_data_dict.conv1_2.shape, dtype=tf.float32,
                                                  stddev=1e-2, seed=seed), name='mentor_output_layer1')
         # t1 = tf.Variable(0.0, name="mentor_output_layer1", shape = (25,224,224,64))
