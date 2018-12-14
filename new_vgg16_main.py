@@ -1,13 +1,10 @@
-# python new_vgg16_main.py --dependent_student True --batch_size 25 --learning_rate 0.0001 --multiple_optimizers_l5 True --num_iterations 1
-# add initialization
+# python new_vgg16_main.py --dependent_student True --batch_size 25 --learning_rate 0.0001 --multiple_optimizers_l5 True --num_iterations 10
+
 import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-
 from vgg16mentee import Mentee
-# from vgg16mentee_original import Mentee
-
 from vgg16mentor import Mentor
 from vgg16embed import Embed
 from mentor import Teacher
