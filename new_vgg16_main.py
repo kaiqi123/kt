@@ -126,16 +126,16 @@ class VGG16(object):
         """
         return [var for var in tf.global_variables() if var.op.name.startswith("mentor") and (var.op.name.endswith("biases") or var.op.name.endswith("weights")) and (var.op.name != ("mentor_fc3/mentor_weights") and  var.op.name != ("mentor_fc3/mentor_biases"))]
 
-    def caculate_rmse_loss(self, mentor_data_dict, mentee_data_dict):
+    def caculate_rmse_loss(self):
 
         """
         Here layers of same width are mapped together.
         """
-        self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.conv1_2, mentee_data_dict.conv1_1))))
-        self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.conv2_1, mentee_data_dict.conv2_1))))
-        self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.conv3_1, mentee_data_dict.conv3_1))))
-        self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.conv4_2, mentee_data_dict.conv4_1))))
-        self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.conv5_2, mentee_data_dict.conv5_1))))
+        self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
+        self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
+        self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_1, self.mentee_data_dict.conv3_1))))
+        self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1))))
+        self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1))))
 
     def define_multiple_optimizers(self, lr):
 
@@ -160,7 +160,7 @@ class VGG16(object):
         self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
 
-    def define_11_loss_and_optimizers(self, lr):
+    def define_interval_loss_and_optimizers(self, lr):
 
         l1_var_list = []
         l2_var_list = []
@@ -174,6 +174,7 @@ class VGG16(object):
         l4_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv4_1/mentee_weights"][0])
         l5_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv5_1/mentee_weights"][0])
 
+        """
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
         self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_1, self.mentee_data_dict.conv3_1))))
@@ -186,7 +187,7 @@ class VGG16(object):
         self.train_op3 = tf.train.AdamOptimizer(lr).minimize(self.l3, var_list=l3_var_list)
         self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
-
+        """
         self.mentor_out1 = tf.Variable(tf.truncated_normal(self.mentor_data_dict.conv1_2.shape, dtype=tf.float32,
                                                            stddev=1e-2, seed=seed), name='mentor_output_layer1')
         self.mentor_out2 = tf.Variable(tf.truncated_normal(self.mentor_data_dict.conv2_1.shape, dtype=tf.float32,
@@ -279,9 +280,9 @@ class VGG16(object):
         lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,
                                         staircase=True)
 
-        # self.caculate_rmse_loss(self.mentor_data_dict, self.mentee_data_dict)
-        # self.define_multiple_optimizers(lr)
-        self.define_11_loss_and_optimizers(lr)
+        self.caculate_rmse_loss()
+        self.define_multiple_optimizers(lr)
+        self.define_interval_loss_and_optimizers(lr)
 
         init = tf.initialize_all_variables()
         sess.run(init)
@@ -480,13 +481,13 @@ class VGG16(object):
                              phase_train)
 
             print(test_accuracy_list)
-            writer_tensorboard = tf.summary.FileWriter('tensorboard/', sess.graph)
+            #writer_tensorboard = tf.summary.FileWriter('tensorboard/', sess.graph)
 
             coord.request_stop()
             coord.join(threads)
 
         sess.close()
-        writer_tensorboard.close()
+        #writer_tensorboard.close()
 
         end_time = time.time()
         runtime = round((end_time - start_time) / (60 * 60), 2)
