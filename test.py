@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+"""
 sess = tf.Session()
 
 dataset = tf.data.Dataset.range(5)
@@ -15,8 +16,6 @@ for i in range(4):
   print(value)
 
 
-
-"""
 dataset1 = tf.data.Dataset.from_tensor_slices(tf.random_uniform([4, 10]))
 dataset2 = tf.data.Dataset.from_tensor_slices((tf.random_uniform([4]), tf.random_uniform([4, 100])))
 
@@ -38,3 +37,17 @@ print(type(dataset2))
         self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
 
 """
+
+import tensorflow as tf
+tf.reset_default_graph()   # To clear the defined variables and operations of the previous cell
+# create graph
+a = tf.constant(2, name="a")
+b = tf.constant(3, name="b")
+c = tf.add(a, b, name="addition")
+# creating the writer out of the session
+# writer = tf.summary.FileWriter('./graphs', tf.get_default_graph())
+# launch the graph in a session
+with tf.Session() as sess:
+    # or creating the writer inside the session
+    writer = tf.summary.FileWriter('tensorboard/', sess.graph)
+    print(sess.run(c))
