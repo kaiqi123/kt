@@ -1,4 +1,4 @@
-# independent student, not initialization
+# python vgg16_main.py --dependent_student True --batch_size 25 --learning_rate 0.0001 --multiple_optimizers_l5 True --num_iterations 10
 
 import tensorflow as tf
 import numpy as np
