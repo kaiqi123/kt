@@ -20,7 +20,7 @@ import csv
 from tensorflow.python.client import device_lib
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 3
+NUM_ITERATIONS = 1
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -162,6 +162,9 @@ class VGG16(object):
 
     def define_interval_loss_and_optimizers(self, lr):
 
+
+        print("define interval loss and optimizers")
+
         l1_var_list = []
         l2_var_list = []
         l3_var_list = []
@@ -282,7 +285,8 @@ class VGG16(object):
 
         self.caculate_rmse_loss()
         self.define_multiple_optimizers(lr)
-        self.define_interval_loss_and_optimizers(lr)
+        if FLAGS.interval_train:
+            self.define_interval_loss_and_optimizers(lr)
 
         init = tf.initialize_all_variables()
         sess.run(init)
@@ -704,9 +708,9 @@ if __name__ == '__main__':
         default=1
     )
     parser.add_argument(
-        '--write_accuracy',
+        '--interval_train',
         type=bool,
-        help='write_accuracy',
+        help='interval_train',
         default=False
     )
 
