@@ -20,7 +20,7 @@ import csv
 from tensorflow.python.client import device_lib
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 10
+NUM_ITERATIONS = 3
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -352,6 +352,7 @@ class VGG16(object):
 
             for i in range(NUM_ITERATIONS):
 
+
                 feed_dict = self.fill_feed_dict(data_input_train, images_placeholder,
                                                 labels_placeholder, sess, 'Train', phase_train)
 
@@ -457,12 +458,12 @@ class VGG16(object):
             sess = tf.Session(config=config)
             ## this line is used to enable tensorboard debugger
             # sess = tf_debug.TensorBoardDebugWrapperSession(sess, 'localhost:6064')
-            summary_writer = tf.summary.FileWriter(SUMMARY_LOG_DIR, sess.graph)
+            #summary_writer = tf.summary.FileWriter(SUMMARY_LOG_DIR, sess.graph)
             coord = tf.train.Coordinator()
             threads = tf.train.start_queue_runners(sess=sess, coord=coord)
             global_step = tf.Variable(0, name='global_step', trainable=False)
             phase_train = tf.placeholder(tf.bool, name='phase_train')
-            summary = tf.summary.merge_all()
+            #summary = tf.summary.merge_all()
 
             if FLAGS.student:
                 self.train_independent_student(images_placeholder, labels_placeholder, seed, phase_train, global_step,
@@ -479,11 +480,13 @@ class VGG16(object):
                              phase_train)
 
             print(test_accuracy_list)
+            writer_tensorboard = tf.summary.FileWriter('tensorboard/', sess.graph)
+
             coord.request_stop()
             coord.join(threads)
 
         sess.close()
-        summary_writer.close()
+        writer_tensorboard.close()
 
         end_time = time.time()
         runtime = round((end_time - start_time) / (60 * 60), 2)
