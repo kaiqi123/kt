@@ -480,10 +480,10 @@ class VGG16(object):
                              phase_train)
 
             print(test_accuracy_list)
+            writer_tensorboard = tf.summary.FileWriter('tensorboard/', sess.graph)
+
             coord.request_stop()
             coord.join(threads)
-
-            writer_tensorboard = tf.summary.FileWriter('tensorboard/', sess.graph)
 
         sess.close()
         writer_tensorboard.close()
