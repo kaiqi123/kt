@@ -352,6 +352,7 @@ class VGG16(object):
 
             for i in range(NUM_ITERATIONS):
 
+
                 feed_dict = self.fill_feed_dict(data_input_train, images_placeholder,
                                                 labels_placeholder, sess, 'Train', phase_train)
 
@@ -457,12 +458,12 @@ class VGG16(object):
             sess = tf.Session(config=config)
             ## this line is used to enable tensorboard debugger
             # sess = tf_debug.TensorBoardDebugWrapperSession(sess, 'localhost:6064')
-            summary_writer = tf.summary.FileWriter(SUMMARY_LOG_DIR, sess.graph)
+            #summary_writer = tf.summary.FileWriter(SUMMARY_LOG_DIR, sess.graph)
             coord = tf.train.Coordinator()
             threads = tf.train.start_queue_runners(sess=sess, coord=coord)
             global_step = tf.Variable(0, name='global_step', trainable=False)
             phase_train = tf.placeholder(tf.bool, name='phase_train')
-            summary = tf.summary.merge_all()
+            #summary = tf.summary.merge_all()
 
             if FLAGS.student:
                 self.train_independent_student(images_placeholder, labels_placeholder, seed, phase_train, global_step,
@@ -482,8 +483,10 @@ class VGG16(object):
             coord.request_stop()
             coord.join(threads)
 
+            writer_tensorboard = tf.summary.FileWriter('tensorboard/', sess.graph)
+
         sess.close()
-        summary_writer.close()
+        writer_tensorboard.close()
 
         end_time = time.time()
         runtime = round((end_time - start_time) / (60 * 60), 2)
