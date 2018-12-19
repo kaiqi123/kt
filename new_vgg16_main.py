@@ -487,13 +487,13 @@ class VGG16(object):
                              phase_train)
 
             print(test_accuracy_list)
-            #writer_tensorboard = tf.summary.FileWriter('tensorboard/', sess.graph)
+            writer_tensorboard = tf.summary.FileWriter('tensorboard/', sess.graph)
 
             coord.request_stop()
             coord.join(threads)
 
         sess.close()
-        #writer_tensorboard.close()
+        writer_tensorboard.close()
 
         end_time = time.time()
         runtime = round((end_time - start_time) / (60 * 60), 2)
