@@ -333,11 +333,13 @@ class VGG16(object):
                     _, self.loss_value4, mentor_out4 = sess.run([self.train_op4, self.l4, self.mentor_data_dict.conv4_2], feed_dict=feed_dict)
                     _, self.loss_value5, mentor_out5 = sess.run([self.train_op5, self.l5, self.mentor_data_dict.conv5_2], feed_dict=feed_dict)
 
+                    """
                     self.mentor_out1.assign(mentor_out1)
                     self.mentor_out2.assign(mentor_out2)
                     self.mentor_out3.assign(mentor_out3)
                     self.mentor_out4.assign(mentor_out4)
                     self.mentor_out5.assign(mentor_out5)
+                    """
 
                 else:
                     _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
@@ -347,12 +349,15 @@ class VGG16(object):
                     _, self.loss_value4 = sess.run([self.train_op4_interval, self.l4], feed_dict=feed_dict)
                     _, self.loss_value5 = sess.run([self.train_op5_interval, self.l5], feed_dict=feed_dict)
             else:
-                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-                _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
-                _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
+                if (i % FLAGS.num_iterations == 0):
+                    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                    _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+                    _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+                    _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+                    _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
+                    _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
+                else:
+                    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
 
 
