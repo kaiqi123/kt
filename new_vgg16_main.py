@@ -215,7 +215,7 @@ class VGG16(object):
         self.train_op5_interval = tf.train.AdamOptimizer(lr).minimize(self.l5_interval, var_list=l5_var_list)
 
 
-    def train_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
+    def define_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
 
         """
             Student is trained without taking knowledge from teacher
@@ -246,7 +246,7 @@ class VGG16(object):
         ## saver object is created to save all the variables to a file
         self.saver = tf.train.Saver()
 
-    def train_dependent_student(self, images_placeholder, labels_placeholder, phase_train, seed, global_step, sess):
+    def define_dependent_student(self, images_placeholder, labels_placeholder, phase_train, seed, global_step, sess):
 
         """
         Student is trained by taking supervision from teacher for every batch of data
@@ -473,14 +473,14 @@ class VGG16(object):
             #summary = tf.summary.merge_all()
 
             if FLAGS.student:
-                self.train_independent_student(images_placeholder, labels_placeholder, seed, phase_train, global_step,
+                self.define_independent_student(images_placeholder, labels_placeholder, seed, phase_train, global_step,
                                                sess)
 
             elif FLAGS.teacher:
-                self.train_teacher(images_placeholder, labels_placeholder, phase_train, global_step, sess)
+                self.define_teacher(images_placeholder, labels_placeholder, phase_train, global_step, sess)
 
             elif FLAGS.dependent_student:
-                self.train_dependent_student(images_placeholder, labels_placeholder, phase_train, seed, global_step,
+                self.define_dependent_student(images_placeholder, labels_placeholder, phase_train, seed, global_step,
                                              sess)
 
             self.train_model(data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
