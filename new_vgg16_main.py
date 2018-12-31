@@ -350,7 +350,6 @@ class VGG16(object):
 
                 if (i % FLAGS.num_iterations == 0):
 
-                    print(i)
                     _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                     _, self.loss_value1, mentor_out1 = sess.run([self.train_op1, self.l1, self.mentor_data_dict.conv1_2], feed_dict=feed_dict)
                     _, self.loss_value2, mentor_out2 = sess.run([self.train_op2, self.l2, self.mentor_data_dict.conv2_1], feed_dict=feed_dict)
