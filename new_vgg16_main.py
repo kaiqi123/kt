@@ -358,7 +358,10 @@ class VGG16(object):
                     _, self.loss_value4, mentor_out4 = sess.run([self.train_op4, self.l4, self.mentor_data_dict.conv4_2], feed_dict=feed_dict)
                     _, self.loss_value5, mentor_out5 = sess.run([self.train_op5, self.l5, self.mentor_data_dict.conv5_2], feed_dict=feed_dict)
 
+                    start_time = time.time()
                     sess.run(self.mentor_out1, feed_dict = {self.ph_mentor_out1: mentor_out1})
+                    print(time.time() - start_time)
+
                     sess.run(self.mentor_out2, feed_dict = {self.ph_mentor_out2: mentor_out2})
                     sess.run(self.mentor_out3, feed_dict = {self.ph_mentor_out3: mentor_out3})
                     sess.run(self.mentor_out4, feed_dict = {self.ph_mentor_out4: mentor_out4})
