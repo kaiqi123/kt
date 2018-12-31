@@ -36,7 +36,7 @@ print(type(dataset2))
         l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
         self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
 
-"""
+
 
 import tensorflow as tf
 tf.reset_default_graph()   # To clear the defined variables and operations of the previous cell
@@ -51,3 +51,17 @@ with tf.Session() as sess:
     # or creating the writer inside the session
     writer = tf.summary.FileWriter('tensorboard/', sess.graph)
     print(sess.run(c))
+"""
+import tensorflow as tf
+import numpy as np
+
+a = tf.get_variable("L_enc", [400000, 1024])
+ph = tf.placeholder(tf.float32, shape=[400000, 1024])
+a.assign(ph)
+
+init_op = tf.global_variables_initializer()
+
+with tf.Session() as sess:
+  sess.run(init_op)
+  embedding = np.random.uniform(-1, 1, (400000, 1024))
+  print(sess.run(a, {ph: embedding}))

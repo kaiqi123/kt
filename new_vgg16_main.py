@@ -18,7 +18,7 @@ import csv
 from tensorflow.python.client import device_lib
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 2
+NUM_ITERATIONS = 10
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -189,6 +189,9 @@ class VGG16(object):
         self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
         """
+
+
+        """
         self.mentor_out1 = tf.Variable(tf.truncated_normal(self.mentor_data_dict.conv1_2.shape, dtype=tf.float32,
                                                            stddev=1e-2, seed=seed), name='mentor_output_layer1')
         self.mentor_out2 = tf.Variable(tf.truncated_normal(self.mentor_data_dict.conv2_1.shape, dtype=tf.float32,
@@ -199,18 +202,18 @@ class VGG16(object):
                                                            stddev=1e-2, seed=seed), name='mentor_output_layer4')
         self.mentor_out5 = tf.Variable(tf.truncated_normal(self.mentor_data_dict.conv5_2.shape, dtype=tf.float32,
                                                            stddev=1e-2, seed=seed), name='mentor_output_layer5')
-
+        """
         self.l1_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_out1, self.mentee_data_dict.conv1_1))))
-        self.l2_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_out2, self.mentee_data_dict.conv2_1))))
-        self.l3_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_out3, self.mentee_data_dict.conv3_1))))
-        self.l4_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_out4, self.mentee_data_dict.conv4_1))))
-        self.l5_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_out5, self.mentee_data_dict.conv5_1))))
+        #self.l2_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_out2, self.mentee_data_dict.conv2_1))))
+        #self.l3_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_out3, self.mentee_data_dict.conv3_1))))
+        #self.l4_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_out4, self.mentee_data_dict.conv4_1))))
+        #self.l5_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_out5, self.mentee_data_dict.conv5_1))))
 
         self.train_op1_interval = tf.train.AdamOptimizer(lr).minimize(self.l1_interval, var_list=l1_var_list)
-        self.train_op2_interval = tf.train.AdamOptimizer(lr).minimize(self.l2_interval, var_list=l2_var_list)
-        self.train_op3_interval = tf.train.AdamOptimizer(lr).minimize(self.l3_interval, var_list=l3_var_list)
-        self.train_op4_interval = tf.train.AdamOptimizer(lr).minimize(self.l4_interval, var_list=l4_var_list)
-        self.train_op5_interval = tf.train.AdamOptimizer(lr).minimize(self.l5_interval, var_list=l5_var_list)
+        #self.train_op2_interval = tf.train.AdamOptimizer(lr).minimize(self.l2_interval, var_list=l2_var_list)
+        #self.train_op3_interval = tf.train.AdamOptimizer(lr).minimize(self.l3_interval, var_list=l3_var_list)
+        #self.train_op4_interval = tf.train.AdamOptimizer(lr).minimize(self.l4_interval, var_list=l4_var_list)
+        #self.train_op5_interval = tf.train.AdamOptimizer(lr).minimize(self.l5_interval, var_list=l5_var_list)
 
 
     def define_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
@@ -325,14 +328,21 @@ class VGG16(object):
 
             if FLAGS.interval_train:
 
-                if (i % FLAGS.num_iterations == 0):
-                    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                    _, self.loss_value1, mentor_out1 = sess.run([self.train_op1, self.l1, self.mentor_data_dict.conv1_2], feed_dict=feed_dict)
-                    _, self.loss_value2, mentor_out2 = sess.run([self.train_op2, self.l2, self.mentor_data_dict.conv2_1], feed_dict=feed_dict)
-                    _, self.loss_value3, mentor_out3 = sess.run([self.train_op3, self.l3, self.mentor_data_dict.conv3_1], feed_dict=feed_dict)
-                    _, self.loss_value4, mentor_out4 = sess.run([self.train_op4, self.l4, self.mentor_data_dict.conv4_2], feed_dict=feed_dict)
-                    _, self.loss_value5, mentor_out5 = sess.run([self.train_op5, self.l5, self.mentor_data_dict.conv5_2], feed_dict=feed_dict)
+                ph_mentor_out1 = tf.placeholder(tf.float32, shape=self.mentor_data_dict.conv1_2.shape)
+                self.mentor_out1 = tf.get_variable(name="mentor_output_layer1", shape=self.mentor_data_dict.conv1_2.shape)
+                self.mentor_out1.assign(ph_mentor_out1)
 
+                if (i % FLAGS.num_iterations == 0):
+
+
+                    #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                    _, self.loss_value1, mentor_out1 = sess.run([self.train_op1, self.l1, self.mentor_data_dict.conv1_2], feed_dict=feed_dict)
+                    #_, self.loss_value2, mentor_out2 = sess.run([self.train_op2, self.l2, self.mentor_data_dict.conv2_1], feed_dict=feed_dict)
+                    #_, self.loss_value3, mentor_out3 = sess.run([self.train_op3, self.l3, self.mentor_data_dict.conv3_1], feed_dict=feed_dict)
+                    #_, self.loss_value4, mentor_out4 = sess.run([self.train_op4, self.l4, self.mentor_data_dict.conv4_2], feed_dict=feed_dict)
+                    #_, self.loss_value5, mentor_out5 = sess.run([self.train_op5, self.l5, self.mentor_data_dict.conv5_2], feed_dict=feed_dict)
+
+                    sess.run(self.mentor_out1, feed_dict = {ph_mentor_out1: mentor_out1})
                     """
                     self.mentor_out1.assign(mentor_out1)
                     self.mentor_out2.assign(mentor_out2)
@@ -341,13 +351,14 @@ class VGG16(object):
                     self.mentor_out5.assign(mentor_out5)
                     """
 
+
                 else:
-                    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                    #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                     _, self.loss_value1 = sess.run([self.train_op1_interval, self.l1], feed_dict=feed_dict)
-                    _, self.loss_value2 = sess.run([self.train_op2_interval, self.l2], feed_dict=feed_dict)
-                    _, self.loss_value3 = sess.run([self.train_op3_interval, self.l3], feed_dict=feed_dict)
-                    _, self.loss_value4 = sess.run([self.train_op4_interval, self.l4], feed_dict=feed_dict)
-                    _, self.loss_value5 = sess.run([self.train_op5_interval, self.l5], feed_dict=feed_dict)
+                    #_, self.loss_value2 = sess.run([self.train_op2_interval, self.l2], feed_dict=feed_dict)
+                    #_, self.loss_value3 = sess.run([self.train_op3_interval, self.l3], feed_dict=feed_dict)
+                    #_, self.loss_value4 = sess.run([self.train_op4_interval, self.l4], feed_dict=feed_dict)
+                    #_, self.loss_value5 = sess.run([self.train_op5_interval, self.l5], feed_dict=feed_dict)
             else:
                 if (i % FLAGS.num_iterations == 0):
                     _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
@@ -392,13 +403,13 @@ class VGG16(object):
                         # print("train function: dependent student, multiple optimizers")
                         if FLAGS.multiple_optimizers_l5:
 
-                            print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
+                            #print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
-                            print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
-                            print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
-                            print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
-                            print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
-                            print ("\n")
+                            #print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
+                            #print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
+                            #print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
+                            #print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
+                            #print ("\n")
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
                 i) == NUM_ITERATIONS - 1:
