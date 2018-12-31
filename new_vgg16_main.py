@@ -283,7 +283,7 @@ class VGG16(object):
 
         self.caculate_rmse_loss()
         self.define_multiple_optimizers(lr)
-        print(FLAGS.interval_train)
+
         if FLAGS.interval_train:
             self.define_interval_loss_and_optimizers(lr)
 
