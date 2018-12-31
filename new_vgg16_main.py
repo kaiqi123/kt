@@ -382,7 +382,7 @@ class VGG16(object):
 
                     self.run_dependent_student(feed_dict, sess, i)
 
-                    if i % 10 == 0:
+                    if i % 1 == 0:
                         # print("train function: dependent student, multiple optimizers")
                         if FLAGS.multiple_optimizers_l5:
 
