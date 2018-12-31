@@ -203,6 +203,10 @@ class VGG16(object):
         self.mentor_out5 = tf.Variable(tf.truncated_normal(self.mentor_data_dict.conv5_2.shape, dtype=tf.float32,
                                                            stddev=1e-2, seed=seed), name='mentor_output_layer5')
         """
+        self.ph_mentor_out1 = tf.placeholder(tf.float32, shape=self.mentor_data_dict.conv1_2.shape)
+        self.mentor_out1 = tf.get_variable(name="mentor_output_layer1", shape=self.mentor_data_dict.conv1_2.shape)
+        self.mentor_out1.assign(self.ph_mentor_out1)
+
         self.l1_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_out1, self.mentee_data_dict.conv1_1))))
         #self.l2_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_out2, self.mentee_data_dict.conv2_1))))
         #self.l3_interval = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_out3, self.mentee_data_dict.conv3_1))))
@@ -328,9 +332,6 @@ class VGG16(object):
 
             if FLAGS.interval_train:
 
-                ph_mentor_out1 = tf.placeholder(tf.float32, shape=self.mentor_data_dict.conv1_2.shape)
-                self.mentor_out1 = tf.get_variable(name="mentor_output_layer1", shape=self.mentor_data_dict.conv1_2.shape)
-                self.mentor_out1.assign(ph_mentor_out1)
 
                 if (i % FLAGS.num_iterations == 0):
 
@@ -342,7 +343,7 @@ class VGG16(object):
                     #_, self.loss_value4, mentor_out4 = sess.run([self.train_op4, self.l4, self.mentor_data_dict.conv4_2], feed_dict=feed_dict)
                     #_, self.loss_value5, mentor_out5 = sess.run([self.train_op5, self.l5, self.mentor_data_dict.conv5_2], feed_dict=feed_dict)
 
-                    sess.run(self.mentor_out1, feed_dict = {ph_mentor_out1: mentor_out1})
+                    sess.run(self.mentor_out1, feed_dict = {self.ph_mentor_out1: mentor_out1})
                     """
                     self.mentor_out1.assign(mentor_out1)
                     self.mentor_out2.assign(mentor_out2)
