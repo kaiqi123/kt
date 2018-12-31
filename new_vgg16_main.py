@@ -18,7 +18,7 @@ import csv
 from tensorflow.python.client import device_lib
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 10
+NUM_ITERATIONS = 20
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -203,6 +203,7 @@ class VGG16(object):
         self.mentor_out5 = tf.Variable(tf.truncated_normal(self.mentor_data_dict.conv5_2.shape, dtype=tf.float32,
                                                            stddev=1e-2, seed=seed), name='mentor_output_layer5')
         """
+
         self.ph_mentor_out1 = tf.placeholder(tf.float32, shape=self.mentor_data_dict.conv1_2.shape)
         self.mentor_out1 = tf.get_variable(name="mentor_output_layer1", shape=self.mentor_data_dict.conv1_2.shape)
         self.mentor_out1.assign(self.ph_mentor_out1)
@@ -351,7 +352,6 @@ class VGG16(object):
                     self.mentor_out4.assign(mentor_out4)
                     self.mentor_out5.assign(mentor_out5)
                     """
-
 
                 else:
                     #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
