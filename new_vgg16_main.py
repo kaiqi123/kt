@@ -18,7 +18,7 @@ import csv
 from tensorflow.python.client import device_lib
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 10
+NUM_ITERATIONS = 4680
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -205,32 +205,6 @@ class VGG16(object):
         self.train_op4_interval = tf.train.AdamOptimizer(lr).minimize(self.l4_interval, var_list=l4_var_list)
         self.train_op5_interval = tf.train.AdamOptimizer(lr).minimize(self.l5_interval, var_list=l5_var_list)
 
-    def define_lossValueTrain_loss_and_optimizers(self, lr):
-
-
-        print("define lossValueTrain loss and optimizers")
-
-        l1_var_list = []
-        l2_var_list = []
-        l3_var_list = []
-        l4_var_list = []
-        l5_var_list = []
-
-        l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
-        l2_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv2_1/mentee_weights"][0])
-        l3_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv3_1/mentee_weights"][0])
-        l4_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv4_1/mentee_weights"][0])
-        l5_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv5_1/mentee_weights"][0])
-
-        self.ph_loss1 = tf.placeholder(tf.float32, shape=[1])
-
-        self.loss1 = tf.get_variable(name="loss_value1", shape=[1])
-
-        self.loss1.assign(self.ph_loss1)
-
-        self.train_op1_lossTrain1 = tf.train.AdamOptimizer(lr).minimize(self.loss1, var_list=l1_var_list)
-
-
     def define_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
 
         """
@@ -303,8 +277,6 @@ class VGG16(object):
 
         if FLAGS.interval_output_train:
             self.define_outputTrain_loss_and_optimizers(lr)
-        elif FLAGS.interval_lossValue_train:
-            self.define_lossValueTrain_loss_and_optimizers(lr)
 
         init = tf.initialize_all_variables()
         sess.run(init)
@@ -312,6 +284,7 @@ class VGG16(object):
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
 
+        """
         print("initialization")
         for var in tf.global_variables():
             if var.op.name == "mentor_conv1_1/mentor_weights":
@@ -334,15 +307,13 @@ class VGG16(object):
 
             if var.op.name == "mentor_fc3/mentor_weights":
                 self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
-
-
+        """
 
     def run_dependent_student(self, feed_dict, sess, i):
 
         if FLAGS.multiple_optimizers_l5:
 
             if FLAGS.interval_output_train:
-
 
                 if (i % FLAGS.num_iterations == 0):
 
@@ -366,15 +337,6 @@ class VGG16(object):
                     _, self.loss_value3 = sess.run([self.train_op3_interval, self.l3], feed_dict=feed_dict)
                     _, self.loss_value4 = sess.run([self.train_op4_interval, self.l4], feed_dict=feed_dict)
                     _, self.loss_value5 = sess.run([self.train_op5_interval, self.l5], feed_dict=feed_dict)
-
-            elif FLAGS.interval_lossValue_train:
-
-                if (i % FLAGS.num_iterations == 0):
-                    print(i)
-                    _, self.loss_value1= sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                    sess.run(self.loss1, feed_dict={self.ph_loss1: [self.loss_value1]})
-                else:
-                    _, self.loss_value1 = sess.run([self.train_op1_lossTrain1, self.l1], feed_dict=feed_dict)
 
             else:
                 if (i % FLAGS.num_iterations == 0):
@@ -416,16 +378,16 @@ class VGG16(object):
 
                     self.run_dependent_student(feed_dict, sess, i)
 
-                    if i % 1 == 0:
+                    if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
                         if FLAGS.multiple_optimizers_l5:
 
-                            #print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
+                            print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
-                            #print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
-                            #print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
-                            #print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
-                            #print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
+                            print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
+                            print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
+                            print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
+                            print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                             print ("\n")
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
@@ -754,13 +716,6 @@ if __name__ == '__main__':
         help='interval_output_train',
         default=False
     )
-    parser.add_argument(
-        '--interval_lossValue_train',
-        type=bool,
-        help='interval_lossValue_train',
-        default=False
-    )
-
     FLAGS, unparsed = parser.parse_known_args()
     ex = VGG16()
     tf.app.run(main=ex.main, argv=[sys.argv[0]] + unparsed)
