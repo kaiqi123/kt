@@ -341,6 +341,7 @@ class VGG16(object):
 
             else:
                 if (i % FLAGS.num_iterations == 0):
+                    print("connect to teacher")
                     _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                     _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                     _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
