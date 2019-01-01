@@ -224,7 +224,7 @@ class VGG16(object):
 
         self.ph_loss1 = tf.placeholder(tf.float32, shape=[1])
 
-        self.loss1 = tf.get_variable(name="loss_layer1", shape=self.mentor_data_dict.conv1_2.shape)
+        self.loss1 = tf.get_variable(name="loss_value1", shape=[1])
 
         self.loss1.assign(self.ph_loss1)
 
