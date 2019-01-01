@@ -55,13 +55,13 @@ with tf.Session() as sess:
 import tensorflow as tf
 import numpy as np
 
-a = tf.get_variable("L_enc", [400000, 1024])
-ph = tf.placeholder(tf.float32, shape=[400000, 1024])
+a = tf.get_variable("L_enc", shape = [1])
+ph = tf.placeholder(tf.float32, shape = [1])
 a.assign(ph)
 
 init_op = tf.global_variables_initializer()
 
 with tf.Session() as sess:
   sess.run(init_op)
-  embedding = np.random.uniform(-1, 1, (400000, 1024))
+  embedding = 2.0
   print(sess.run(a, {ph: embedding}))
