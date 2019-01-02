@@ -284,7 +284,7 @@ class VGG16(object):
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
 
-        """
+
         print("initialization")
         for var in tf.global_variables():
             if var.op.name == "mentor_conv1_1/mentor_weights":
@@ -307,7 +307,7 @@ class VGG16(object):
 
             if var.op.name == "mentor_fc3/mentor_weights":
                 self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
-        """
+
 
     def run_dependent_student(self, feed_dict, sess, i):
 
@@ -442,16 +442,16 @@ class VGG16(object):
             # set the seed so that we have same loss values and initializations for every run.
             tf.set_random_seed(seed)
 
-            data_input_train = DataInput(dataset_path, FLAGS.train_dataset, FLAGS.batch_size,
+            data_input_train = DataInput(dataset_path, FLAGS.student_train_dataset, FLAGS.batch_size,
                                          FLAGS.num_training_examples, FLAGS.image_width, FLAGS.image_height,
                                          FLAGS.num_channels, seed, FLAGS.dataset)
 
-            data_input_test = DataInput(dataset_path, FLAGS.test_dataset, FLAGS.batch_size, FLAGS.num_testing_examples,
+            data_input_test = DataInput(dataset_path, FLAGS.student_test_dataset, FLAGS.batch_size, FLAGS.num_testing_examples,
                                         FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels, seed, FLAGS.dataset)
 
-            data_input_validation = DataInput(dataset_path, FLAGS.validation_dataset, FLAGS.batch_size,
-                                              FLAGS.num_validation_examples, FLAGS.image_width, FLAGS.image_height,
-                                              FLAGS.num_channels, seed, FLAGS.dataset)
+            #data_input_validation = DataInput(dataset_path, FLAGS.validation_dataset, FLAGS.batch_size,
+            #                                  FLAGS.num_validation_examples, FLAGS.image_width, FLAGS.image_height,
+            #                                  FLAGS.num_channels, seed, FLAGS.dataset)
 
             images_placeholder = tf.placeholder(tf.float32,
                                                 shape=(FLAGS.batch_size, FLAGS.image_height,
@@ -717,6 +717,17 @@ if __name__ == '__main__':
         help='interval_output_train',
         default=False
     )
+    parser.add_argument(
+        '--student_train_dataset',
+        type=str,
+        default="caltech101-student-train.txt"
+    )
+    parser.add_argument(
+        '--student_test_dataset',
+        type=str,
+        default="caltech101-student-test.txt"
+    )
+
     FLAGS, unparsed = parser.parse_known_args()
     ex = VGG16()
     tf.app.run(main=ex.main, argv=[sys.argv[0]] + unparsed)
