@@ -340,7 +340,7 @@ class VGG16(object):
 
             else:
                 if (i % FLAGS.num_iterations == 0):
-                    print("connect to teacher")
+
                     _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                     _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                     _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
@@ -442,11 +442,11 @@ class VGG16(object):
             # set the seed so that we have same loss values and initializations for every run.
             tf.set_random_seed(seed)
 
-            data_input_train = DataInput(dataset_path, FLAGS.student_train_dataset, FLAGS.batch_size,
+            data_input_train = DataInput(dataset_path, FLAGS.train_dataset, FLAGS.batch_size,
                                          FLAGS.num_training_examples, FLAGS.image_width, FLAGS.image_height,
                                          FLAGS.num_channels, seed, FLAGS.dataset)
 
-            data_input_test = DataInput(dataset_path, FLAGS.student_test_dataset, FLAGS.batch_size, FLAGS.num_testing_examples,
+            data_input_test = DataInput(dataset_path, FLAGS.test_dataset, FLAGS.batch_size, FLAGS.num_testing_examples,
                                         FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels, seed, FLAGS.dataset)
 
             #data_input_validation = DataInput(dataset_path, FLAGS.validation_dataset, FLAGS.batch_size,
@@ -716,16 +716,6 @@ if __name__ == '__main__':
         type=bool,
         help='interval_output_train',
         default=False
-    )
-    parser.add_argument(
-        '--student_train_dataset',
-        type=str,
-        default="caltech101-student-train.txt"
-    )
-    parser.add_argument(
-        '--student_test_dataset',
-        type=str,
-        default="caltech101-student-test.txt"
     )
 
     FLAGS, unparsed = parser.parse_known_args()
