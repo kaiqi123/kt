@@ -38,9 +38,8 @@ class DataInput(object):
 		self.example_batch, self.label_batch = tf.train.shuffle_batch (
 		    	[self.train_image, self.col1], batch_size=batch_size, capacity=self.capacity,
              		min_after_dequeue=self.min_after_dequeue, seed=self.seed)
-
-
 		return self.example_batch, self.label_batch
+
 
 	def decode_jpeg(self):
 		
