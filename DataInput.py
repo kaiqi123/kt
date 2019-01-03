@@ -22,6 +22,7 @@ class DataInput(object):
 		self.reader = tf.TextLineReader()
 		# Parse the line of CSV
 		self.key_temp, self.value_temp =  self.reader.read(self.filename_queue)
+		print(self.key_temp, self.value_temp)
 		self.record_defaults = [[1], ['']]
 		self.col1, self.col2 = tf.decode_csv(
 		self.value_temp, record_defaults=self.record_defaults)
