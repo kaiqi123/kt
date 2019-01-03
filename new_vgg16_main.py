@@ -562,17 +562,17 @@ if __name__ == '__main__':
     parser.add_argument(
         '--train_dataset',
         type=str,
-        default="caltech101-train.txt"
+        default="dataset_input/caltech101-train.txt"
     )
     parser.add_argument(
         '--test_dataset',
         type=str,
-        default="caltech101-test.txt"
+        default="dataset_input/caltech101-test.txt"
     )
     parser.add_argument(
         '--validation_dataset',
         type=str,
-        default="caltech101-validation.txt"
+        default="dataset_input/caltech101-validation.txt"
     )
     parser.add_argument(
         '--temp_softmax',
