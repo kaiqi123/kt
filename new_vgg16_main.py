@@ -205,6 +205,16 @@ class VGG16(object):
         self.train_op4_interval = tf.train.AdamOptimizer(lr).minimize(self.l4_interval, var_list=l4_var_list)
         self.train_op5_interval = tf.train.AdamOptimizer(lr).minimize(self.l5_interval, var_list=l5_var_list)
 
+    def define_lossValueTrain_loss_and_optimizers(self, lr):
+
+        print("define lossValueTrain loss and optimizers")
+        l1_var_list = []
+        l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
+        self.ph_loss1 = tf.placeholder(tf.float32, shape=[1])
+        self.loss1 = tf.get_variable(name="loss_value1", shape=[1])
+        self.loss1.assign(self.ph_loss1)
+        self.train_op1_lossTrain1 = tf.train.AdamOptimizer(lr).minimize(self.loss1, var_list=l1_var_list)
+
     def define_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
 
         """
@@ -278,6 +288,9 @@ class VGG16(object):
         if FLAGS.interval_output_train:
             self.define_outputTrain_loss_and_optimizers(lr)
 
+        if FLAGS.interval_lossValue_train:
+            self.define_lossValueTrain_loss_and_optimizers(lr)
+
         init = tf.initialize_all_variables()
         sess.run(init)
 
@@ -337,6 +350,15 @@ class VGG16(object):
                     _, self.loss_value3 = sess.run([self.train_op3_interval, self.l3], feed_dict=feed_dict)
                     _, self.loss_value4 = sess.run([self.train_op4_interval, self.l4], feed_dict=feed_dict)
                     _, self.loss_value5 = sess.run([self.train_op5_interval, self.l5], feed_dict=feed_dict)
+
+            elif FLAGS.interval_lossValue_train:
+
+                if (i % FLAGS.num_iterations == 0):
+                    print(i)
+                    _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+                    sess.run(self.loss1, feed_dict={self.ph_loss1: [self.loss_value1]})
+
+                    _, self.loss_value1 = sess.run([self.train_op1_lossTrain1, self.l1], feed_dict=feed_dict)
 
             else:
                 if (i % FLAGS.num_iterations == 0):
@@ -715,6 +737,12 @@ if __name__ == '__main__':
         '--interval_output_train',
         type=bool,
         help='interval_output_train',
+        default=False
+    )
+    parser.add_argument(
+        '--interval_lossValue_train',
+        type=bool,
+        help='interval_lossValue_train',
         default=False
     )
 
