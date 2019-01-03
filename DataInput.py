@@ -17,6 +17,7 @@ class DataInput(object):
 
 		# Create the File Name queue
 		self.filename_queue = tf.train.string_input_producer([self.dataset_path + self.train_labels_file], num_epochs=None)
+		print(self.filename_queue)
 		# Reading the file line by line
 		self.reader = tf.TextLineReader()
 		# Parse the line of CSV
