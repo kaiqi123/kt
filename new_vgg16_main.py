@@ -410,7 +410,7 @@ class VGG16(object):
                     # self.cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess,feed_dict)
                     # self.visualization_of_filters(sess)
 
-                    cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess,feed_dict)
+                    # cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess,feed_dict)
 
                     self.run_dependent_student(feed_dict, sess, i)
 
