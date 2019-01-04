@@ -1,9 +1,9 @@
 import tensorflow as tf
 
 def find_largest_cosine(num1, num2, num3=tf.constant(0.0)):
-    if tf.math.greater(num1, num2) and tf.math.greater(num1, num3):
+    if tf.math.greater(num1, num2) is not None and tf.math.greater(num1, num3) is not None:
         cosine = tf.constant(1)
-    elif tf.math.greater(num2, num1) and tf.math.greater(num2, num3):
+    elif tf.math.greater(num2, num1) is not None and tf.math.greater(num2, num3) is not None:
         cosine = tf.constant(2)
     else:
         cosine = tf.constant(3)
