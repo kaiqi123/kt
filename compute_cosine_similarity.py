@@ -1,12 +1,12 @@
 import tensorflow as tf
 
-def find_largest_cosine(num1, num2, num3):
-    if (num1 > num2) and (num1 > num3):
-        cosine = 1
-    elif (num2 > num1) and (num2 > num3):
-        cosine = 2
+def find_largest_cosine(num1, num2, num3=tf.constant(0.0)):
+    if tf.math.greater(num1, num2) and tf.math.greater(num1, num3):
+        cosine = tf.constant(1)
+    elif tf.math.greater(num2, num1) and tf.math.greater(num2, num3):
+        cosine = tf.constant(2)
     else:
-        cosine = 3
+        cosine = tf.constant(3)
     return cosine
 
 def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, feed_dict):
@@ -41,11 +41,13 @@ def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, fe
 
     cosine1_11 = tf.reduce_sum(tf.multiply(normalize_a_1, normalize_b_11))
     cosine1_12 = tf.reduce_sum(tf.multiply(normalize_a_1, normalize_b_12))
-    #if tf.math.greater(cosine1_11, cosine1_12) is not None:
-    if cosine1_11 > cosine1_12 is not None:
+    cosine1  = find_largest_cosine(cosine1_11, cosine1_12)
+    """
+    if tf.math.greater(cosine1_11, cosine1_12) is not None:
         cosine1 = tf.constant(1)
     else:
         cosine1 = tf.constant(2)
+    """
 
     cosine2_21 = tf.reduce_sum(tf.multiply(normalize_a_2, normalize_b_21))
     cosine2_22 = tf.reduce_sum(tf.multiply(normalize_a_2, normalize_b_22))
