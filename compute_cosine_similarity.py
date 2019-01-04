@@ -41,10 +41,11 @@ def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, fe
 
     cosine1_11 = tf.reduce_sum(tf.multiply(normalize_a_1, normalize_b_11))
     cosine1_12 = tf.reduce_sum(tf.multiply(normalize_a_1, normalize_b_12))
-    if tf.math.greater(cosine1_11, cosine1_12) is not None:
-        cosine1 = 1
+    #if tf.math.greater(cosine1_11, cosine1_12) is not None:
+    if cosine1_11 > cosine1_12 is not None:
+        cosine1 = tf.constant(1)
     else:
-        cosine1 = 2
+        cosine1 = tf.constant(2)
 
     cosine2_21 = tf.reduce_sum(tf.multiply(normalize_a_2, normalize_b_21))
     cosine2_22 = tf.reduce_sum(tf.multiply(normalize_a_2, normalize_b_22))
