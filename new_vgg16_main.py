@@ -16,6 +16,8 @@ from PIL import Image
 import argparse
 import csv
 from tensorflow.python.client import device_lib
+from compute_cosine_similarity import cosine_similarity_of_same_width
+
 dataset_path = "./"
 tf.reset_default_graph()
 NUM_ITERATIONS = 3802
@@ -303,24 +305,44 @@ class VGG16(object):
             if var.op.name == "mentor_conv1_1/mentor_weights":
                 self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
 
+            if var.op.name == "mentor_conv1_1/mentor_biases":
+                self.mentee_data_dict.parameters[1].assign(var.eval(session=sess)).eval(session=sess)
+
             if var.op.name == "mentor_conv2_1/mentor_weights":
                 self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
+
+            if var.op.name == "mentor_conv2_1/mentor_biases":
+                self.mentee_data_dict.parameters[3].assign(var.eval(session=sess)).eval(session=sess)
 
             if var.op.name == "mentor_conv3_1/mentor_weights":
                 self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
 
+            if var.op.name == "mentor_conv3_1/mentor_biases":
+                self.mentee_data_dict.parameters[5].assign(var.eval(session=sess)).eval(session=sess)
+
             if var.op.name == "mentor_conv4_1/mentor_weights":
                 self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
+
+            if var.op.name == "mentor_conv4_1/mentor_biases":
+                self.mentee_data_dict.parameters[7].assign(var.eval(session=sess)).eval(session=sess)
 
             if var.op.name == "mentor_conv5_1/mentor_weights":
                 self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
 
+            if var.op.name == "mentor_conv5_1/mentor_biases":
+                self.mentee_data_dict.parameters[9].assign(var.eval(session=sess)).eval(session=sess)
+
             if var.op.name == "mentor_fc1/mentor_weights":
                 self.mentee_data_dict.parameters[10].assign(var.eval(session=sess)).eval(session=sess)
+
+            if var.op.name == "mentor_fc1/mentor_biases":
+                self.mentee_data_dict.parameters[11].assign(var.eval(session=sess)).eval(session=sess)
 
             if var.op.name == "mentor_fc3/mentor_weights":
                 self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
 
+            if var.op.name == "mentor_fc3/mentor_biases":
+                self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
 
     def run_dependent_student(self, feed_dict, sess, i):
 
@@ -398,6 +420,8 @@ class VGG16(object):
                     # self.normalize_the_outputs_of_mentor_mentee_of_different_widths(sess, feed_dict)
                     # self.cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess,feed_dict)
                     # self.visualization_of_filters(sess)
+
+                    cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess,feed_dict)
 
                     self.run_dependent_student(feed_dict, sess, i)
 
