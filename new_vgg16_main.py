@@ -342,7 +342,7 @@ class VGG16(object):
                 self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
 
             if var.op.name == "mentor_fc3/mentor_biases":
-                self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
+                self.mentee_data_dict.parameters[13].assign(var.eval(session=sess)).eval(session=sess)
 
     def run_dependent_student(self, feed_dict, sess, i):
 
