@@ -42,7 +42,7 @@ def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, fe
 
     cosine1_11 = tf.reduce_sum(tf.multiply(normalize_a_1, normalize_b_11))
     cosine1_12 = tf.reduce_sum(tf.multiply(normalize_a_1, normalize_b_12))
-    if cosine1_11 > cosine1_12:
+    if tf.math.greater(cosine1_11, cosine1_12):
         cosine1 = 1
     else:
         cosine1 = 2
