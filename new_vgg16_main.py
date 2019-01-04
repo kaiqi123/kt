@@ -301,7 +301,7 @@ class VGG16(object):
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
 
-        """
+
         print("initialization")
         for var in tf.global_variables():
             if var.op.name == "mentor_conv1_1/mentor_weights":
@@ -324,7 +324,7 @@ class VGG16(object):
 
             if var.op.name == "mentor_fc3/mentor_weights":
                 self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
-        """
+
 
     def run_dependent_student(self, feed_dict, sess, i):
 
@@ -403,7 +403,7 @@ class VGG16(object):
                     # self.cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess,feed_dict)
                     # self.visualization_of_filters(sess)
 
-                    #cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess,feed_dict)
+                    cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess,feed_dict)
 
                     self.run_dependent_student(feed_dict, sess, i)
 
