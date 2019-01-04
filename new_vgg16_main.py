@@ -131,12 +131,19 @@ class VGG16(object):
         """
         Here layers of same width are mapped together.
         """
-
+        """
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
         self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_1, self.mentee_data_dict.conv3_1))))
         self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1))))
         self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1))))
+        """
+        self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
+        self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_2, self.mentee_data_dict.conv2_1))))
+        self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1))))
+        self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1))))
+        self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1))))
+
 
 
     def define_multiple_optimizers(self, lr):
