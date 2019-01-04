@@ -18,7 +18,6 @@ def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, fe
     normalize_b_11 = tf.nn.l2_normalize(mentor_data_dict.conv1_1, 0)
     normalize_b_12 = tf.nn.l2_normalize(mentor_data_dict.conv1_2, 0)
 
-
     normalize_a_2 = tf.nn.l2_normalize(mentee_data_dict.conv2_1, 0)
     normalize_b_21 = tf.nn.l2_normalize(mentor_data_dict.conv2_1, 0)
     normalize_b_22 = tf.nn.l2_normalize(mentor_data_dict.conv2_2, 0)
@@ -49,25 +48,26 @@ def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, fe
 
     cosine2_21 = tf.reduce_sum(tf.multiply(normalize_a_2, normalize_b_21))
     cosine2_22 = tf.reduce_sum(tf.multiply(normalize_a_2, normalize_b_22))
+    """
     if cosine2_21 > cosine2_22:
         cosine2 = 1
     else:
         cosine2 = 2
-
+    """
     cosine3_31 = tf.reduce_sum(tf.multiply(normalize_a_3, normalize_b_31))
     cosine3_32 = tf.reduce_sum(tf.multiply(normalize_a_3, normalize_b_32))
     cosine3_33 = tf.reduce_sum(tf.multiply(normalize_a_3, normalize_b_33))
-    cosine3 = find_largest_cosine(cosine3_31, cosine3_32, cosine3_33)
+    #cosine3 = find_largest_cosine(cosine3_31, cosine3_32, cosine3_33)
 
     cosine4_41 = tf.reduce_sum(tf.multiply(normalize_a_4, normalize_b_41))
     cosine4_42 = tf.reduce_sum(tf.multiply(normalize_a_4, normalize_b_42))
     cosine4_43 = tf.reduce_sum(tf.multiply(normalize_a_4, normalize_b_43))
-    cosine4 = find_largest_cosine(cosine4_41, cosine4_42, cosine4_43)
+    #cosine4 = find_largest_cosine(cosine4_41, cosine4_42, cosine4_43)
 
     cosine5_51 = tf.reduce_sum(tf.multiply(normalize_a_5, normalize_b_51))
     cosine5_52 = tf.reduce_sum(tf.multiply(normalize_a_5, normalize_b_52))
     cosine5_53 = tf.reduce_sum(tf.multiply(normalize_a_5, normalize_b_53))
-    cosine5 = find_largest_cosine(cosine5_51, cosine5_52, cosine5_53)
+    #cosine5 = find_largest_cosine(cosine5_51, cosine5_52, cosine5_53)
 
 
     print("start")
@@ -75,16 +75,16 @@ def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, fe
     print sess.run([cosine1_11,cosine1_12, cosine1], feed_dict=feed_dict)
 
     print("2th")
-    print sess.run([cosine2_21,cosine2_22, cosine2], feed_dict=feed_dict)
+    #print sess.run([cosine2_21,cosine2_22, cosine2], feed_dict=feed_dict)
 
     print("3th")
-    print sess.run([cosine3_31,cosine3_32, cosine3_33, cosine3], feed_dict=feed_dict)
+    #print sess.run([cosine3_31,cosine3_32, cosine3_33, cosine3], feed_dict=feed_dict)
 
     print("4th")
-    print sess.run([cosine4_41,cosine4_42, cosine4_43, cosine4], feed_dict=feed_dict)
+    #print sess.run([cosine4_41,cosine4_42, cosine4_43, cosine4], feed_dict=feed_dict)
 
     print("5th")
-    print sess.run([cosine5_51,cosine5_52, cosine5_53, cosine5], feed_dict=feed_dict)
+    #print sess.run([cosine5_51,cosine5_52, cosine5_53, cosine5], feed_dict=feed_dict)
 
     print("ended")
 
