@@ -43,12 +43,12 @@ def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, fe
     """
 
     normalize_a_4 = tf.nn.l2_normalize(mentee_data_dict.conv4_1, 0)
-    normalize_a_5 = tf.nn.l2_normalize(mentee_data_dict.conv5_1, 0)
-    normalize_a_6 = tf.nn.l2_normalize(mentee_data_dict.conv6_1, 0)
 
     normalize_b_41 = tf.nn.l2_normalize(mentor_data_dict.conv4_1, 0)
     normalize_b_42 = tf.nn.l2_normalize(mentor_data_dict.conv4_2, 0)
     normalize_b_43 = tf.nn.l2_normalize(mentor_data_dict.conv4_3, 0)
+
+    normalize_a_5 = tf.nn.l2_normalize(mentee_data_dict.conv5_1, 0)
 
     normalize_b_51 = tf.nn.l2_normalize(mentor_data_dict.conv5_1, 0)
     normalize_b_52 = tf.nn.l2_normalize(mentor_data_dict.conv5_2, 0)
