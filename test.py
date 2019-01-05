@@ -24,7 +24,7 @@ def find_largest_cosine_among_three_numbers(num1, num2, num3):
     return result
 
 x = tf.constant(8.0)
-y = tf.constant(5.0)
+y = tf.constant(9.0)
 z = tf.constant(4.0)
 
 cosine = find_largest_cosine_among_three_numbers(x,y,z)
