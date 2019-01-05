@@ -1,14 +1,5 @@
 import tensorflow as tf
 
-def find_largest_cosine(num1, num2, num3):
-    if tf.math.greater(num1, num2) is not None and tf.math.greater(num1, num3) is not None:
-        cosine = tf.constant(1)
-    elif tf.math.greater(num2, num1) is not None and tf.math.greater(num2, num3) is not None:
-        cosine = tf.constant(2)
-    else:
-        cosine = tf.constant(3)
-    return cosine
-
 def find_largest_cosine_among_two_numbers(num1, num2):
 
     def return_1():
@@ -18,6 +9,29 @@ def find_largest_cosine_among_two_numbers(num1, num2):
         return tf.constant(2)
 
     result = tf.cond(num1 > num2, return_1, return_2)
+
+    return result
+
+def find_largest_cosine_among_three_numbers(num1, num2, num3):
+
+    def return_1():
+        return tf.constant(1)
+
+    def return_2():
+        return tf.constant(2)
+
+    def return_3():
+        return tf.constant(3)
+
+    def compare_number13(num1, num3):
+        result = tf.cond(num1 > num3, return_1, return_3)
+        return result
+
+    def compare_two_number23(num2, num3):
+        result = tf.cond(num2 > num3, return_2, return_3)
+        return result
+
+    result = tf.cond(num1>num2, lambda: compare_number13(num1, num3), lambda: compare_two_number23(num2, num3))
 
     return result
 
@@ -63,7 +77,7 @@ def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, fe
     cosine3_31 = tf.reduce_sum(tf.multiply(normalize_a_3, normalize_b_31))
     cosine3_32 = tf.reduce_sum(tf.multiply(normalize_a_3, normalize_b_32))
     cosine3_33 = tf.reduce_sum(tf.multiply(normalize_a_3, normalize_b_33))
-    cosine3 = find_largest_cosine(cosine3_31, cosine3_32, cosine3_33)
+    cosine3 = find_largest_cosine_among_three_numbers(cosine3_31, cosine3_32, cosine3_33)
 
     cosine4_41 = tf.reduce_sum(tf.multiply(normalize_a_4, normalize_b_41))
     cosine4_42 = tf.reduce_sum(tf.multiply(normalize_a_4, normalize_b_42))
@@ -84,7 +98,7 @@ def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, fe
     #print sess.run([cosine2_21,cosine2_22, cosine2], feed_dict=feed_dict)
 
     print("3th")
-    #print sess.run([cosine3_31,cosine3_32, cosine3_33, cosine3], feed_dict=feed_dict)
+    print sess.run([cosine3_31,cosine3_32, cosine3_33, cosine3], feed_dict=feed_dict)
 
     print("4th")
     #print sess.run([cosine4_41,cosine4_42, cosine4_43, cosine4], feed_dict=feed_dict)
