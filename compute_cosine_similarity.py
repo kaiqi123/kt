@@ -90,11 +90,14 @@ def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, fe
     cosine5_53 = tf.reduce_sum(tf.multiply(normalize_a_5, normalize_b_53))
     cosine5 = find_largest_cosine_among_three_numbers(cosine5_51, cosine5_52, cosine5_53)
 
+    cosine = [cosine1, cosine2, cosine3, cosine4, cosine5]
+
 
     print("start")
+
     print("1th")
     print sess.run([cosine1_11,cosine1_12, cosine1], feed_dict=feed_dict)
-
+    """
     print("2th")
     print sess.run([cosine2_21,cosine2_22, cosine2], feed_dict=feed_dict)
 
@@ -106,9 +109,9 @@ def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, fe
 
     print("5th")
     print sess.run([cosine5_51,cosine5_52, cosine5_53, cosine5], feed_dict=feed_dict)
-
+    """
     print("ended")
 
-    # print(cosine1_11,cosine1_12,cosine2_21,cosine2_22,cosine3_31,cosine3_32,cosine3_33,cosine4_41,cosine4_42,cosine4_43,cosine5_51,cosine5_52,cosine5_53)
+    return cosine
 
-    # return cosine1, cosine2, cosine3, cosine4, cosine5, cosine6, cosine7, cosine8, cosine9, cosine10, cosine11, cosine12, cosine13
+
