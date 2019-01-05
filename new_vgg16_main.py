@@ -319,7 +319,7 @@ class VGG16(object):
             print("3:11")
             self.train_op3 = self.train_op31
             self.l3 = self.l31
-        if cosine[2] == 2:
+        elif cosine[2] == 2:
             print("3:222")
             self.train_op3 = self.train_op32
             self.l3 = self.l32
@@ -332,7 +332,7 @@ class VGG16(object):
             print("4:11")
             self.train_op4 = self.train_op41
             self.l4 = self.l41
-        if cosine[3] == 2:
+        elif cosine[3] == 2:
             print("4:222")
             self.train_op4 = self.train_op42
             self.l4 = self.l42
@@ -345,7 +345,7 @@ class VGG16(object):
             print("5:11")
             self.train_op5 = self.train_op51
             self.l5 = self.l51
-        if cosine[4] == 2:
+        elif cosine[4] == 2:
             print("5:222")
             self.train_op5 = self.train_op52
             self.l5 = self.l52
