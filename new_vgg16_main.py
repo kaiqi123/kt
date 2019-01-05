@@ -324,8 +324,35 @@ class VGG16(object):
             self.train_op3 = self.train_op32
             self.l3 = self.l32
         else:
+            print("3:333")
             self.train_op3 = self.train_op33
             self.l3 = self.l33
+
+        if cosine[3] == 1:
+            print("4:11")
+            self.train_op4 = self.train_op41
+            self.l4 = self.l41
+        if cosine[3] == 2:
+            print("4:222")
+            self.train_op4 = self.train_op42
+            self.l4 = self.l42
+        else:
+            print("4:33")
+            self.train_op4 = self.train_op43
+            self.l4 = self.l43
+
+        if cosine[4] == 1:
+            print("5:11")
+            self.train_op5 = self.train_op51
+            self.l5 = self.l51
+        if cosine[4] == 2:
+            print("5:222")
+            self.train_op5 = self.train_op52
+            self.l5 = self.l52
+        else:
+            print("5:333")
+            self.train_op5 = self.train_op53
+            self.l5 = self.l53
 
     def run_dependent_student(self, feed_dict, sess, i):
 
@@ -335,18 +362,15 @@ class VGG16(object):
 
                 #cosine = self.cosine
                 self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict)
-
                 cosine = sess.run(self.cosine, feed_dict=feed_dict)
                 self.select_optimizers_and_loss(cosine)
 
-                sess.run(self.cosine, feed_dict=feed_dict)
-
-                #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                 _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
                 _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-                #_, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
-                #_, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
+                _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
+                _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
             else:
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
@@ -382,12 +406,12 @@ class VGG16(object):
                         # print("train function: dependent student, multiple optimizers")
                         if FLAGS.multiple_optimizers_l5:
 
-                            #print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
+                            print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
                             print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
-                            #print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
-                            #print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
+                            print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
+                            print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                             print ("\n")
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
