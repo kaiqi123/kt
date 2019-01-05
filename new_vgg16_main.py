@@ -384,7 +384,7 @@ class VGG16(object):
                     _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
                     _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
                 else:
-                    # _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
 
 
