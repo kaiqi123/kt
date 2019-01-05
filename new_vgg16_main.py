@@ -131,19 +131,20 @@ class VGG16(object):
         """
         Here layers of same width are mapped together.
         """
-        """
+
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
         self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_1, self.mentee_data_dict.conv3_1))))
         self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1))))
         self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1))))
+
         """
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_2, self.mentee_data_dict.conv2_1))))
         self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1))))
         self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1))))
         self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1))))
-
+        """
 
 
     def define_multiple_optimizers(self, lr):
@@ -308,7 +309,7 @@ class VGG16(object):
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
 
-        """
+
         print("initialization")
         for var in tf.global_variables():
             if var.op.name == "mentor_conv1_1/mentor_weights":
@@ -331,7 +332,7 @@ class VGG16(object):
 
             if var.op.name == "mentor_fc3/mentor_weights":
                 self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
-        """
+
 
 
     def run_dependent_student(self, feed_dict, sess, i):
