@@ -295,6 +295,37 @@ class VGG16(object):
             if var.op.name == "mentor_fc3/mentor_weights":
                 self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
         """
+    def select_optimizers_and_loss(self,cosine):
+        print(cosine)
+        if cosine[0] == 1:
+            print("1:11")
+            self.train_op1 = self.train_op11
+            self.l1 = self.l11
+        else:
+            print("1:222")
+            self.train_op1 = self.train_op12
+            self.l1 = self.l12
+
+        if cosine[1] == 1:
+            print("2:11")
+            self.train_op2 = self.train_op21
+            self.l2 = self.l21
+        else:
+            print("2:222")
+            self.train_op2 = self.train_op22
+            self.l2 = self.l22
+
+        if cosine[2] == 1:
+            print("3:11")
+            self.train_op3 = self.train_op31
+            self.l3 = self.l31
+        if cosine[2] == 2:
+            print("3:222")
+            self.train_op3 = self.train_op32
+            self.l3 = self.l32
+        else:
+            self.train_op3 = self.train_op33
+            self.l3 = self.l33
 
     def run_dependent_student(self, feed_dict, sess, i):
 
@@ -306,40 +337,7 @@ class VGG16(object):
                 self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict)
 
                 cosine = sess.run(self.cosine, feed_dict=feed_dict)
-                print(cosine)
-                print(cosine[0])
-                if cosine[0] == 1:
-                    print("1:11")
-                    self.train_op1 = self.train_op11
-                    self.l1 = self.l11
-                else:
-                    print("1:222")
-                    self.train_op1 = self.train_op12
-                    self.l1 = self.l12
-
-
-                if cosine[1] == 1:
-                    print("2:11")
-                    self.train_op2 = self.train_op21
-                    self.l2 = self.l21
-                else:
-                    print("2:222")
-                    self.train_op2 = self.train_op22
-                    self.l2 = self.l22
-
-
-                if cosine[2] == 1:
-                    print("3:11")
-                    self.train_op3 = self.train_op31
-                    self.l3 = self.l31
-                if cosine[2] == 2:
-                    print("3:222")
-                    self.train_op3 = self.train_op32
-                    self.l3 = self.l32
-                else:
-                    self.train_op3 = self.train_op33
-                    self.l3 = self.l33
-
+                self.select_optimizers_and_loss(cosine)
 
                 sess.run(self.cosine, feed_dict=feed_dict)
 
