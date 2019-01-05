@@ -104,13 +104,13 @@ def cosine_similarity_of_same_width(mentee_data_dict, mentor_data_dict, sess, fe
     print("3th")
     print sess.run([cosine3_31,cosine3_32, cosine3_33, cosine3], feed_dict=feed_dict)
 
-    """
+
     print("4th")
     print sess.run([cosine4_41,cosine4_42, cosine4_43, cosine4], feed_dict=feed_dict)
 
     print("5th")
     print sess.run([cosine5_51,cosine5_52, cosine5_53, cosine5], feed_dict=feed_dict)
-    """
+
     print("ended")
 
     return cosine

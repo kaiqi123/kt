@@ -360,7 +360,6 @@ class VGG16(object):
 
             if (i % FLAGS.num_iterations == 0):
 
-                #cosine = self.cosine
                 self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict)
                 cosine = sess.run(self.cosine, feed_dict=feed_dict)
                 self.select_optimizers_and_loss(cosine)
