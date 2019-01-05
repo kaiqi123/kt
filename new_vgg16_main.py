@@ -309,21 +309,44 @@ class VGG16(object):
                 print(cosine)
                 print(cosine[0])
                 if cosine[0] == 1:
-                    print("11")
+                    print("1:11")
                     self.train_op1 = self.train_op11
                     self.l1 = self.l11
                 else:
-                    print("222")
+                    print("1:222")
                     self.train_op1 = self.train_op12
                     self.l1 = self.l12
+
+
+                if cosine[1] == 1:
+                    print("2:11")
+                    self.train_op2 = self.train_op21
+                    self.l2 = self.l21
+                else:
+                    print("2:222")
+                    self.train_op2 = self.train_op22
+                    self.l2 = self.l22
+
+
+                if cosine[2] == 1:
+                    print("3:11")
+                    self.train_op3 = self.train_op31
+                    self.l3 = self.l31
+                if cosine[2] == 2:
+                    print("3:222")
+                    self.train_op3 = self.train_op32
+                    self.l3 = self.l32
+                else:
+                    self.train_op3 = self.train_op33
+                    self.l3 = self.l33
 
 
                 sess.run(self.cosine, feed_dict=feed_dict)
 
                 #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                #_, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-                #_, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
                 #_, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
                 #_, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
             else:
@@ -363,8 +386,8 @@ class VGG16(object):
 
                             #print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
-                            #print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
-                            #print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
+                            print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
+                            print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
                             #print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
                             #print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                             print ("\n")
