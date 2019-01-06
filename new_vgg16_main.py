@@ -271,7 +271,7 @@ class VGG16(object):
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
 
-        """
+
         print("initialization")
         for var in tf.global_variables():
             if var.op.name == "mentor_conv1_1/mentor_weights":
@@ -294,7 +294,7 @@ class VGG16(object):
 
             if var.op.name == "mentor_fc3/mentor_weights":
                 self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
-        """
+
     def select_optimizers_and_loss(self,cosine):
         #print(cosine)
         if cosine[0] == 1:
