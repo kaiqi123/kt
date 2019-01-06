@@ -21,7 +21,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 2
+NUM_ITERATIONS = 4680
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -296,73 +296,73 @@ class VGG16(object):
                 self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
         """
     def select_optimizers_and_loss(self,cosine):
-        print(cosine)
+        #print(cosine)
         if cosine[0] == 1:
-            print("1:11")
+            #print("1:11")
             self.train_op1 = self.train_op11
             self.l1 = self.l11
             count_cosine[0]=count_cosine[0]+1
         else:
-            print("1:222")
+            #print("1:222")
             self.train_op1 = self.train_op12
             self.l1 = self.l12
             count_cosine[1] = count_cosine[1] + 1
 
         if cosine[1] == 1:
-            print("2:11")
+            #print("2:11")
             self.train_op2 = self.train_op21
             self.l2 = self.l21
             count_cosine[2] = count_cosine[2] + 1
         else:
-            print("2:222")
+            #print("2:222")
             self.train_op2 = self.train_op22
             self.l2 = self.l22
             count_cosine[3] = count_cosine[3] + 1
 
         if cosine[2] == 1:
-            print("3:11")
+            #print("3:11")
             self.train_op3 = self.train_op31
             self.l3 = self.l31
             count_cosine[4] = count_cosine[4] + 1
         elif cosine[2] == 2:
-            print("3:222")
+            #print("3:222")
             self.train_op3 = self.train_op32
             self.l3 = self.l32
             count_cosine[5] = count_cosine[5] + 1
         else:
-            print("3:333")
+            #print("3:333")
             self.train_op3 = self.train_op33
             self.l3 = self.l33
             count_cosine[6] = count_cosine[6] + 1
 
         if cosine[3] == 1:
-            print("4:11")
+            #print("4:11")
             self.train_op4 = self.train_op41
             self.l4 = self.l41
             count_cosine[7] = count_cosine[7] + 1
         elif cosine[3] == 2:
-            print("4:222")
+            #print("4:222")
             self.train_op4 = self.train_op42
             self.l4 = self.l42
             count_cosine[8] = count_cosine[8] + 1
         else:
-            print("4:33")
+            #print("4:33")
             self.train_op4 = self.train_op43
             self.l4 = self.l43
             count_cosine[9] = count_cosine[9] + 1
 
         if cosine[4] == 1:
-            print("5:11")
+            #print("5:11")
             self.train_op5 = self.train_op51
             self.l5 = self.l51
             count_cosine[10] = count_cosine[10] + 1
         elif cosine[4] == 2:
-            print("5:222")
+            #print("5:222")
             self.train_op5 = self.train_op52
             self.l5 = self.l52
             count_cosine[11] = count_cosine[11] + 1
         else:
-            print("5:333")
+            #print("5:333")
             self.train_op5 = self.train_op53
             self.l5 = self.l53
             count_cosine[12] = count_cosine[12] + 1
