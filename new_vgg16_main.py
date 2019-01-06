@@ -536,6 +536,10 @@ class VGG16(object):
         runtime = round((end_time - start_time) / (60 * 60), 2)
         print("run time is: " + str(runtime) + " hour")
         print("1th: "+ str(count_cosine[0]) + "," + str(count_cosine[1]))
+        print("2th: "+ str(count_cosine[2]) + "," + str(count_cosine[3]))
+        print("3th: "+ str(count_cosine[4]) + "," + str(count_cosine[5])+ "," + str(count_cosine[6]))
+        print("4th: "+ str(count_cosine[7]) + "," + str(count_cosine[8])+ "," + str(count_cosine[9]))
+        print("5th: "+ str(count_cosine[10]) + "," + str(count_cosine[11])+ "," + str(count_cosine[12]))
 
 
 if __name__ == '__main__':
