@@ -21,7 +21,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 4680
+NUM_ITERATIONS = 5
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -132,14 +132,13 @@ class VGG16(object):
         """
         Here layers of same width are mapped together.
         """
-        """
+
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
         self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_1, self.mentee_data_dict.conv3_1))))
         self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1))))
         self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1))))
         """
-
         self.l11 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_1, self.mentee_data_dict.conv1_1))))
         self.l12 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
 
@@ -157,7 +156,7 @@ class VGG16(object):
         self.l51 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_1, self.mentee_data_dict.conv5_1))))
         self.l52 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1))))
         self.l53 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1))))
-
+        """
     def define_multiple_optimizers(self, lr):
 
         print("define multiple optimizers")
@@ -192,7 +191,6 @@ class VGG16(object):
         self.train_op51 = tf.train.AdamOptimizer(lr).minimize(self.l51, var_list=l5_var_list)
         self.train_op52 = tf.train.AdamOptimizer(lr).minimize(self.l52, var_list=l5_var_list)
         self.train_op53 = tf.train.AdamOptimizer(lr).minimize(self.l53, var_list=l5_var_list)
-
 
 
     def define_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
@@ -373,17 +371,18 @@ class VGG16(object):
 
             if (i % FLAGS.num_iterations == 0):
 
-                self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict)
-                cosine = sess.run(self.cosine, feed_dict=feed_dict)
-                self.select_optimizers_and_loss(cosine)
-
-                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-                _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
-                _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
+                #self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict)
+                #cosine = sess.run(self.cosine, feed_dict=feed_dict)
+                #self.select_optimizers_and_loss(cosine)
+                if i<=3:
+                    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                    _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+                    _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+                    _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+                    _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
+                    _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
             else:
+                print(i)
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
 
