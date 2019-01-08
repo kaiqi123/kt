@@ -293,15 +293,12 @@ class VGG16(object):
         self.mentor_data_dict = vgg16_mentor.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax,
                                                    phase_train)
 
-        self.mentee_data_dict = vgg16_mentee.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed,
+        if FLAGS.num_optimizers == 5:
+            self.mentee_data_dict = vgg16_mentee.build_7layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed,
                                                    phase_train)
-        """
-        The below code is to calculate the cosine similarity between the outputs of the mentor-mentee layers.
-        The layers with highest cosine similarity value are mapped together.
-        
-        cosine1, cosine2, cosine3, cosine4, cosine5, cosine6, cosine7, cosine8, cosine9, cosine10, cosine11, cosine12, cosine13 = self.cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess)
-        self.cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess)
-        """
+        elif FLAGS.num_optimizers == 3:
+            self.mentee_data_dict = vgg16_mentee.build_5layers(images_placeholder, FLAGS.num_classes,FLAGS.temp_softmax, seed,
+                                                               phase_train)
 
         self.softmax = self.mentee_data_dict.softmax
         mentor_variables_to_restore = self.get_mentor_variables_to_restore()
@@ -418,26 +415,24 @@ class VGG16(object):
 
     def run_dependent_student(self, feed_dict, sess, i):
 
-        if FLAGS.multiple_optimizers_l5:
+        if (i % FLAGS.num_iterations == 0):
 
-            if (i % FLAGS.num_iterations == 0):
+            self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict)
+            cosine = sess.run(self.cosine, feed_dict=feed_dict)
+            self.select_optimizers_and_loss(cosine)
 
-                self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict)
-                cosine = sess.run(self.cosine, feed_dict=feed_dict)
-                self.select_optimizers_and_loss(cosine)
-                #if i< NUM_ITERATIONS/10:
-                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+            _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+            _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+            _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+            _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+
+            if FLAGS.num_optimizers == 5:
                 _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
                 _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
-                #else:
-                    # print(i)
-                    #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-            else:
-                #print("do not connect teacher: "+str(i))
-                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+
+        else:
+            #print("do not connect teacher: "+str(i))
+            _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
@@ -463,22 +458,21 @@ class VGG16(object):
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
-                    # self.normalize_the_outputs_of_mentor_mentee_of_different_widths(sess, feed_dict)
-                    # self.cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict,sess,feed_dict)
-                    # self.visualization_of_filters(sess)
+
                     self.run_dependent_student(feed_dict, sess, i)
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
-                        if FLAGS.multiple_optimizers_l5:
+                        print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
+                        print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
+                        print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
+                        print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
 
-                            print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
-                            print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
-                            print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
-                            print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
+                        if FLAGS.num_optimizers == 5:
                             print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
                             print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
-                            print ("\n")
+
+                        print ("\n")
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
                 i) == NUM_ITERATIONS - 1:
@@ -722,42 +716,6 @@ if __name__ == '__main__':
         default='3'
     )
     parser.add_argument(
-        '--multiple_optimizers_l0',
-        type=bool,
-        help='number of channels in the initial layer if it is RGB it will 3 , if it is gray scale it will be 1',
-        default=False
-    )
-    parser.add_argument(
-        '--multiple_optimizers_l1',
-        type=bool,
-        help='number of channels in the initial layer if it is RGB it will 3 , if it is gray scale it will be 1',
-        default=False
-    )
-    parser.add_argument(
-        '--multiple_optimizers_l2',
-        type=bool,
-        help='number of channels in the initial layer if it is RGB it will 3 , if it is gray scale it will be 1',
-        default=False
-    )
-    parser.add_argument(
-        '--multiple_optimizers_l3',
-        type=bool,
-        help='number of channels in the initial layer if it is RGB it will 3 , if it is gray scale it will be 1',
-        default=False
-    )
-    parser.add_argument(
-        '--multiple_optimizers_l4',
-        type=bool,
-        help='number of channels in the initial layer if it is RGB it will 3 , if it is gray scale it will be 1',
-        default=False
-    )
-    parser.add_argument(
-        '--multiple_optimizers_l5',
-        type=bool,
-        help='number of channels in the initial layer if it is RGB it will 3 , if it is gray scale it will be 1',
-        default=False
-    )
-    parser.add_argument(
         '--top_1_accuracy',
         type=bool,
         help='top-1-accuracy',
@@ -774,30 +732,6 @@ if __name__ == '__main__':
         type=bool,
         help='top-5-accuracy',
         default=False
-    )
-    parser.add_argument(
-        '--hard_logits',
-        type=bool,
-        help='hard_logits',
-        default=False
-    )
-    parser.add_argument(
-        '--fitnets_HT',
-        type=bool,
-        help='fitnets_HT',
-        default=False
-    )
-    parser.add_argument(
-        '--fitnets_KD',
-        type=bool,
-        help='fitnets_KD',
-        default=False
-    )
-    parser.add_argument(
-        '--embed_type',
-        type=str,
-        help='embed type can be either fully connected or convolutional layers',
-        default='fc'
     )
     parser.add_argument(
         '--num_iterations',
@@ -822,6 +756,12 @@ if __name__ == '__main__':
         type=bool,
         help='initialization',
         default=False
+    )
+    parser.add_argument(
+        '--num_optimizers',
+        type=int,
+        help='number of mapping layers from teacher',
+        default=5
     )
 
     FLAGS, unparsed = parser.parse_known_args()
