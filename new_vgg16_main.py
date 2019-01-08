@@ -231,7 +231,7 @@ class VGG16(object):
         ## saver object is created to save all the variables to a file
         self.saver = tf.train.Saver()
 
-    def train_teacher(self, images_placeholder, labels_placeholder, phase_train, global_step, sess):
+    def define_teacher(self, images_placeholder, labels_placeholder, phase_train, global_step, sess):
 
         """
             1. Train teacher prior to student so that knowledge from teacher can be transferred to train student.
@@ -261,6 +261,7 @@ class VGG16(object):
             self.train_op = mentor.training(self.loss, FLAGS.learning_rate_pretrained, lr, global_step,
                                             variables_to_restore, mentor.get_training_vars())
         if FLAGS.dataset == 'cifar10':
+            print("cifar10")
             self.train_op = mentor.training(self.loss, FLAGS.learning_rate, global_step)
 
         self.softmax = mentor_data_dict.softmax
