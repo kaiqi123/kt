@@ -20,7 +20,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 2
+NUM_ITERATIONS = 4680
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -321,7 +321,7 @@ class VGG16(object):
             print("initialization")
 
             if FLAGS.num_optimizers == 5:
-                print("wwwww")
+
                 for var in tf.global_variables():
                     if var.op.name == "mentor_conv1_1/mentor_weights":
                         self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
