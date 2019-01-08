@@ -1,4 +1,5 @@
 101_ObjectCategories
+cifar10
 tensorboard
 summary-log 
 vgg16.npy

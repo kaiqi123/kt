@@ -1,4 +1,3 @@
-
 import tensorflow as tf
 import numpy as np
 import random
@@ -21,7 +20,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 4680
+NUM_ITERATIONS = 5
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -232,6 +231,44 @@ class VGG16(object):
         ## saver object is created to save all the variables to a file
         self.saver = tf.train.Saver()
 
+    def train_teacher(self, images_placeholder, labels_placeholder, phase_train, global_step, sess):
+
+        """
+            1. Train teacher prior to student so that knowledge from teacher can be transferred to train student.
+            2. Teacher object is trained by importing weights from a pretrained vgg 16 network
+            3. Mentor object is a network trained from scratch. We did not find the pretrained network with the same architecture for cifar10.
+               Thus, trained the network from scratch on cifar10
+
+        """
+
+        if FLAGS.dataset == 'cifar10' or 'mnist':
+            print("Train Teacher (cifar10 or mnist)")
+            mentor = Teacher()
+        if FLAGS.dataset == 'caltech101':
+            print("Train Teacher (caltech101)")
+            mentor = Mentor()
+
+        num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
+        decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
+
+        mentor_data_dict = mentor.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
+        self.loss = mentor.loss(labels_placeholder)
+        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,
+                                        staircase=True)
+        if FLAGS.dataset == 'caltech101':
+            ## restore all the weights
+            variables_to_restore = self.get_mentor_variables_to_restore()
+            self.train_op = mentor.training(self.loss, FLAGS.learning_rate_pretrained, lr, global_step,
+                                            variables_to_restore, mentor.get_training_vars())
+        if FLAGS.dataset == 'cifar10':
+            self.train_op = mentor.training(self.loss, FLAGS.learning_rate, global_step)
+
+        self.softmax = mentor_data_dict.softmax
+        init = tf.global_variables_initializer()
+        sess.run(init)
+        self.saver = tf.train.Saver()
+
+
     def define_dependent_student(self, images_placeholder, labels_placeholder, phase_train, seed, global_step, sess):
 
         """
@@ -382,18 +419,18 @@ class VGG16(object):
                 #self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict)
                 #cosine = sess.run(self.cosine, feed_dict=feed_dict)
                 #self.select_optimizers_and_loss(cosine)
-                if i< NUM_ITERATIONS/10:
-                    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                    _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                    _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-                    _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-                    _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
-                    _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
-                else:
+                #if i< NUM_ITERATIONS/10:
+                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+                _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
+                _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
+                #else:
                     # print(i)
-                    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                    #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
             else:
-                print("do not connect teacher: "+str(i))
+                #print("do not connect teacher: "+str(i))
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
 
@@ -412,7 +449,7 @@ class VGG16(object):
                                                 labels_placeholder, sess, 'Train', phase_train)
 
                 if FLAGS.student or FLAGS.teacher:
-                    # print("train function: independent student or teacher")
+                    print("train function: independent student or teacher")
                     _, loss_value = sess.run([self.train_op, self.loss], feed_dict=feed_dict)
 
                     if i % 10 == 0:
