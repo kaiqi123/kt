@@ -183,8 +183,8 @@ class VGG16(object):
         self.train_op3 = tf.train.AdamOptimizer(lr).minimize(self.l3, var_list=l3_var_list)
         self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
-
         """
+
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
         self.train_op11 = tf.train.AdamOptimizer(lr).minimize(self.l11, var_list=l1_var_list)
         self.train_op12 = tf.train.AdamOptimizer(lr).minimize(self.l12, var_list=l1_var_list)
@@ -319,27 +319,30 @@ class VGG16(object):
 
         if FLAGS.initialization:
             print("initialization")
-            for var in tf.global_variables():
-                if var.op.name == "mentor_conv1_1/mentor_weights":
-                    self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
 
-                if var.op.name == "mentor_conv2_1/mentor_weights":
-                    self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
+            if FLAGS.num_optimizers == 5:
+                print("wwwww")
+                for var in tf.global_variables():
+                    if var.op.name == "mentor_conv1_1/mentor_weights":
+                        self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
 
-                if var.op.name == "mentor_conv3_1/mentor_weights":
-                    self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
+                    if var.op.name == "mentor_conv2_1/mentor_weights":
+                        self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
 
-                if var.op.name == "mentor_conv4_1/mentor_weights":
-                    self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
+                    if var.op.name == "mentor_conv3_1/mentor_weights":
+                        self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
 
-                if var.op.name == "mentor_conv5_1/mentor_weights":
-                    self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
+                    if var.op.name == "mentor_conv4_1/mentor_weights":
+                        self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
 
-                if var.op.name == "mentor_fc1/mentor_weights":
-                    self.mentee_data_dict.parameters[10].assign(var.eval(session=sess)).eval(session=sess)
+                    if var.op.name == "mentor_conv5_1/mentor_weights":
+                        self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
 
-                if var.op.name == "mentor_fc3/mentor_weights":
-                    self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
+                    if var.op.name == "mentor_fc1/mentor_weights":
+                        self.mentee_data_dict.parameters[10].assign(var.eval(session=sess)).eval(session=sess)
+
+                    if var.op.name == "mentor_fc3/mentor_weights":
+                        self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
 
     def select_optimizers_and_loss(self,cosine):
         #print(cosine)
