@@ -52,6 +52,9 @@ class VGG16(object):
 
         images_feed, labels_feed = sess.run([data_input.example_batch, data_input.label_batch])
 
+        print(images_feed.shape)
+        print(labels_feed)
+
         if mode == 'Train':
             feed_dict = {
                 images_pl: images_feed,
@@ -441,6 +444,7 @@ class VGG16(object):
 
         try:
             print('train model')
+
             eval_correct = self.evaluation(self.softmax, labels_placeholder)
 
             for i in range(NUM_ITERATIONS):

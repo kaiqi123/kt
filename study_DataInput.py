@@ -2,9 +2,9 @@ import tensorflow as tf
 import numpy as np
 from DataInput import DataInput
 
-
+"""
 dataset_path = "./"
-test_dataset = "dataset_input/temp.txt"
+test_dataset = "cifar10_input/cifar10-test.txt"
 batch_size = 3
 num_testing_examples = 1829
 image_width = 224
@@ -12,8 +12,17 @@ image_height = 224
 num_channels = 3
 seed = 1234
 dataset = 'caltech101'
-
 """
+dataset_path = "./"
+test_dataset = "cifar10_input/cifar10-test.txt"
+batch_size = 128
+num_testing_examples = 10000
+image_width = 32
+image_height = 32
+num_channels = 3
+seed = 1234
+dataset = 'cifar10'
+
 data_input_test = DataInput(dataset_path, test_dataset, batch_size, num_testing_examples,
                                         image_width, image_height, num_channels, seed, dataset)
 
@@ -37,7 +46,7 @@ capacity = min_after_dequeue + 3 * batch_size
 example_batch, label_batch = tf.train.shuffle_batch (
         [train_image, col1], batch_size=batch_size, capacity=capacity,
             min_after_dequeue=min_after_dequeue, seed=seed)
-
+"""
 
 with tf.Session() as sess:
 
@@ -49,14 +58,12 @@ with tf.Session() as sess:
     sess.run(tf.initialize_all_variables())
 
     for i in range(1):
-        #images_feed, labels_feed = sess.run([data_input_test.example_batch, data_input_test.label_batch])
-        images_feed, labels_feed = sess.run([example_batch, label_batch])
+        images_feed, labels_feed = sess.run([data_input_test.example_batch, data_input_test.label_batch])
+
+        #images_feed, labels_feed = sess.run([example_batch, label_batch])
         print(images_feed.shape)
         print(labels_feed)
 
-        images_feed, labels_feed = sess.run([example_batch, label_batch])
-        print(images_feed.shape)
-        print(labels_feed)
 
     coord.request_stop()
     coord.join(threads)
