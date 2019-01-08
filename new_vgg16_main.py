@@ -174,6 +174,14 @@ class VGG16(object):
         l5_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv5_1/mentee_weights"][0])
 
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
+        self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
+        self.train_op2 = tf.train.AdamOptimizer(lr).minimize(self.l2, var_list=l2_var_list)
+        self.train_op3 = tf.train.AdamOptimizer(lr).minimize(self.l3, var_list=l3_var_list)
+        self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
+        self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
+
+        """
+        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
         self.train_op11 = tf.train.AdamOptimizer(lr).minimize(self.l11, var_list=l1_var_list)
         self.train_op12 = tf.train.AdamOptimizer(lr).minimize(self.l12, var_list=l1_var_list)
 
@@ -191,7 +199,7 @@ class VGG16(object):
         self.train_op51 = tf.train.AdamOptimizer(lr).minimize(self.l51, var_list=l5_var_list)
         self.train_op52 = tf.train.AdamOptimizer(lr).minimize(self.l52, var_list=l5_var_list)
         self.train_op53 = tf.train.AdamOptimizer(lr).minimize(self.l53, var_list=l5_var_list)
-
+        """
 
     def define_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
 
@@ -374,7 +382,7 @@ class VGG16(object):
                 #self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict)
                 #cosine = sess.run(self.cosine, feed_dict=feed_dict)
                 #self.select_optimizers_and_loss(cosine)
-                if i<=3:
+                if i< NUM_ITERATIONS/4:
                     _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                     _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                     _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
