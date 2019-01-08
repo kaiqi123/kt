@@ -382,7 +382,7 @@ class VGG16(object):
                 #self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict)
                 #cosine = sess.run(self.cosine, feed_dict=feed_dict)
                 #self.select_optimizers_and_loss(cosine)
-                if i< NUM_ITERATIONS/20:
+                if i< NUM_ITERATIONS/10:
                     _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                     _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                     _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
