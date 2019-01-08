@@ -44,6 +44,7 @@ class DataInput(object):
 	def decode_jpeg(self):
 		
 		file_content = tf.read_file(self.col2)
+		print(self.dataset)
 
 		if self.dataset == 'caltech101':
 			self.train_image = tf.image.decode_jpeg(file_content, channels=self.num_channels)
@@ -55,6 +56,7 @@ class DataInput(object):
 			self.train_image = tf.image.resize_images(self.train_image, [self.image_width, self.image_height])
 
 		if self.dataset == 'cifar10':
+			print("1111")
 			self.train_image = tf.image.decode_png(file_content, channels=self.num_channels)
 			#self.train_image = tf.random_crop(self.train_image, [self.image_height, self.image_width])
 			distorted_image = tf.image.random_flip_left_right(self.train_image)
