@@ -234,44 +234,6 @@ class VGG16(object):
         ## saver object is created to save all the variables to a file
         self.saver = tf.train.Saver()
 
-    def define_teacher(self, images_placeholder, labels_placeholder, phase_train, global_step, sess):
-
-        """
-            1. Train teacher prior to student so that knowledge from teacher can be transferred to train student.
-            2. Teacher object is trained by importing weights from a pretrained vgg 16 network
-            3. Mentor object is a network trained from scratch. We did not find the pretrained network with the same architecture for cifar10.
-               Thus, trained the network from scratch on cifar10
-
-        """
-
-        if FLAGS.dataset == 'cifar10' or 'mnist':
-            print("Train Teacher (cifar10 or mnist)")
-            mentor = Teacher()
-        if FLAGS.dataset == 'caltech101':
-            print("Train Teacher (caltech101)")
-            mentor = Mentor()
-
-        num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
-        decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
-
-        mentor_data_dict = mentor.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
-        self.loss = mentor.loss(labels_placeholder)
-        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,
-                                        staircase=True)
-        if FLAGS.dataset == 'caltech101':
-            ## restore all the weights
-            variables_to_restore = self.get_mentor_variables_to_restore()
-            self.train_op = mentor.training(self.loss, FLAGS.learning_rate_pretrained, lr, global_step,
-                                            variables_to_restore, mentor.get_training_vars())
-        if FLAGS.dataset == 'cifar10':
-            print("cifar10")
-            self.train_op = mentor.training(self.loss, FLAGS.learning_rate, global_step)
-
-        self.softmax = mentor_data_dict.softmax
-        init = tf.global_variables_initializer()
-        sess.run(init)
-        self.saver = tf.train.Saver()
-
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, phase_train, seed, global_step, sess):
 
@@ -437,6 +399,43 @@ class VGG16(object):
                 #print("do not connect teacher: "+str(i))
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
+    def define_teacher(self, images_placeholder, labels_placeholder, phase_train, global_step, sess):
+
+        """
+            1. Train teacher prior to student so that knowledge from teacher can be transferred to train student.
+            2. Teacher object is trained by importing weights from a pretrained vgg 16 network
+            3. Mentor object is a network trained from scratch. We did not find the pretrained network with the same architecture for cifar10.
+               Thus, trained the network from scratch on cifar10
+
+        """
+
+        if FLAGS.dataset == 'cifar10' or 'mnist':
+            print("Train Teacher (cifar10 or mnist)")
+            mentor = Teacher()
+        if FLAGS.dataset == 'caltech101':
+            print("Train Teacher (caltech101)")
+            mentor = Mentor()
+
+        num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
+        decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
+
+        mentor_data_dict = mentor.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
+        self.loss = mentor.loss(labels_placeholder)
+        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,
+                                        staircase=True)
+        if FLAGS.dataset == 'caltech101':
+            ## restore all the weights
+            variables_to_restore = self.get_mentor_variables_to_restore()
+            self.train_op = mentor.training(self.loss, FLAGS.learning_rate_pretrained, lr, global_step,
+                                            variables_to_restore, mentor.get_training_vars())
+        if FLAGS.dataset == 'cifar10':
+            print("cifar10")
+            self.train_op = mentor.training(self.loss, FLAGS.learning_rate, global_step)
+
+        self.softmax = mentor_data_dict.softmax
+        init = tf.global_variables_initializer()
+        sess.run(init)
+        self.saver = tf.train.Saver()
 
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
@@ -455,8 +454,10 @@ class VGG16(object):
 
                 if FLAGS.student or FLAGS.teacher:
                     print("train function: independent student or teacher")
+
                     loss_value = sess.run(self.loss, feed_dict=feed_dict)
                     print("111loss_value: "+str(loss_value))
+
                     _, loss_value = sess.run([self.train_op, self.loss], feed_dict=feed_dict)
 
                     if i % 10 == 0:
