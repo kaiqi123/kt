@@ -20,7 +20,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 5
+NUM_ITERATIONS = 19550
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -454,7 +454,7 @@ class VGG16(object):
 
                 if FLAGS.student or FLAGS.teacher:
 
-                    print("train function: independent student or teacher")
+                    #print("train function: independent student or teacher")
                     _, loss_value = sess.run([self.train_op, self.loss], feed_dict=feed_dict)
 
                     if i % 10 == 0:
