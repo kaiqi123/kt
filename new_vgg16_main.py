@@ -53,7 +53,7 @@ class VGG16(object):
         images_feed, labels_feed = sess.run([data_input.example_batch, data_input.label_batch])
 
         print(images_feed.shape)
-        print(labels_feed)
+        print(len(labels_feed))
 
         if mode == 'Train':
             feed_dict = {
