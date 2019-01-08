@@ -455,6 +455,8 @@ class VGG16(object):
 
                 if FLAGS.student or FLAGS.teacher:
                     print("train function: independent student or teacher")
+                    loss_value = sess.run(self.loss, feed_dict=feed_dict)
+                    print("111loss_value: "+str(loss_value))
                     _, loss_value = sess.run([self.train_op, self.loss], feed_dict=feed_dict)
 
                     if i % 10 == 0:
