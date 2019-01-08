@@ -384,37 +384,39 @@ class VGG16(object):
             self.l3 = self.l33
             count_cosine[6] = count_cosine[6] + 1
 
-        if cosine[3] == 1:
-            #print("4:11")
-            self.train_op4 = self.train_op41
-            self.l4 = self.l41
-            count_cosine[7] = count_cosine[7] + 1
-        elif cosine[3] == 2:
-            #print("4:222")
-            self.train_op4 = self.train_op42
-            self.l4 = self.l42
-            count_cosine[8] = count_cosine[8] + 1
-        else:
-            #print("4:33")
-            self.train_op4 = self.train_op43
-            self.l4 = self.l43
-            count_cosine[9] = count_cosine[9] + 1
+        if FLAGS.num_optimizers == 5:
 
-        if cosine[4] == 1:
-            #print("5:11")
-            self.train_op5 = self.train_op51
-            self.l5 = self.l51
-            count_cosine[10] = count_cosine[10] + 1
-        elif cosine[4] == 2:
-            #print("5:222")
-            self.train_op5 = self.train_op52
-            self.l5 = self.l52
-            count_cosine[11] = count_cosine[11] + 1
-        else:
-            #print("5:333")
-            self.train_op5 = self.train_op53
-            self.l5 = self.l53
-            count_cosine[12] = count_cosine[12] + 1
+            if cosine[3] == 1:
+                #print("4:11")
+                self.train_op4 = self.train_op41
+                self.l4 = self.l41
+                count_cosine[7] = count_cosine[7] + 1
+            elif cosine[3] == 2:
+                #print("4:222")
+                self.train_op4 = self.train_op42
+                self.l4 = self.l42
+                count_cosine[8] = count_cosine[8] + 1
+            else:
+                #print("4:33")
+                self.train_op4 = self.train_op43
+                self.l4 = self.l43
+                count_cosine[9] = count_cosine[9] + 1
+
+            if cosine[4] == 1:
+                #print("5:11")
+                self.train_op5 = self.train_op51
+                self.l5 = self.l51
+                count_cosine[10] = count_cosine[10] + 1
+            elif cosine[4] == 2:
+                #print("5:222")
+                self.train_op5 = self.train_op52
+                self.l5 = self.l52
+                count_cosine[11] = count_cosine[11] + 1
+            else:
+                #print("5:333")
+                self.train_op5 = self.train_op53
+                self.l5 = self.l53
+                count_cosine[12] = count_cosine[12] + 1
 
     def run_dependent_student(self, feed_dict, sess, i):
 
