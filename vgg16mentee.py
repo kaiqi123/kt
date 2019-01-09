@@ -268,8 +268,6 @@ class Mentee(object):
 		#optimizer = tf.train.MomentumOptimizer(learning_rate, momentum = 0.9, use_nesterov = True)
 		optimizer = tf.train.AdamOptimizer(learning_rate)
 		
-		train_op = optimizer.minimize(loss, global_step=global_step
-                        )
-		
+		train_op = optimizer.minimize(loss, global_step=global_step)
 
 		return train_op
