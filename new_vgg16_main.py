@@ -20,7 +20,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 4
+NUM_ITERATIONS = 3
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -223,7 +223,13 @@ class VGG16(object):
         ## number of steps after which learning rate should decay
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
 
-        mentee_data_dict = student.build_7layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+        if FLAGS.num_optimizers == 5:
+            print("independent student build 7layers")
+            mentee_data_dict = student.build_7layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+        if FLAGS.num_optimizers == 3:
+            print("independent student build 5layers")
+            mentee_data_dict = student.build_5layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+
         self.loss = student.loss(labels_placeholder)
         ## learning rate is decayed exponentially with a decay factor of 0.9809 after every epoch
         lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,
