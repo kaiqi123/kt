@@ -230,7 +230,7 @@ class VGG16(object):
             mentee_data_dict = student.build_7layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
         if FLAGS.num_optimizers == 3:
             print("independent student build 5layers")
-            mentee_data_dict = student.build_5layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+            mentee_data_dict = student.build_6layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
 
         self.loss = student.loss(labels_placeholder)
         ## learning rate is decayed exponentially with a decay factor of 0.9809 after every epoch
@@ -305,7 +305,7 @@ class VGG16(object):
             self.mentee_data_dict = vgg16_mentee.build_7layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed,
                                                    phase_train)
         elif FLAGS.num_optimizers == 3:
-            self.mentee_data_dict = vgg16_mentee.build_5layers(images_placeholder, FLAGS.num_classes,FLAGS.temp_softmax, seed,
+            self.mentee_data_dict = vgg16_mentee.build_6layers(images_placeholder, FLAGS.num_classes,FLAGS.temp_softmax, seed,
                                                                phase_train)
 
         self.softmax = self.mentee_data_dict.softmax
@@ -362,10 +362,10 @@ class VGG16(object):
                         self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
 
                     if var.op.name == "mentor_fc1/mentor_weights":
-                        self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
+                        self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
 
                     if var.op.name == "mentor_fc3/mentor_weights":
-                        self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
+                        self.mentee_data_dict.parameters[10].assign(var.eval(session=sess)).eval(session=sess)
 
     def select_optimizers_and_loss(self,cosine):
         #print(cosine)
