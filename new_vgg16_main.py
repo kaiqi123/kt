@@ -152,13 +152,14 @@ class VGG16(object):
         self.l32 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_2, self.mentee_data_dict.conv3_1))))
         self.l33 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1))))
 
-        self.l41 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_1, self.mentee_data_dict.conv4_1))))
-        self.l42 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1))))
-        self.l43 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1))))
+        if FLAGS.num_optimizers == 5:
+            self.l41 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_1, self.mentee_data_dict.conv4_1))))
+            self.l42 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1))))
+            self.l43 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1))))
 
-        self.l51 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_1, self.mentee_data_dict.conv5_1))))
-        self.l52 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1))))
-        self.l53 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1))))
+            self.l51 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_1, self.mentee_data_dict.conv5_1))))
+            self.l52 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1))))
+            self.l53 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1))))
 
     def define_multiple_optimizers(self, lr):
 
@@ -196,13 +197,14 @@ class VGG16(object):
         self.train_op32 = tf.train.AdamOptimizer(lr).minimize(self.l32, var_list=l3_var_list)
         self.train_op33 = tf.train.AdamOptimizer(lr).minimize(self.l33, var_list=l3_var_list)
 
-        self.train_op41 = tf.train.AdamOptimizer(lr).minimize(self.l41, var_list=l4_var_list)
-        self.train_op42 = tf.train.AdamOptimizer(lr).minimize(self.l42, var_list=l4_var_list)
-        self.train_op43 = tf.train.AdamOptimizer(lr).minimize(self.l43, var_list=l4_var_list)
+        if FLAGS.num_optimizers == 5:
+            self.train_op41 = tf.train.AdamOptimizer(lr).minimize(self.l41, var_list=l4_var_list)
+            self.train_op42 = tf.train.AdamOptimizer(lr).minimize(self.l42, var_list=l4_var_list)
+            self.train_op43 = tf.train.AdamOptimizer(lr).minimize(self.l43, var_list=l4_var_list)
 
-        self.train_op51 = tf.train.AdamOptimizer(lr).minimize(self.l51, var_list=l5_var_list)
-        self.train_op52 = tf.train.AdamOptimizer(lr).minimize(self.l52, var_list=l5_var_list)
-        self.train_op53 = tf.train.AdamOptimizer(lr).minimize(self.l53, var_list=l5_var_list)
+            self.train_op51 = tf.train.AdamOptimizer(lr).minimize(self.l51, var_list=l5_var_list)
+            self.train_op52 = tf.train.AdamOptimizer(lr).minimize(self.l52, var_list=l5_var_list)
+            self.train_op53 = tf.train.AdamOptimizer(lr).minimize(self.l53, var_list=l5_var_list)
 
 
     def define_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
@@ -325,9 +327,7 @@ class VGG16(object):
 
         if FLAGS.initialization:
             print("initialization")
-
             if FLAGS.num_optimizers == 5:
-
                 for var in tf.global_variables():
                     if var.op.name == "mentor_conv1_1/mentor_weights":
                         self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
@@ -349,6 +349,23 @@ class VGG16(object):
 
                     if var.op.name == "mentor_fc3/mentor_weights":
                         self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
+
+            if FLAGS.num_optimizers == 3:
+                for var in tf.global_variables():
+                    if var.op.name == "mentor_conv1_1/mentor_weights":
+                        self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
+
+                    if var.op.name == "mentor_conv2_1/mentor_weights":
+                        self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
+
+                    if var.op.name == "mentor_conv3_1/mentor_weights":
+                        self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
+
+                    if var.op.name == "mentor_fc1/mentor_weights":
+                        self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
+
+                    if var.op.name == "mentor_fc3/mentor_weights":
+                        self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
 
     def select_optimizers_and_loss(self,cosine):
         #print(cosine)
@@ -430,7 +447,7 @@ class VGG16(object):
 
             print("connect teacher: "+str(i))
 
-            self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict)
+            self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict, FLAGS.num_optimizers)
             cosine = sess.run(self.cosine, feed_dict=feed_dict)
             self.select_optimizers_and_loss(cosine)
 
