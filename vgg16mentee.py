@@ -153,7 +153,7 @@ class Mentee(object):
 			return self
 
 
-	def build_6layers(self, rgb, num_classes, temp_softmax, seed, train_mode):
+	def build_5layers(self, rgb, num_classes, temp_softmax, seed, train_mode):
 		K.set_learning_phase(True)
 		# conv1_1
 		with tf.name_scope('mentee_conv1_1') as scope:
