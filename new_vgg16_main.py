@@ -358,9 +358,6 @@ class VGG16(object):
                     if var.op.name == "mentor_conv2_1/mentor_weights":
                         self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
 
-                    if var.op.name == "mentor_conv3_1/mentor_weights":
-                        self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
-
                     if var.op.name == "mentor_fc1/mentor_weights":
                         self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
 
