@@ -213,7 +213,7 @@ class Mentee(object):
 			kernel = tf.Variable(tf.truncated_normal([3, 3, 256, 256], dtype=tf.float32,
 													 stddev=1e-2, seed= seed), trainable = self.trainable, name='mentee_weights')
 			conv = tf.nn.conv2d(self.pool3, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(tf.constant(0.0, shape=[512], dtype=tf.float32),
+			biases = tf.Variable(tf.constant(0.0, shape=[256], dtype=tf.float32),
 								trainable=self.trainable, name='mentee_biases')
 			out = tf.nn.bias_add(conv, biases)
 			self.conv4_1 = tf.nn.relu(out, name=scope)
