@@ -33,7 +33,7 @@ class Mentee(object):
 		return out
 
 
-	def build_7layers(self, rgb, num_classes, temp_softmax, seed,train_mode):
+	def build(self, rgb, num_classes, temp_softmax, seed,train_mode):
 
 		K.set_learning_phase(True)
 		# conv1_1

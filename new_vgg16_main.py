@@ -2,7 +2,8 @@ import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-from vgg16mentee import Mentee
+#from vgg16mentee import Mentee
+from vgg16mentee_original import Mentee
 from vgg16mentor import Mentor
 from vgg16embed import Embed
 from mentor import Teacher
@@ -227,7 +228,7 @@ class VGG16(object):
 
         if FLAGS.num_optimizers == 5:
             print("independent student build 7layers")
-            mentee_data_dict = student.build_7layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+            mentee_data_dict = student.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
         if FLAGS.num_optimizers == 3:
             print("independent student build 6layers")
             mentee_data_dict = student.build_6layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
@@ -302,7 +303,7 @@ class VGG16(object):
                                                    phase_train)
 
         if FLAGS.num_optimizers == 5:
-            self.mentee_data_dict = vgg16_mentee.build_7layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed,
+            self.mentee_data_dict = vgg16_mentee.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed,
                                                    phase_train)
         elif FLAGS.num_optimizers == 3:
             self.mentee_data_dict = vgg16_mentee.build_6layers(images_placeholder, FLAGS.num_classes,FLAGS.temp_softmax, seed,
