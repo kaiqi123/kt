@@ -156,7 +156,6 @@ class Mentee(object):
 	def build_2layers(self, rgb, num_classes, temp_softmax, seed, train_mode):
 		K.set_learning_phase(True)
 
-		"""
 		# conv1_1
 		print("build_2layers")
 		with tf.name_scope('mentee_conv1_1') as scope:
@@ -187,56 +186,6 @@ class Mentee(object):
 			fc3b = tf.Variable(tf.constant(0.0, shape=[num_classes], dtype=tf.float32),
 							   trainable=self.trainable, name='mentee_biases')
 			pool1_flat = tf.reshape(self.pool1, [-1, shape])
-			self.fc3l = tf.nn.bias_add(tf.matmul(pool1_flat, fc3w), fc3b)
-			# self.fc3 = tf.nn.relu(fc3l)
-			self.parameters += [fc3w, fc3b]
-
-			self.softmax = tf.nn.softmax(self.fc3l / temp_softmax)
-			return self
-		"""
-
-		"""
-
-		with tf.name_scope('mentee_fc3') as scope:
-			shape = int(np.prod(rgb.get_shape()[1:]))
-			fc3w = tf.Variable(tf.truncated_normal([shape, num_classes],
-												   dtype=tf.float32, stddev=1e-2, seed=seed), trainable=self.trainable,
-							   name='mentee_weights')
-			fc3b = tf.Variable(tf.constant(0.0, shape=[num_classes], dtype=tf.float32),
-							   trainable=self.trainable, name='mentee_biases')
-			pool1_flat = tf.reshape(rgb, [-1, shape])
-			self.fc3l = tf.nn.bias_add(tf.matmul(pool1_flat, fc3w), fc3b)
-			# self.fc3 = tf.nn.relu(fc3l)
-			self.parameters += [fc3w, fc3b]
-
-			self.softmax = tf.nn.softmax(self.fc3l / temp_softmax)
-			return self
-		"""
-		# conv1_1
-		print("build_2layers")
-		with tf.name_scope('mentee_conv1_1') as scope:
-			kernel = tf.Variable(tf.truncated_normal([3, 3, self.num_channels, 64], dtype=tf.float32,
-													 stddev=1e-2, seed=seed), trainable=self.trainable,
-								 name='mentee_weights')
-			conv = tf.nn.conv2d(rgb, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(tf.constant(0.0, shape=[64], dtype=tf.float32),
-								 trainable=self.trainable, name='mentee_biases')
-			out = tf.nn.bias_add(conv, biases)
-			# out = self.extra_regularization(out)
-
-			self.conv1_1 = tf.nn.relu(out, name=scope)
-			# self.conv1_1 = BatchNormalization(axis = -1, name= 'mentee_bn_conv1_1')(self.conv1_1)
-			self.parameters += [kernel, biases]
-
-
-		with tf.name_scope('mentee_fc3') as scope:
-			shape = int(np.prod(self.conv1_1.get_shape()[1:]))
-			fc3w = tf.Variable(tf.truncated_normal([shape, num_classes],
-												   dtype=tf.float32, stddev=1e-2, seed=seed), trainable=self.trainable,
-							   name='mentee_weights')
-			fc3b = tf.Variable(tf.constant(0.0, shape=[num_classes], dtype=tf.float32),
-							   trainable=self.trainable, name='mentee_biases')
-			pool1_flat = tf.reshape(self.conv1_1, [-1, shape])
 			self.fc3l = tf.nn.bias_add(tf.matmul(pool1_flat, fc3w), fc3b)
 			# self.fc3 = tf.nn.relu(fc3l)
 			self.parameters += [fc3w, fc3b]
