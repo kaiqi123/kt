@@ -230,7 +230,7 @@ class VGG16(object):
             print("independent student build 7layers")
             mentee_data_dict = student.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
         if FLAGS.num_optimizers == 3:
-            print("independent student build 5layers")
+            print("independent student build 2layers")
             mentee_data_dict = student.build_2layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
 
         self.loss = student.loss(labels_placeholder)
