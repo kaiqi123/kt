@@ -231,7 +231,7 @@ class VGG16(object):
             mentee_data_dict = student.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
         if FLAGS.num_optimizers == 3:
             print("independent student build 5layers")
-            mentee_data_dict = student.build_5layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+            mentee_data_dict = student.build_2layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
 
         self.loss = student.loss(labels_placeholder)
         ## learning rate is decayed exponentially with a decay factor of 0.9809 after every epoch

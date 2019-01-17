@@ -153,9 +153,10 @@ class Mentee(object):
 			return self
 
 
-	def build_5layers(self, rgb, num_classes, temp_softmax, seed, train_mode):
+	def build_2layers(self, rgb, num_classes, temp_softmax, seed, train_mode):
 		K.set_learning_phase(True)
 		# conv1_1
+		print("build_2layers")
 		with tf.name_scope('mentee_conv1_1') as scope:
 			kernel = tf.Variable(tf.truncated_normal([3, 3, self.num_channels, 64], dtype=tf.float32,
 													 stddev=1e-2, seed=seed), trainable=self.trainable,
@@ -175,26 +176,7 @@ class Mentee(object):
 									strides=[1, 2, 2, 1],
 									padding='SAME',
 									name='pool1')
-		"""
-		# conv2_1
-		with tf.name_scope('mentee_conv2_1') as scope:
-			kernel = tf.Variable(tf.truncated_normal([3, 3, 64, 64], dtype=tf.float32,
-													 stddev=1e-2, seed=seed), trainable=self.trainable,
-								 name='mentee_weights')
-			conv = tf.nn.conv2d(self.pool1, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(tf.constant(0.0, shape=[64], dtype=tf.float32),
-								 trainable=self.trainable, name='mentee_biases')
-			out = tf.nn.bias_add(conv, biases)
-			self.conv2_1 = tf.nn.relu(out, name=scope)
-			# self.conv2_1 = BatchNormalization(axis = -1, name= 'mentee_bn_conv2_1')(self.conv2_1)
-			self.parameters += [kernel, biases]
 
-		self.pool2 = tf.nn.max_pool(self.conv2_1,
-									ksize=[1, 2, 2, 1],
-									strides=[1, 2, 2, 1],
-									padding='SAME',
-									name='pool2')
-        """
 		with tf.name_scope('mentee_fc3') as scope:
 			shape = int(np.prod(self.pool1.get_shape()[1:]))
 			fc3w = tf.Variable(tf.truncated_normal([shape, num_classes],
