@@ -2,8 +2,8 @@ import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-from vgg16mentee_temp import Mentee
-#from vgg16mentee import Mentee
+#from vgg16mentee_temp import Mentee
+from vgg16mentee import Mentee
 #from vgg16mentee_original import Mentee
 from vgg16mentor import Mentor
 from vgg16embed import Embed
@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 4680
+NUM_ITERATIONS = 7820
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -231,7 +231,7 @@ class VGG16(object):
             print("independent student build 7layers")
             mentee_data_dict = student.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
         if FLAGS.num_optimizers == 3:
-            mentee_data_dict = student.build_conv4fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+            mentee_data_dict = student.build_2layers(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
 
         self.loss = student.loss(labels_placeholder)
         ## learning rate is decayed exponentially with a decay factor of 0.9809 after every epoch
