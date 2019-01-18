@@ -308,15 +308,15 @@ class VGG16(object):
                                                    phase_train)
 
         if FLAGS.num_optimizers == 5:
-            mentee_data_dict = vgg16_mentee.build_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+            self.mentee_data_dict = vgg16_mentee.build_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
         if FLAGS.num_optimizers == 4:
-            mentee_data_dict = vgg16_mentee.build_conv4fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+            self.mentee_data_dict = vgg16_mentee.build_conv4fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
         if FLAGS.num_optimizers == 3:
-            mentee_data_dict = vgg16_mentee.build_conv3fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+            self.mentee_data_dict = vgg16_mentee.build_conv3fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
         if FLAGS.num_optimizers == 2:
-            mentee_data_dict = vgg16_mentee.build_conv2fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+            self.mentee_data_dict = vgg16_mentee.build_conv2fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
         if FLAGS.num_optimizers == 1:
-            mentee_data_dict = vgg16_mentee.build_conv1fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+            self.mentee_data_dict = vgg16_mentee.build_conv1fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
 
 
         self.softmax = self.mentee_data_dict.softmax
