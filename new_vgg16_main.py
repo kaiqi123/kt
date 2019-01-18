@@ -514,9 +514,10 @@ class VGG16(object):
                 i) == NUM_ITERATIONS - 1:
 
                     checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
+                    """
                     if FLAGS.teacher:
                         self.saver.save(sess, FLAGS.teacher_weights_filename)
-                    """
+                    
                     elif FLAGS.student:
                         saver.save(sess, FLAGS.student_filename)
                     """
