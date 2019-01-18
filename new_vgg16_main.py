@@ -232,6 +232,8 @@ class VGG16(object):
             mentee_data_dict = student.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
         if FLAGS.num_optimizers == 4:
             mentee_data_dict = student.build_conv4fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+        if FLAGS.num_optimizers == 3:
+            mentee_data_dict = student.build_conv3fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
         if FLAGS.num_optimizers == 2:
             mentee_data_dict = student.build_conv2fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
 
