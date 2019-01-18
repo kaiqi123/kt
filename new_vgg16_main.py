@@ -2,8 +2,8 @@ import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-from vgg16mentee_temp import Mentee
-#from vgg16mentee import Mentee
+#from vgg16mentee_temp import Mentee
+from vgg16mentee import Mentee
 #from vgg16mentee_original import Mentee
 from vgg16mentor import Mentor
 from vgg16embed import Embed
@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 7820
+NUM_ITERATIONS = 3
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -308,11 +308,16 @@ class VGG16(object):
                                                    phase_train)
 
         if FLAGS.num_optimizers == 5:
-            self.mentee_data_dict = vgg16_mentee.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed,
-                                                   phase_train)
-        elif FLAGS.num_optimizers == 3:
-            self.mentee_data_dict = vgg16_mentee.build_6layers(images_placeholder, FLAGS.num_classes,FLAGS.temp_softmax, seed,
-                                                               phase_train)
+            mentee_data_dict = vgg16_mentee.build_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+        if FLAGS.num_optimizers == 4:
+            mentee_data_dict = vgg16_mentee.build_conv4fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+        if FLAGS.num_optimizers == 3:
+            mentee_data_dict = vgg16_mentee.build_conv3fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+        if FLAGS.num_optimizers == 2:
+            mentee_data_dict = vgg16_mentee.build_conv2fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+        if FLAGS.num_optimizers == 1:
+            mentee_data_dict = vgg16_mentee.build_conv1fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+
 
         self.softmax = self.mentee_data_dict.softmax
         mentor_variables_to_restore = self.get_mentor_variables_to_restore()
