@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 3
+NUM_ITERATIONS = 7820
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -92,6 +92,7 @@ class VGG16(object):
 
 
     def do_eval(self, sess, eval_correct, logits, images_placeholder, labels_placeholder, dataset, mode, phase_train):
+
         true_count = 0
         if mode == 'Test':
             steps_per_epoch = FLAGS.num_testing_examples // FLAGS.batch_size
@@ -521,14 +522,14 @@ class VGG16(object):
                 i) == NUM_ITERATIONS - 1:
 
                     checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
-                    """
+
                     if FLAGS.teacher:
                         self.saver.save(sess, FLAGS.teacher_weights_filename)
-                    
+                    """
                     elif FLAGS.student:
                         saver.save(sess, FLAGS.student_filename)
-                    """
-                    """                                            
+                    
+                                                                
                     elif FLAGS.dependent_student:
                         saver_new = tf.train.Saver()
                         saver_new.save(sess, FLAGS.dependent_student_filename)
