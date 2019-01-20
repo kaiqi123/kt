@@ -460,6 +460,20 @@ class VGG16(object):
             #self.select_optimizers_and_loss(cosine)
 
 
+            def evaluation_teacher(logits, labels):
+                print('evaluation_teacher')
+                if FLAGS.top_1_accuracy:
+                    correct = tf.nn.in_top_k(logits, labels, 1)
+                elif FLAGS.top_3_accuracy:
+                    correct = tf.nn.in_top_k(logits, labels, 3)
+                elif FLAGS.top_5_accuracy:
+                    correct = tf.nn.in_top_k(logits, labels, 5)
+                return tf.cast(correct, tf.int32)
+
+            teacher_correct = evaluation_teacher(self.mentor_data_dict.softmax, labels_placeholder)
+            count = sess.run(teacher_correct, feed_dict=feed_dict)
+            print(count)
+
 
             if FLAGS.num_optimizers == 5:
                 _,_, _,_,_,_, \
@@ -513,6 +527,7 @@ class VGG16(object):
 
                         print ("\n")
 
+                """
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
                 i) == NUM_ITERATIONS - 1:
 
@@ -520,15 +535,13 @@ class VGG16(object):
 
                     if FLAGS.teacher:
                         self.saver.save(sess, FLAGS.teacher_weights_filename)
-                    """
-                    elif FLAGS.student:
-                        saver.save(sess, FLAGS.student_filename)
                     
-                                                                
-                    elif FLAGS.dependent_student:
-                        saver_new = tf.train.Saver()
-                        saver_new.save(sess, FLAGS.dependent_student_filename)
-                    """
+                    #elif FLAGS.student:
+                    #    saver.save(sess, FLAGS.student_filename)                                           
+                    #elif FLAGS.dependent_student:
+                    #    saver_new = tf.train.Saver()
+                    #   saver_new.save(sess, FLAGS.dependent_student_filename)
+                    
 
                     print ("Training Data Eval:")
                     self.do_eval(sess,
@@ -548,6 +561,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
+                """
 
         except Exception as e:
             print(e)
