@@ -447,6 +447,7 @@ class VGG16(object):
                 self.train_op5 = self.train_op53
                 self.l5 = self.l53
                 count_cosine[12] = count_cosine[12] + 1
+
     """
     def run_dependent_student(self, feed_dict, sess, i):
 
