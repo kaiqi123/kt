@@ -2,8 +2,8 @@ import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-#from vgg16mentee_temp import Mentee
-from vgg16mentee import Mentee
+from vgg16mentee_temp import Mentee
+#from vgg16mentee import Mentee
 #from vgg16mentee_original import Mentee
 from vgg16mentor import Mentor
 from vgg16embed import Embed
@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 4
+NUM_ITERATIONS = 7820
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -534,7 +534,7 @@ class VGG16(object):
 
                         print ("\n")
 
-                """
+
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
                 i) == NUM_ITERATIONS - 1:
 
@@ -548,7 +548,6 @@ class VGG16(object):
                     #elif FLAGS.dependent_student:
                     #    saver_new = tf.train.Saver()
                     #   saver_new.save(sess, FLAGS.dependent_student_filename)
-                    
 
                     print ("Training Data Eval:")
                     self.do_eval(sess,
@@ -568,7 +567,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-                """
+
 
         except Exception as e:
             print(e)
