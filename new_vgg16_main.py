@@ -448,27 +448,6 @@ class VGG16(object):
                 self.l5 = self.l53
                 count_cosine[12] = count_cosine[12] + 1
 
-    """
-    def run_dependent_student(self, feed_dict, sess, i):
-
-        if (i % FLAGS.num_iterations == 0):
-
-            print("connect teacher: "+str(i))
-
-            #self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict, FLAGS.num_optimizers)
-            #cosine = sess.run(self.cosine, feed_dict=feed_dict)
-            #self.select_optimizers_and_loss(cosine)
-
-            if FLAGS.num_optimizers == 5:
-                _,_, _,_,_,_, \
-                self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5,\
-                 = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
-                                self.loss, self.l1, self.l2, self.l3, self.l4, self.l5], feed_dict=feed_dict)
-
-        else:
-            #print("do not connect teacher: "+str(i))
-            _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-    """
 
     def run_dependent_student(self, feed_dict, sess, i, labels_placeholder):
 
