@@ -479,6 +479,7 @@ class VGG16(object):
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
+            """
             def evaluation_teacher(logits, labels):
                 print('evaluation_teacher')
                 if FLAGS.top_1_accuracy:
@@ -491,13 +492,16 @@ class VGG16(object):
 
             teacher_correct = evaluation_teacher(self.mentor_data_dict.softmax, labels_placeholder)
 
+            count = sess.run(evaluation_teacher, feed_dict=feed_dict)
+            print(count)
+            """
+
             if FLAGS.num_optimizers == 5:
                 _,_, _,_,_,_, \
                 self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5, \
-                teacher_trueCount_perIteration = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
-                                self.loss, self.l1, self.l2, self.l3, self.l4, self.l5,
-                                teacher_correct], feed_dict=feed_dict)
-                print(teacher_trueCount_perIteration)
+                = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
+                                self.loss, self.l1, self.l2, self.l3, self.l4, self.l5], feed_dict=feed_dict)
+
 
         else:
             #print("do not connect teacher: "+str(i))
