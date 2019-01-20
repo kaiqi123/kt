@@ -91,68 +91,34 @@ class VGG16(object):
             return tf.reduce_sum(tf.cast(correct, tf.int32))
 
 
-    def do_eval(self, sess, eval_correct, logits, images_placeholder, labels_placeholder, dataset, mode, phase_train, true_count_perEpoch):
+    def do_eval(self, sess, eval_correct, logits, images_placeholder, labels_placeholder, dataset,mode, phase_train):
 
-        """
-        true_count = 0
-        if mode == 'Test':
-            steps_per_epoch = FLAGS.num_testing_examples // FLAGS.batch_size
-            num_examples = steps_per_epoch * FLAGS.batch_size
-        if mode == 'Train':
-            steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
-            num_examples = steps_per_epoch * FLAGS.batch_size
-        if mode == 'Validation':
-            steps_per_epoch = FLAGS.num_validation_examples // FLAGS.batch_size
-            num_examples = steps_per_epoch * FLAGS.batch_size
+            if mode == 'Test':
+                steps_per_epoch = FLAGS.num_testing_examples //FLAGS.batch_size
+                num_examples = steps_per_epoch * FLAGS.batch_size
+            if mode == 'Train':
+                steps_per_epoch = FLAGS.num_training_examples //FLAGS.batch_size
+                num_examples = steps_per_epoch * FLAGS.batch_size
+            if mode == 'Validation':
+                steps_per_epoch = FLAGS.num_validation_examples //FLAGS.batch_size
+                num_examples = steps_per_epoch * FLAGS.batch_size
 
-        for step in xrange(steps_per_epoch):
-            if FLAGS.dataset == 'mnist':
-                feed_dict = {images_placeholder: np.reshape(dataset.test.next_batch(FLAGS.batch_size)[0],
-                                                            [FLAGS.batch_size, FLAGS.image_width, FLAGS.image_height,
-                                                             FLAGS.num_channels]),
-                             labels_placeholder: dataset.test.next_batch(FLAGS.batch_size)[1]}
-            else:
-                feed_dict = self.fill_feed_dict(dataset, images_placeholder,
-                                                labels_placeholder, sess, mode, phase_train)
-            count = sess.run(eval_correct, feed_dict=feed_dict)
-            true_count = true_count + count
-        """
-
-        if mode == 'Train':
-            num_perEpoch = FLAGS.num_training_examples
-            precision = float(true_count_perEpoch) / num_perEpoch
-
-            print ('  11111Num examples: %d, Num correct: %d, Precision: %0.04f' %
-               (num_perEpoch, true_count_perEpoch, precision))
-
-        if mode == 'Train':
             true_count = 0
-
-            steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
-            num_examples = steps_per_epoch * FLAGS.batch_size
-
             for step in xrange(steps_per_epoch):
                 if FLAGS.dataset == 'mnist':
-                    feed_dict = {images_placeholder: np.reshape(dataset.test.next_batch(FLAGS.batch_size)[0],
-                                                                [FLAGS.batch_size, FLAGS.image_width, FLAGS.image_height,
-                                                                 FLAGS.num_channels]),
-                                 labels_placeholder: dataset.test.next_batch(FLAGS.batch_size)[1]}
+                    feed_dict = {images_placeholder: np.reshape(dataset.test.next_batch(FLAGS.batch_size)[0], [FLAGS.batch_size, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels]), labels_placeholder: dataset.test.next_batch(FLAGS.batch_size)[1]}
                 else:
                     feed_dict = self.fill_feed_dict(dataset, images_placeholder,
-                                                    labels_placeholder, sess, mode, phase_train)
+                                                            labels_placeholder,sess, mode,phase_train)
                 count = sess.run(eval_correct, feed_dict=feed_dict)
                 true_count = true_count + count
 
             precision = float(true_count) / num_examples
             print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' %
-                   (num_examples, true_count, precision))
+                            (num_examples, true_count, precision))
 
-        """
-        if mode == 'Validation':
-            validation_accuracy_list.append(precision)
-        if mode == 'Test':
-            test_accuracy_list.append(precision)
-        """
+            if mode == 'Test':
+                test_accuracy_list.append(precision)
 
     def get_mentor_variables_to_restore(self):
 
@@ -500,15 +466,12 @@ class VGG16(object):
             if FLAGS.num_optimizers == 5:
                 _,_, _,_,_,_, \
                 self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5,\
-                true_count_perIteration = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
-                                self.loss, self.l1, self.l2, self.l3, self.l4, self.l5, eval_correct], feed_dict=feed_dict)
-                print(true_count_perIteration)
+                 = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
+                                self.loss, self.l1, self.l2, self.l3, self.l4, self.l5], feed_dict=feed_dict)
 
         else:
             #print("do not connect teacher: "+str(i))
-            _, self.loss_value0, true_count_perIteration = sess.run([self.train_op0, self.loss, eval_correct], feed_dict=feed_dict)
-
-        return true_count_perIteration
+            _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
@@ -518,8 +481,6 @@ class VGG16(object):
             print('train model')
 
             eval_correct = self.evaluation(self.softmax, labels_placeholder)
-
-            true_count_perEpoch = 0
 
             for i in range(NUM_ITERATIONS):
 
@@ -537,8 +498,7 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    true_count_perIteration = self.run_dependent_student(eval_correct, feed_dict, sess, i)
-                    true_count_perEpoch = true_count_perEpoch + true_count_perIteration
+                    self.run_dependent_student(eval_correct, feed_dict, sess, i)
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
@@ -577,10 +537,8 @@ class VGG16(object):
                                  images_placeholder,
                                  labels_placeholder,
                                  data_input_train,
-                                 'Train', phase_train, true_count_perEpoch)
-                    true_count_perEpoch = 0
+                                 'Train', phase_train)
 
-                    """
                     print ("Test  Data Eval:")
                     self.do_eval(sess,
                                  eval_correct,
@@ -588,10 +546,8 @@ class VGG16(object):
                                  images_placeholder,
                                  labels_placeholder,
                                  data_input_test,
-                                 'Test', phase_train, 0)
-                    print ("max accuracy % f", max(test_accuracy_list))
-                    """
-
+                                 'Test', phase_train)
+                    print ("max test accuracy % f", max(test_accuracy_list))
 
         except Exception as e:
             print(e)
