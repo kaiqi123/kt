@@ -449,7 +449,7 @@ class VGG16(object):
                 count_cosine[12] = count_cosine[12] + 1
 
 
-    def run_dependent_student(self, feed_dict, sess, i, labels_placeholder):
+    def run_dependent_student(self, feed_dict, sess, i, eval_correct, labels_placeholder):
 
         if (i % FLAGS.num_iterations == 0):
 
@@ -475,7 +475,12 @@ class VGG16(object):
             print(count)
             print(label)
             print(softmax)
+            print("11111111")
 
+            count1, softmax1, label1 = sess.run([eval_correct,self.softmax,labels_placeholder], feed_dict=feed_dict)
+            print(count1)
+            print(label1)
+            print(softmax1)
 
             if FLAGS.num_optimizers == 5:
                 _,_, _,_,_,_, \
@@ -514,7 +519,7 @@ class VGG16(object):
                 if FLAGS.dependent_student:
 
                     #self.run_dependent_student(feed_dict, sess, i)
-                    self.run_dependent_student(feed_dict, sess, i, labels_placeholder)
+                    self.run_dependent_student(feed_dict, sess, i, eval_correct, labels_placeholder)
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
