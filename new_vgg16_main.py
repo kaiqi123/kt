@@ -459,22 +459,7 @@ class VGG16(object):
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
-            """
-            def evaluation_teacher(logits, labels):
-                print('evaluation_teacher')
-                if FLAGS.top_1_accuracy:
-                    correct = tf.nn.in_top_k(logits, labels, 1)
-                elif FLAGS.top_3_accuracy:
-                    correct = tf.nn.in_top_k(logits, labels, 3)
-                elif FLAGS.top_5_accuracy:
-                    correct = tf.nn.in_top_k(logits, labels, 5)
-                return tf.cast(correct, tf.int32)
 
-            teacher_correct = evaluation_teacher(self.mentor_data_dict.softmax, labels_placeholder)
-
-            count = sess.run(evaluation_teacher, feed_dict=feed_dict)
-            print(count)
-            """
 
             if FLAGS.num_optimizers == 5:
                 _,_, _,_,_,_, \
