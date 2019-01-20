@@ -471,8 +471,10 @@ class VGG16(object):
                 return tf.cast(correct, tf.int32)
 
             teacher_correct = evaluation_teacher(self.mentor_data_dict.softmax, labels_placeholder)
-            count = sess.run(teacher_correct, feed_dict=feed_dict)
+            count,softmax,label = sess.run([teacher_correct,self.mentor_data_dict.softmax,labels_placeholder], feed_dict=feed_dict)
             print(count)
+            print(label)
+            print(softmax)
 
 
             if FLAGS.num_optimizers == 5:
