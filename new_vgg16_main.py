@@ -479,7 +479,7 @@ class VGG16(object):
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
-            def evaluation_teacher(self, logits, labels):
+            def evaluation_teacher(logits, labels):
                 print('evaluation_teacher')
                 if FLAGS.top_1_accuracy:
                     correct = tf.nn.in_top_k(logits, labels, 1)
