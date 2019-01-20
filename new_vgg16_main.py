@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 4680
+NUM_ITERATIONS = 3
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -447,8 +447,8 @@ class VGG16(object):
                 self.train_op5 = self.train_op53
                 self.l5 = self.l53
                 count_cosine[12] = count_cosine[12] + 1
-
-    def run_dependent_student(self, eval_correct, feed_dict, sess, i):
+    """
+    def run_dependent_student(self, feed_dict, sess, i):
 
         if (i % FLAGS.num_iterations == 0):
 
@@ -458,16 +458,36 @@ class VGG16(object):
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
-            #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-            #_, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-            #_, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-            #_, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-
             if FLAGS.num_optimizers == 5:
                 _,_, _,_,_,_, \
                 self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5,\
                  = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
                                 self.loss, self.l1, self.l2, self.l3, self.l4, self.l5], feed_dict=feed_dict)
+
+        else:
+            #print("do not connect teacher: "+str(i))
+            _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+    """
+
+    def run_dependent_student(self, feed_dict, sess, i, labels_placeholder):
+
+        if (i % FLAGS.num_iterations == 0):
+
+            print("connect teacher: "+str(i))
+
+            #self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict, FLAGS.num_optimizers)
+            #cosine = sess.run(self.cosine, feed_dict=feed_dict)
+            #self.select_optimizers_and_loss(cosine)
+
+            teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
+
+            if FLAGS.num_optimizers == 5:
+                _,_, _,_,_,_, \
+                self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5, \
+                teacher_trueCount_perIteration = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
+                                self.loss, self.l1, self.l2, self.l3, self.l4, self.l5,
+                             teacher_eval_correct], feed_dict=feed_dict)
+                print(teacher_trueCount_perIteration)
 
         else:
             #print("do not connect teacher: "+str(i))
@@ -498,7 +518,8 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    self.run_dependent_student(eval_correct, feed_dict, sess, i)
+                    #self.run_dependent_student(feed_dict, sess, i)
+                    self.run_dependent_student(feed_dict, sess, i, labels_placeholder)
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
