@@ -329,8 +329,8 @@ class VGG16(object):
         init = tf.initialize_all_variables()
         sess.run(init)
 
-        saver = tf.train.Saver(mentor_variables_to_restore)
-        saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
+        #saver = tf.train.Saver(mentor_variables_to_restore)
+        #saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
 
         if FLAGS.initialization:
             print("initialization")
