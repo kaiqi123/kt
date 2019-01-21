@@ -332,6 +332,7 @@ class VGG16(object):
 
         #saver = tf.train.Saver(mentor_variables_to_restore)
         #saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
+
         self.saver = tf.train.Saver()
 
         if FLAGS.initialization:
@@ -546,7 +547,8 @@ class VGG16(object):
                     #                     labels_placeholder,
                     #                     data_input_train, 'Train', phase_train)
 
-                    self.saver.save(sess, "./temp/Dependent_student_caltech101_clean_code")
+                    #self.saver.save(sess, "./temp/Dependent_student_caltech101_clean_code")
+                    self.saver.restore(sess, "./temp/Dependent_student_caltech101")
 
                     """
                     if i % 10 == 0:
@@ -607,7 +609,7 @@ class VGG16(object):
 
             print("test whether to use gpu")
             print(device_lib.list_local_devices())
-            print(str(NUM_ITERATIONS))
+
             # This line allows the code to use only sufficient memory and does not block entire GPU
             config = tf.ConfigProto(gpu_options=tf.GPUOptions(allow_growth=True))
 
@@ -645,6 +647,10 @@ class VGG16(object):
             global_step = tf.Variable(0, name='global_step', trainable=False)
             phase_train = tf.placeholder(tf.bool, name='phase_train')
             #summary = tf.summary.merge_all()
+
+            print("NUM_ITERATIONS: "+str(NUM_ITERATIONS))
+            print("learning_rate: " + str(FLAGS.learning_rate))
+            print("batch_size: " + str(FLAGS.batch_size))
 
             if FLAGS.student:
                 self.define_independent_student(images_placeholder, labels_placeholder, seed, phase_train, global_step,
