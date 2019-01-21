@@ -548,7 +548,7 @@ class VGG16(object):
                     #                     data_input_train, 'Train', phase_train)
 
                     #self.saver.save(sess, "./temp/Dependent_student_caltech101_clean_code")
-                    self.saver.restore(sess, "./temp/Dependent_student_caltech101")
+                    self.saver.restore(sess, "./temp/Dependent_student_caltech101_clean_code")
 
                     """
                     if i % 10 == 0:
