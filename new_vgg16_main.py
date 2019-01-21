@@ -329,8 +329,8 @@ class VGG16(object):
         init = tf.initialize_all_variables()
         sess.run(init)
 
-        #saver = tf.train.Saver(mentor_variables_to_restore)
-        #saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
+        saver = tf.train.Saver(mentor_variables_to_restore)
+        saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
 
         if FLAGS.initialization:
             print("initialization")
@@ -502,9 +502,10 @@ class VGG16(object):
             steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
             num_examples = steps_per_epoch * FLAGS.batch_size
 
-        true_count = 0
+
         teacher_accuracy_perEpoch_list = []
         for i in range(20):
+            true_count = 0
             for step in xrange(steps_per_epoch):
                 feed_dict = self.fill_feed_dict(dataset, images_placeholder,
                                                 labels_placeholder, sess, mode, phase_train)
@@ -523,6 +524,8 @@ class VGG16(object):
 
             eval_correct = self.evaluation(self.softmax, labels_placeholder)
 
+            teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
+
             for i in range(NUM_ITERATIONS):
 
 
@@ -540,10 +543,10 @@ class VGG16(object):
                 if FLAGS.dependent_student:
 
                     #self.run_dependent_student(feed_dict, sess, i)
-                    teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
 
                     #teacher_eval_correct = self.run_dependent_student(feed_dict, sess, i, eval_correct, labels_placeholder)
 
+                    #self.do_eval(sess, teacher_eval_correct, self.mentor_data_dict.softmax, images_placeholder, labels_placeholder, data_input_train, 'Train', phase_train)
                     self.do_eval(sess, teacher_eval_correct, self.mentor_data_dict.softmax, images_placeholder,
                                          labels_placeholder,
                                          data_input_train, 'Train', phase_train)
