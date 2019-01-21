@@ -354,18 +354,18 @@ class VGG16(object):
                     self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
 
                 if FLAGS.num_optimizers >= 2:
-                    print("initialization: conv2_1")
                     if var.op.name == "mentor_conv2_1/mentor_weights":
+                        print("initialization: conv2_1")
                         self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
 
                 if FLAGS.num_optimizers >= 3:
-                    print("initialization: conv3_1")
                     if var.op.name == "mentor_conv3_1/mentor_weights":
+                        print("initialization: conv3_1")
                         self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
 
                 if FLAGS.num_optimizers >= 4:
-                    print("initialization: conv4_1")
                     if var.op.name == "mentor_conv4_1/mentor_weights":
+                        print("initialization: conv4_1")
                         self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
 
                 if FLAGS.num_optimizers == 5:
