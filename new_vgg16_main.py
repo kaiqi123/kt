@@ -32,6 +32,9 @@ seed = 1234
 alpha = 0.2
 random_count = 0
 count_cosine = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+teacher_alltrue_list = []
+teacher_alltrue_list_127 = []
+teacher_alltrue_list_126 = []
 
 class VGG16(object):
 
@@ -496,7 +499,7 @@ class VGG16(object):
 
             if FLAGS.dependent_student:
                 teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
-                teacher_truecount_list = []
+                teacher_truecount_perEpoch_list = []
 
             for i in range(NUM_ITERATIONS):
 
@@ -517,7 +520,7 @@ class VGG16(object):
 
 
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
-                    teacher_truecount_list.append(teacher_truecount)
+                    teacher_truecount_perEpoch_list.append(teacher_truecount)
 
                     #self.run_dependent_student(feed_dict, sess, i)
 
@@ -550,11 +553,18 @@ class VGG16(object):
                     #   saver_new.save(sess, FLAGS.dependent_student_filename)
 
                     if FLAGS.dependent_student:
-                        print(teacher_truecount_list)
-                        teacher_truecount_list.count(128)
-                        teacher_truecount_list.count(127)
-                        teacher_truecount_list.count(127)
-                        teacher_truecount_list = []
+                        print(teacher_truecount_perEpoch_list)
+                        teacher_alltrue = teacher_truecount_perEpoch_list.count(128)
+                        teacher_alltrue_list.append(teacher_alltrue)
+
+                        teacher_alltrue_list_127.append(teacher_truecount_perEpoch_list.count(127))
+                        teacher_alltrue_list_126.append(teacher_truecount_perEpoch_list.count(126))
+
+                        print("teacher_alltrue_list:" + str(teacher_alltrue_list))
+                        print("teacher_alltrue_list:" + str(teacher_alltrue_list_127))
+                        print("teacher_alltrue_list:" + str(teacher_alltrue_list_126))
+
+                        teacher_truecount_perEpoch_list = []
 
                     """
                     print ("Training Data Eval:")
@@ -663,7 +673,6 @@ class VGG16(object):
         print("3th: "+ str(count_cosine[4]) + "," + str(count_cosine[5])+ "," + str(count_cosine[6]))
         print("4th: "+ str(count_cosine[7]) + "," + str(count_cosine[8])+ "," + str(count_cosine[9]))
         print("5th: "+ str(count_cosine[10]) + "," + str(count_cosine[11])+ "," + str(count_cosine[12]))
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
