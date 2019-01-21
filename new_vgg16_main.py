@@ -463,7 +463,7 @@ class VGG16(object):
             teacher_accuracy_perEpoch_list.append(precision)
             print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' % (num_examples, true_count, precision))
 
-    def run_dependent_student(self, feed_dict, sess, i, images_placeholder, labels_placeholder, data_input_train):
+    def run_dependent_student(self, feed_dict, sess, i, labels_placeholder):
 
         if (i % FLAGS.num_iterations == 0):
 
@@ -490,7 +490,7 @@ class VGG16(object):
         #    #print("do not connect teacher: "+str(i))
         #    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
-        return teacher_eval_correct
+        return teacher_truecount
 
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
@@ -500,6 +500,8 @@ class VGG16(object):
             print('train model')
 
             eval_correct = self.evaluation(self.softmax, labels_placeholder)
+
+            teacher_truecount_list = []
 
             for i in range(NUM_ITERATIONS):
 
@@ -519,7 +521,9 @@ class VGG16(object):
 
                     #self.run_dependent_student(feed_dict, sess, i)
 
-                    self.run_dependent_student(feed_dict, sess, i, images_placeholder, labels_placeholder, data_input_train)
+                    teacher_truecount = self.run_dependent_student(feed_dict, sess, i, labels_placeholder)
+                    teacher_truecount_list.append(teacher_truecount)
+
 
                     """
                     if i % 10 == 0:
@@ -536,10 +540,14 @@ class VGG16(object):
                         print ("\n")
                     """
 
-                """
+
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
 
-                    checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
+                    # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
+
+                    if FLAGS.dependent_student:
+                        print(teacher_truecount_list)
+                        teacher_truecount_list = []
 
                     if FLAGS.teacher:
                         self.saver.save(sess, FLAGS.teacher_weights_filename)
@@ -568,7 +576,8 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-                """
+
+
 
 
         except Exception as e:
