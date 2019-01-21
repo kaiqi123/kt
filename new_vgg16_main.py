@@ -82,7 +82,7 @@ class VGG16(object):
     def evaluation(self, logits, labels):
 
             if FLAGS.top_1_accuracy:
-                print('evaluation: top 1 accuracy')
+                print('evaluation: top 1 accuracy ')
                 correct = tf.nn.in_top_k(logits, labels, 1)
             elif FLAGS.top_3_accuracy:
                 correct = tf.nn.in_top_k(logits, labels, 3)
