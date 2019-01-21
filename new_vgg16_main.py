@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 3
+NUM_ITERATIONS = 1
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -468,10 +468,10 @@ class VGG16(object):
                     correct = tf.nn.in_top_k(logits, labels, 3)
                 elif FLAGS.top_5_accuracy:
                     correct = tf.nn.in_top_k(logits, labels, 5)
-                return tf.cast(correct, tf.int32)
+                return tf.reduce_sum(tf.cast(correct, tf.int32))
 
-            teacher_correct = evaluation_teacher(self.mentor_data_dict.softmax, labels_placeholder)
-            count,softmax,label = sess.run([teacher_correct,self.mentor_data_dict.softmax,labels_placeholder], feed_dict=feed_dict)
+            teacher_eval_correct = evaluation_teacher(self.mentor_data_dict.softmax, labels_placeholder)
+            count,softmax,label = sess.run([teacher_eval_correct,self.mentor_data_dict.softmax,labels_placeholder], feed_dict=feed_dict)
             print(count)
             print(label)
             print(softmax)
@@ -493,6 +493,28 @@ class VGG16(object):
             #print("do not connect teacher: "+str(i))
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
+        return teacher_eval_correct
+
+    def teacher_do_eval(self, sess, teacher_eval_correct, logits, images_placeholder, labels_placeholder, dataset, mode,
+                        phase_train):
+
+        if mode == 'Train':
+            steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
+            num_examples = steps_per_epoch * FLAGS.batch_size
+
+        true_count = 0
+        teacher_accuracy_perEpoch_list = []
+        for i in range(5):
+            for step in xrange(steps_per_epoch):
+                feed_dict = self.fill_feed_dict(dataset, images_placeholder,
+                                                labels_placeholder, sess, mode, phase_train)
+                count = sess.run(teacher_eval_correct, feed_dict=feed_dict)
+                true_count = true_count + count
+
+            precision = float(true_count) / num_examples
+            teacher_accuracy_perEpoch_list.append(precision)
+            print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' %
+                   (num_examples, true_count, precision))
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
                     phase_train):
@@ -519,7 +541,7 @@ class VGG16(object):
                 if FLAGS.dependent_student:
 
                     #self.run_dependent_student(feed_dict, sess, i)
-                    self.run_dependent_student(feed_dict, sess, i, eval_correct, labels_placeholder)
+                    teacher_eval_correct = self.run_dependent_student(feed_dict, sess, i, eval_correct, labels_placeholder)
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
@@ -534,21 +556,24 @@ class VGG16(object):
 
                         print ("\n")
 
-                """
+
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
                 i) == NUM_ITERATIONS - 1:
 
                     checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
-                    if FLAGS.teacher:
-                        self.saver.save(sess, FLAGS.teacher_weights_filename)
-                    
+                    #if FLAGS.teacher:
+                    #    self.saver.save(sess, FLAGS.teacher_weights_filename)
                     #elif FLAGS.student:
                     #    saver.save(sess, FLAGS.student_filename)                                           
                     #elif FLAGS.dependent_student:
                     #    saver_new = tf.train.Saver()
                     #   saver_new.save(sess, FLAGS.dependent_student_filename)
 
+                    self.teacher_do_eval(sess, teacher_eval_correct, self.mentor_data_dict.softmax, images_placeholder, labels_placeholder,
+                                 data_input_train, 'Train', phase_train)
+
+                    """
                     print ("Training Data Eval:")
                     self.do_eval(sess,
                                  eval_correct,
@@ -567,7 +592,8 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-                """
+                    """
+
 
 
         except Exception as e:
