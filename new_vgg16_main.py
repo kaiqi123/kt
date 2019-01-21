@@ -482,16 +482,16 @@ class VGG16(object):
             print(label1)
             print(softmax1)
 
-            if FLAGS.num_optimizers == 5:
-                _,_, _,_,_,_, \
-                self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5, \
-                = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
-                                self.loss, self.l1, self.l2, self.l3, self.l4, self.l5], feed_dict=feed_dict)
+            #if FLAGS.num_optimizers == 5:
+            #    _,_, _,_,_,_, \
+            #    self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5, \
+            #    = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
+            #                    self.loss, self.l1, self.l2, self.l3, self.l4, self.l5], feed_dict=feed_dict)
 
 
-        else:
-            #print("do not connect teacher: "+str(i))
-            _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+        #else:
+        #    #print("do not connect teacher: "+str(i))
+        #    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
         return teacher_eval_correct
 
@@ -504,7 +504,7 @@ class VGG16(object):
 
         true_count = 0
         teacher_accuracy_perEpoch_list = []
-        for i in range(5):
+        for i in range(20):
             for step in xrange(steps_per_epoch):
                 feed_dict = self.fill_feed_dict(dataset, images_placeholder,
                                                 labels_placeholder, sess, mode, phase_train)
