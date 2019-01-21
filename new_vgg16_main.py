@@ -543,6 +543,7 @@ class VGG16(object):
                     #self.run_dependent_student(feed_dict, sess, i)
                     teacher_eval_correct = self.run_dependent_student(feed_dict, sess, i, eval_correct, labels_placeholder)
 
+                    """
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
                         print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
@@ -555,6 +556,7 @@ class VGG16(object):
                             print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
 
                         print ("\n")
+                    """
 
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
