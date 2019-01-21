@@ -519,8 +519,6 @@ class VGG16(object):
 
             eval_correct = self.evaluation(self.softmax, labels_placeholder)
 
-            teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
-
             for i in range(NUM_ITERATIONS):
 
 
@@ -540,6 +538,7 @@ class VGG16(object):
                     #self.run_dependent_student(feed_dict, sess, i)
 
                     #teacher_eval_correct = self.run_dependent_student(feed_dict, sess, i, eval_correct, labels_placeholder)
+                    teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
 
                     #self.do_eval(sess, teacher_eval_correct, self.mentor_data_dict.softmax, images_placeholder, labels_placeholder, data_input_train, 'Train', phase_train)
                     self.do_eval(sess, teacher_eval_correct, self.mentor_data_dict.softmax, images_placeholder,
