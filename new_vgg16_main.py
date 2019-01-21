@@ -80,9 +80,9 @@ class VGG16(object):
         return feed_dict
 
     def evaluation(self, logits, labels):
-            print('evaluation')
+
             if FLAGS.top_1_accuracy:
-                print("qqqqqqqq")
+                print('evaluation: top 1 accuracy')
                 correct = tf.nn.in_top_k(logits, labels, 1)
             elif FLAGS.top_3_accuracy:
                 correct = tf.nn.in_top_k(logits, labels, 3)
