@@ -558,7 +558,6 @@ class VGG16(object):
                         print ("\n")
                     """
 
-
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
                 i) == NUM_ITERATIONS - 1:
 
