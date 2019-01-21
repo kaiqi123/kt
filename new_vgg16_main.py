@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 5
+NUM_ITERATIONS = 4680
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -82,6 +82,7 @@ class VGG16(object):
     def evaluation(self, logits, labels):
             print('evaluation')
             if FLAGS.top_1_accuracy:
+                print("qqqqqqqq")
                 correct = tf.nn.in_top_k(logits, labels, 1)
             elif FLAGS.top_3_accuracy:
                 correct = tf.nn.in_top_k(logits, labels, 3)
@@ -561,22 +562,20 @@ class VGG16(object):
                     """
 
 
-                """
+
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
 
                     checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
-                    #if FLAGS.teacher:
-                    #    self.saver.save(sess, FLAGS.teacher_weights_filename)
+                    if FLAGS.teacher:
+                        self.saver.save(sess, FLAGS.teacher_weights_filename)
                     #elif FLAGS.student:
                     #    saver.save(sess, FLAGS.student_filename)                                           
                     #elif FLAGS.dependent_student:
                     #    saver_new = tf.train.Saver()
                     #   saver_new.save(sess, FLAGS.dependent_student_filename)
 
-                    
 
-                    
                     print ("Training Data Eval:")
                     self.do_eval(sess,
                                  eval_correct,
@@ -595,8 +594,6 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-                """
-
 
 
         except Exception as e:
@@ -708,12 +705,12 @@ if __name__ == '__main__':
     parser.add_argument(
         '--student_filename',
         type=str,
-        default="./summary-log/new_method_student_weights_filename_cifar10"
+        default="./summary-log/new_method_student_weights_filename_caltech101"
     )
     parser.add_argument(
         '--dependent_student_filename',
         type=str,
-        default="./summary-log/new_method_dependent_student_weights_filename_cifar10"
+        default="./summary-log/new_method_dependent_student_weights_filename_caltech101"
     )
 
     parser.add_argument(
