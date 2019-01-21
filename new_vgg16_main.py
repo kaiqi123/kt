@@ -473,12 +473,6 @@ class VGG16(object):
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
-            teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
-            teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
-            print(teacher_truecount)
-
-            #self.teacher_do_eval(sess, teacher_eval_correct, images_placeholder, labels_placeholder, data_input_train)
-
             #if FLAGS.num_optimizers == 5:
             #    _,_, _,_,_,_, \
             #    self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5, \
@@ -490,7 +484,6 @@ class VGG16(object):
         #    #print("do not connect teacher: "+str(i))
         #    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
-        return teacher_truecount
 
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
@@ -501,7 +494,9 @@ class VGG16(object):
 
             eval_correct = self.evaluation(self.softmax, labels_placeholder)
 
-            teacher_truecount_list = []
+            if FLAGS.dependent_student:
+                teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
+                teacher_truecount_list = []
 
             for i in range(NUM_ITERATIONS):
 
@@ -519,11 +514,12 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    #self.run_dependent_student(feed_dict, sess, i)
 
-                    teacher_truecount = self.run_dependent_student(feed_dict, sess, i, labels_placeholder)
+
+                    teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_truecount_list.append(teacher_truecount)
 
+                    self.run_dependent_student(feed_dict, sess, i)
 
                     """
                     if i % 10 == 0:
@@ -545,10 +541,6 @@ class VGG16(object):
 
                     # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
-                    if FLAGS.dependent_student:
-                        print(teacher_truecount_list)
-                        teacher_truecount_list = []
-
                     if FLAGS.teacher:
                         self.saver.save(sess, FLAGS.teacher_weights_filename)
                     #elif FLAGS.student:
@@ -557,7 +549,11 @@ class VGG16(object):
                     #    saver_new = tf.train.Saver()
                     #   saver_new.save(sess, FLAGS.dependent_student_filename)
 
+                    if FLAGS.dependent_student:
+                        print(teacher_truecount_list)
+                        teacher_truecount_list = []
 
+                    """
                     print ("Training Data Eval:")
                     self.do_eval(sess,
                                  eval_correct,
@@ -576,6 +572,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
+                    """
 
 
 
