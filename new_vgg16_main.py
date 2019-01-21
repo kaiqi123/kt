@@ -553,6 +553,7 @@ class VGG16(object):
                         print(teacher_truecount_list)
                         teacher_truecount_list = []
 
+
                     """
                     print ("Training Data Eval:")
                     self.do_eval(sess,
