@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 1
+NUM_ITERATIONS = 5
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -443,22 +443,21 @@ class VGG16(object):
                 self.l5 = self.l53
                 count_cosine[12] = count_cosine[12] + 1
 
-    def teacher_do_eval(self, sess, teacher_eval_correct, images_placeholder, labels_placeholder, dataset, mode, phase_train):
+    def teacher_do_eval(self, sess, teacher_eval_correct, images_placeholder, labels_placeholder, dataset):
 
-        if mode == 'Train':
-            steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
-            num_examples = steps_per_epoch * FLAGS.batch_size
+
+        steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
+        num_examples = steps_per_epoch * FLAGS.batch_size
 
 
         teacher_accuracy_perEpoch_list = []
         temp = NUM_ITERATIONS / FLAGS.batch_size
-        for i in range(2):
-            true_count = 0
-            for step in xrange(steps_per_epoch):
-                feed_dict = self.fill_feed_dict(dataset, images_placeholder,
-                                                labels_placeholder, sess, mode, phase_train)
-                count = sess.run(teacher_eval_correct, feed_dict=feed_dict)
-                true_count = true_count + count
+
+        for step in xrange(steps_per_epoch):
+
+            feed_dict = self.fill_feed_dict(dataset, images_placeholder,
+                                            labels_placeholder, sess, mode, phase_train)
+            count = sess.run(teacher_eval_correct, feed_dict=feed_dict)
 
             precision = float(true_count) / num_examples
             teacher_accuracy_perEpoch_list.append(precision)
@@ -475,8 +474,10 @@ class VGG16(object):
             #self.select_optimizers_and_loss(cosine)
 
             teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
+            teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
+            print(teacher_truecount)
 
-            self.teacher_do_eval(sess, teacher_eval_correct, images_placeholder, labels_placeholder, data_input_train)
+            #self.teacher_do_eval(sess, teacher_eval_correct, images_placeholder, labels_placeholder, data_input_train)
 
             #if FLAGS.num_optimizers == 5:
             #    _,_, _,_,_,_, \
