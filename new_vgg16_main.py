@@ -519,7 +519,7 @@ class VGG16(object):
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_truecount_list.append(teacher_truecount)
 
-                    self.run_dependent_student(feed_dict, sess, i)
+                    #self.run_dependent_student(feed_dict, sess, i)
 
                     """
                     if i % 10 == 0:
