@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 11700
+NUM_ITERATIONS = 5
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -551,6 +551,9 @@ class VGG16(object):
 
                     if FLAGS.dependent_student:
                         print(teacher_truecount_list)
+                        teacher_truecount_list.count(128)
+                        teacher_truecount_list.count(127)
+                        teacher_truecount_list.count(127)
                         teacher_truecount_list = []
 
                     """
