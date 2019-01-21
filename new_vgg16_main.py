@@ -543,6 +543,10 @@ class VGG16(object):
                     #self.run_dependent_student(feed_dict, sess, i)
                     teacher_eval_correct = self.run_dependent_student(feed_dict, sess, i, eval_correct, labels_placeholder)
 
+                    self.teacher_do_eval(sess, teacher_eval_correct, self.mentor_data_dict.softmax, images_placeholder,
+                                         labels_placeholder,
+                                         data_input_train, 'Train', phase_train)
+
                     """
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
@@ -558,8 +562,9 @@ class VGG16(object):
                         print ("\n")
                     """
 
-                if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (
-                i) == NUM_ITERATIONS - 1:
+
+                """
+                if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
 
                     checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
@@ -571,10 +576,9 @@ class VGG16(object):
                     #    saver_new = tf.train.Saver()
                     #   saver_new.save(sess, FLAGS.dependent_student_filename)
 
-                    self.teacher_do_eval(sess, teacher_eval_correct, self.mentor_data_dict.softmax, images_placeholder, labels_placeholder,
-                                 data_input_train, 'Train', phase_train)
+                    
 
-                    """
+                    
                     print ("Training Data Eval:")
                     self.do_eval(sess,
                                  eval_correct,
@@ -593,7 +597,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-                    """
+                """
 
 
 
