@@ -2,8 +2,8 @@ import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-#from vgg16mentee_temp import Mentee
-from vgg16mentee import Mentee
+from vgg16mentee_temp import Mentee
+#from vgg16mentee import Mentee
 #from vgg16mentee_original import Mentee
 from vgg16mentor import Mentor
 from vgg16embed import Embed
@@ -337,21 +337,28 @@ class VGG16(object):
         saver.restore(sess, FLAGS.teacher_weights_filename)
 
         if FLAGS.initialization:
-            print("initialization")
-            if FLAGS.num_optimizers == 5:
-                for var in tf.global_variables():
-                    if var.op.name == "mentor_conv1_1/mentor_weights":
-                        self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
+            for var in tf.global_variables():
+                if var.op.name == "mentor_conv1_1/mentor_weights":
+                    print("initialization: conv1_1")
+                    self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
 
+                if FLAGS.num_optimizers >= 2:
+                    print("initialization: conv2_1")
                     if var.op.name == "mentor_conv2_1/mentor_weights":
                         self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
 
+                if FLAGS.num_optimizers >= 3:
+                    print("initialization: conv3_1")
                     if var.op.name == "mentor_conv3_1/mentor_weights":
                         self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
 
+                if FLAGS.num_optimizers >= 4:
+                    print("initialization: conv4_1")
                     if var.op.name == "mentor_conv4_1/mentor_weights":
                         self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
 
+                if FLAGS.num_optimizers == 5:
+                    print("initialization: conv5_1")
                     if var.op.name == "mentor_conv5_1/mentor_weights":
                         self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
 
@@ -361,16 +368,6 @@ class VGG16(object):
                     if var.op.name == "mentor_fc3/mentor_weights":
                         self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
 
-            if FLAGS.num_optimizers == 3:
-                for var in tf.global_variables():
-                    if var.op.name == "mentor_conv1_1/mentor_weights":
-                        self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
-
-                    if var.op.name == "mentor_conv2_1/mentor_weights":
-                        self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
-
-                    if var.op.name == "mentor_conv3_1/mentor_weights":
-                        self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
 
     def select_optimizers_and_loss(self,cosine):
         #print(cosine)
@@ -446,46 +443,33 @@ class VGG16(object):
                 self.l5 = self.l53
                 count_cosine[12] = count_cosine[12] + 1
 
-    def teacher_do_eval(self, sess, teacher_eval_correct, images_placeholder, labels_placeholder, dataset):
 
-
-        steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
-        num_examples = steps_per_epoch * FLAGS.batch_size
-
-
-        teacher_accuracy_perEpoch_list = []
-        temp = NUM_ITERATIONS / FLAGS.batch_size
-
-        for step in xrange(steps_per_epoch):
-
-            feed_dict = self.fill_feed_dict(dataset, images_placeholder,
-                                            labels_placeholder, sess, mode, phase_train)
-            count = sess.run(teacher_eval_correct, feed_dict=feed_dict)
-
-            precision = float(true_count) / num_examples
-            teacher_accuracy_perEpoch_list.append(precision)
-            print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' % (num_examples, true_count, precision))
-
-    def run_dependent_student(self, feed_dict, sess, i, labels_placeholder):
+    def run_dependent_student(self, feed_dict, sess, i):
 
         if (i % FLAGS.num_iterations == 0):
 
-            print("connect teacher: "+str(i))
+            #print("connect teacher: "+str(i))
 
             #self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict, FLAGS.num_optimizers)
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
-            #if FLAGS.num_optimizers == 5:
-            #    _,_, _,_,_,_, \
-            #    self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5, \
-            #    = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
-            #                    self.loss, self.l1, self.l2, self.l3, self.l4, self.l5], feed_dict=feed_dict)
+            if FLAGS.num_optimizers == 2:
+                print("run_dependent_student: 2 optimizer")
+                _,_, _,self.loss_value0, self.loss_value1, self.loss_value2\
+                    = sess.run([self.train_op0, self.train_op1, self.train_op2, self.loss, self.l1, self.l2], feed_dict=feed_dict)
+
+            if FLAGS.num_optimizers == 5:
+                print("run_dependent_student: 5 optimizer")
+                _,_, _,_,_,_, \
+                self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5, \
+                = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
+                                self.loss, self.l1, self.l2, self.l3, self.l4, self.l5], feed_dict=feed_dict)
 
 
-        #else:
-        #    #print("do not connect teacher: "+str(i))
-        #    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+        else:
+            print("do not connect teacher: "+str(i))
+            _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
 
 
@@ -522,22 +506,23 @@ class VGG16(object):
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_truecount_perEpoch_list.append(teacher_truecount)
 
-                    #self.run_dependent_student(feed_dict, sess, i)
+                    self.run_dependent_student(feed_dict, sess, i)
 
-                    """
+
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
                         print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                         print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
-                        print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
-                        print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
-
-                        if FLAGS.num_optimizers == 5:
+                        if FLAGS.num_optimizers >= 2:
+                            print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
+                        if FLAGS.num_optimizers >= 3:
+                            print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
+                        if FLAGS.num_optimizers >= 4:
                             print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
+                        if FLAGS.num_optimizers == 5:
                             print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
-
                         print ("\n")
-                    """
+
 
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
@@ -560,13 +545,13 @@ class VGG16(object):
                         teacher_alltrue_list_127.append(teacher_truecount_perEpoch_list.count(127))
                         teacher_alltrue_list_126.append(teacher_truecount_perEpoch_list.count(126))
 
-                        print("teacher_alltrue_list:" + str(teacher_alltrue_list))
-                        print("teacher_alltrue_list:" + str(teacher_alltrue_list_127))
-                        print("teacher_alltrue_list:" + str(teacher_alltrue_list_126))
+                        print("teacher_alltrue_list128:" + str(teacher_alltrue_list))
+                        print("teacher_alltrue_list127:" + str(teacher_alltrue_list_127))
+                        print("teacher_alltrue_list126:" + str(teacher_alltrue_list_126))
 
                         teacher_truecount_perEpoch_list = []
 
-                    """
+
                     print ("Training Data Eval:")
                     self.do_eval(sess,
                                  eval_correct,
@@ -585,7 +570,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-                    """
+
 
 
 
