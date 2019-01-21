@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 5
+NUM_ITERATIONS = 11700
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -688,7 +688,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--teacher_weights_filename',
         type=str,
-        default="./summary-log/new_method_teacher_weights_filename_caltech101_clean_code"
+        default="./summary-log/new_method_teacher_weights_filename_caltech101"
     )
     parser.add_argument(
         '--student_filename',
