@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 1
+NUM_ITERATIONS = 5
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -330,10 +330,8 @@ class VGG16(object):
         init = tf.initialize_all_variables()
         sess.run(init)
 
-        #saver = tf.train.Saver(mentor_variables_to_restore)
-        #saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
-
-        self.saver = tf.train.Saver()
+        saver = tf.train.Saver(mentor_variables_to_restore)
+        saver.restore(sess, FLAGS.teacher_weights_filename)
 
         if FLAGS.initialization:
             print("initialization")
@@ -540,15 +538,12 @@ class VGG16(object):
                     #self.run_dependent_student(feed_dict, sess, i)
 
                     #teacher_eval_correct = self.run_dependent_student(feed_dict, sess, i, eval_correct, labels_placeholder)
-                    #teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
+                    teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
 
-                    #self.do_eval(sess, teacher_eval_correct, self.mentor_data_dict.softmax, images_placeholder, labels_placeholder, data_input_train, 'Train', phase_train)
+                    self.do_eval(sess, teacher_eval_correct, self.mentor_data_dict.softmax, images_placeholder, labels_placeholder, data_input_train, 'Train', phase_train)
                     #self.do_eval(sess, teacher_eval_correct, self.mentor_data_dict.softmax, images_placeholder,
                     #                     labels_placeholder,
                     #                     data_input_train, 'Train', phase_train)
-
-                    #self.saver.save(sess, "./temp/Dependent_student_caltech101_clean_code")
-                    self.saver.restore(sess, "./temp/Dependent_student_caltech101_clean_code")
 
                     """
                     if i % 10 == 0:
