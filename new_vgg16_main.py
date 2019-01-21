@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 5
+NUM_ITERATIONS = 1
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -443,8 +443,28 @@ class VGG16(object):
                 self.l5 = self.l53
                 count_cosine[12] = count_cosine[12] + 1
 
+    def teacher_do_eval(self, sess, teacher_eval_correct, images_placeholder, labels_placeholder, dataset, mode, phase_train):
 
-    def run_dependent_student(self, feed_dict, sess, i, eval_correct, labels_placeholder):
+        if mode == 'Train':
+            steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
+            num_examples = steps_per_epoch * FLAGS.batch_size
+
+
+        teacher_accuracy_perEpoch_list = []
+        temp = NUM_ITERATIONS / FLAGS.batch_size
+        for i in range(2):
+            true_count = 0
+            for step in xrange(steps_per_epoch):
+                feed_dict = self.fill_feed_dict(dataset, images_placeholder,
+                                                labels_placeholder, sess, mode, phase_train)
+                count = sess.run(teacher_eval_correct, feed_dict=feed_dict)
+                true_count = true_count + count
+
+            precision = float(true_count) / num_examples
+            teacher_accuracy_perEpoch_list.append(precision)
+            print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' % (num_examples, true_count, precision))
+
+    def run_dependent_student(self, feed_dict, sess, i, images_placeholder, labels_placeholder, data_input_train):
 
         if (i % FLAGS.num_iterations == 0):
 
@@ -454,28 +474,9 @@ class VGG16(object):
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
+            teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
 
-            def evaluation_teacher(logits, labels):
-                print('evaluation_teacher')
-                if FLAGS.top_1_accuracy:
-                    correct = tf.nn.in_top_k(logits, labels, 1)
-                elif FLAGS.top_3_accuracy:
-                    correct = tf.nn.in_top_k(logits, labels, 3)
-                elif FLAGS.top_5_accuracy:
-                    correct = tf.nn.in_top_k(logits, labels, 5)
-                return tf.reduce_sum(tf.cast(correct, tf.int32))
-
-            teacher_eval_correct = evaluation_teacher(self.mentor_data_dict.softmax, labels_placeholder)
-            count,softmax,label = sess.run([teacher_eval_correct,self.mentor_data_dict.softmax,labels_placeholder], feed_dict=feed_dict)
-            print(count)
-            print(label)
-            print(softmax)
-            print("11111111")
-
-            count1, softmax1, label1 = sess.run([eval_correct,self.softmax,labels_placeholder], feed_dict=feed_dict)
-            print(count1)
-            print(label1)
-            print(softmax1)
+            self.teacher_do_eval(sess, teacher_eval_correct, images_placeholder, labels_placeholder, data_input_train)
 
             #if FLAGS.num_optimizers == 5:
             #    _,_, _,_,_,_, \
@@ -490,26 +491,6 @@ class VGG16(object):
 
         return teacher_eval_correct
 
-    def teacher_do_eval(self, sess, teacher_eval_correct, logits, images_placeholder, labels_placeholder, dataset, mode,
-                        phase_train):
-
-        if mode == 'Train':
-            steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
-            num_examples = steps_per_epoch * FLAGS.batch_size
-
-
-        teacher_accuracy_perEpoch_list = []
-        for i in range(20):
-            true_count = 0
-            for step in xrange(steps_per_epoch):
-                feed_dict = self.fill_feed_dict(dataset, images_placeholder,
-                                                labels_placeholder, sess, mode, phase_train)
-                count = sess.run(teacher_eval_correct, feed_dict=feed_dict)
-                true_count = true_count + count
-
-            precision = float(true_count) / num_examples
-            teacher_accuracy_perEpoch_list.append(precision)
-            print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' % (num_examples, true_count, precision))
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
                     phase_train):
@@ -537,13 +518,7 @@ class VGG16(object):
 
                     #self.run_dependent_student(feed_dict, sess, i)
 
-                    #teacher_eval_correct = self.run_dependent_student(feed_dict, sess, i, eval_correct, labels_placeholder)
-                    teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
-
-                    self.do_eval(sess, teacher_eval_correct, self.mentor_data_dict.softmax, images_placeholder, labels_placeholder, data_input_train, 'Train', phase_train)
-                    #self.do_eval(sess, teacher_eval_correct, self.mentor_data_dict.softmax, images_placeholder,
-                    #                     labels_placeholder,
-                    #                     data_input_train, 'Train', phase_train)
+                    self.run_dependent_student(feed_dict, sess, i, images_placeholder, labels_placeholder, data_input_train)
 
                     """
                     if i % 10 == 0:
