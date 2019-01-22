@@ -350,7 +350,7 @@ class VGG16(object):
         if FLAGS.initialization:
             for var in tf.global_variables():
                 if FLAGS.num_optimizers == 5:
-                    print("initialization: conv5_fc2")
+                    #print("initialization: conv5_fc2")
                     if var.op.name == "mentor_conv1_1/mentor_weights":
                         self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
 
