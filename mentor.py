@@ -148,7 +148,7 @@ class Teacher(object):
 			#self.conv4_1 = Dropout((0.4))(self.conv4_1)
 			self.parameters += [kernel, biases]
 
-		# conv5_1
+
 		with tf.name_scope('mentor_conv4_2') as scope:
 			kernel = tf.Variable(tf.truncated_normal([3, 3, 512, 512], dtype=tf.float32,
 													 stddev=1e-2), trainable = self.trainable, name='mentor_weights')
