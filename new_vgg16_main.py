@@ -2,8 +2,8 @@ import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-from vgg16mentee_temp import Mentee
-#from vgg16mentee import Mentee
+#from vgg16mentee_temp import Mentee
+from vgg16mentee import Mentee
 #from vgg16mentee_original import Mentee
 from vgg16mentor import Mentor
 from vgg16embed import Embed
@@ -22,7 +22,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 7820
+NUM_ITERATIONS = 4680
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -472,6 +472,13 @@ class VGG16(object):
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                 _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+
+            if FLAGS.num_optimizers == 4:
+                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+                _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
 
             if FLAGS.num_optimizers == 5:
                 print("run_dependent_student: 5 optimizer")
