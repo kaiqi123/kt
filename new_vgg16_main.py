@@ -91,9 +91,9 @@ class VGG16(object):
             elif FLAGS.top_5_accuracy:
                 correct = tf.nn.in_top_k(logits, labels, 5)
 
-            #return tf.reduce_sum(tf.cast(correct, tf.int32))
+            return tf.reduce_sum(tf.cast(correct, tf.int32))
 
-            return tf.cast(correct, tf.int32)
+            #return tf.cast(correct, tf.int32)
 
 
     def do_eval(self, sess, eval_correct, logits, images_placeholder, labels_placeholder, dataset,mode, phase_train):
