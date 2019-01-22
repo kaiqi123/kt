@@ -308,7 +308,7 @@ class VGG16(object):
         Same batch of input data is passed to both teacher and student for every iteration
         """
         print(FLAGS.dataset)
-        if FLAGS.dataset == 'cifar10' or 'mnist':
+        if FLAGS.dataset == 'cifar10':
             print("Train dependent student (cifar10 or mnist)")
             vgg16_mentor = Teacher(False)
         if FLAGS.dataset == 'caltech101':
