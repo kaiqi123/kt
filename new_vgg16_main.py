@@ -91,7 +91,9 @@ class VGG16(object):
             elif FLAGS.top_5_accuracy:
                 correct = tf.nn.in_top_k(logits, labels, 5)
 
-            return tf.reduce_sum(tf.cast(correct, tf.int32))
+            #return tf.reduce_sum(tf.cast(correct, tf.int32))
+
+            return tf.cast(correct, tf.int32)
 
 
     def do_eval(self, sess, eval_correct, logits, images_placeholder, labels_placeholder, dataset,mode, phase_train):
@@ -517,9 +519,9 @@ class VGG16(object):
 
             eval_correct = self.evaluation(self.softmax, labels_placeholder)
 
-            if FLAGS.dependent_student:
-                teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
-                teacher_truecount_perEpoch_list = []
+            #if FLAGS.dependent_student:
+            #    teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
+            #    teacher_truecount_perEpoch_list = []
 
             for i in range(NUM_ITERATIONS):
 
@@ -537,6 +539,11 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
+                    teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
+                    print(teacher_eval_correct)
+                    print(labels_placeholder)
+
+                """
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     print(teacher_truecount)
                     teacher_truecount_perEpoch_list.append(teacher_truecount)
@@ -604,6 +611,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
+                    """
 
         except Exception as e:
             print(e)
