@@ -2,8 +2,8 @@ import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-#from vgg16mentee_temp import Mentee
-from vgg16mentee import Mentee
+from vgg16mentee_temp import Mentee
+#from vgg16mentee import Mentee
 from vgg16mentor import Mentor
 from vgg16embed import Embed
 from mentor import Teacher
@@ -346,8 +346,8 @@ class VGG16(object):
         sess.run(init)
 
         saver = tf.train.Saver(mentor_variables_to_restore)
-        #saver.restore(sess, FLAGS.teacher_weights_filename)
-        saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101_clean_code")
+        saver.restore(sess, FLAGS.teacher_weights_filename)
+        #saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101_clean_code")
 
         if FLAGS.initialization:
             for var in tf.global_variables():
@@ -467,42 +467,16 @@ class VGG16(object):
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
-            if FLAGS.num_optimizers == 2:
-                #print("run_dependent_student: 2 optimizer")
-                #_,_, _,self.loss_value0, self.loss_value1, self.loss_value2\
-                #    = sess.run([self.train_op0, self.train_op1, self.train_op2, self.loss, self.l1, self.l2], feed_dict=feed_dict)
-                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+            _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+            _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+            if FLAGS.num_optimizers >= 2:
                 _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-
-            if FLAGS.num_optimizers == 3:
-                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+            if FLAGS.num_optimizers >= 3:
                 _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-
-            if FLAGS.num_optimizers == 4:
-                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+            if FLAGS.num_optimizers >= 4:
                 _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
-
             if FLAGS.num_optimizers == 5:
-                #print("run_dependent_student: 5 optimizer")
-                """
-                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-                _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
                 _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
-                """
-
-                _,_, _,_,_,_, \
-                self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5, \
-                = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
-                                self.loss, self.l1, self.l2, self.l3, self.l4, self.l5], feed_dict=feed_dict)
 
 
         else:
@@ -519,9 +493,9 @@ class VGG16(object):
 
             eval_correct = self.evaluation(self.softmax, labels_placeholder)
 
-            #if FLAGS.dependent_student:
-            #    teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
-            #    teacher_truecount_perEpoch_list = []
+            if FLAGS.dependent_student:
+                teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
+                teacher_truecount_perEpoch_list = []
 
             for i in range(NUM_ITERATIONS):
 
@@ -538,7 +512,7 @@ class VGG16(object):
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
-
+                    """
                     teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
                     teacher_truecount,labels, softmax = sess.run([teacher_eval_correct,labels_placeholder,self.mentor_data_dict.softmax], feed_dict=feed_dict)
                     count = list(teacher_truecount).count(1)
@@ -556,9 +530,7 @@ class VGG16(object):
                     #print(len(teacher_truecount))
                     print(t)
                     print(labels)
-
-
-                """
+                    """
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     print(teacher_truecount)
                     teacher_truecount_perEpoch_list.append(teacher_truecount)
@@ -586,12 +558,13 @@ class VGG16(object):
                     # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
                     if FLAGS.teacher:
+                        print("save teacher to: "+str(FLAGS.teacher_weights_filename))
                         self.saver.save(sess, FLAGS.teacher_weights_filename)
                     #elif FLAGS.student:
-                    #    saver.save(sess, FLAGS.student_filename)                                           
-                    #elif FLAGS.dependent_student:
-                    #    saver_new = tf.train.Saver()
-                    #   saver_new.save(sess, FLAGS.dependent_student_filename)
+                    #    saver.save(sess, FLAGS.student_filename)
+                    elif FLAGS.dependent_student:
+                        saver_new = tf.train.Saver()
+                        saver_new.save(sess, FLAGS.dependent_student_filename)
 
                     if FLAGS.dependent_student:
                         print(teacher_truecount_perEpoch_list)
@@ -626,7 +599,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-                    """
+
 
         except Exception as e:
             print(e)
@@ -735,7 +708,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--teacher_weights_filename',
         type=str,
-        default="./summary-log/new_method_teacher_weights_filename_caltech101"
+        default="./summary-log/new_method_teacher_weights_filename_caltech101_new"
     )
     parser.add_argument(
         '--student_filename',
