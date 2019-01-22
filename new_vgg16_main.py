@@ -344,7 +344,8 @@ class VGG16(object):
         sess.run(init)
 
         saver = tf.train.Saver(mentor_variables_to_restore)
-        saver.restore(sess, FLAGS.teacher_weights_filename)
+        #saver.restore(sess, FLAGS.teacher_weights_filename)
+        saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101")
 
         if FLAGS.initialization:
             for var in tf.global_variables():
@@ -537,6 +538,7 @@ class VGG16(object):
                 if FLAGS.dependent_student:
 
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
+                    print(teacher_truecount)
                     teacher_truecount_perEpoch_list.append(teacher_truecount)
 
                     self.run_dependent_student(feed_dict, sess, i)
