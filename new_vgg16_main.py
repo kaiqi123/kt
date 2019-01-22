@@ -532,7 +532,8 @@ class VGG16(object):
 
                         print(teacher_eval_correct_list)
                         print(labels)
-                        print(feed_dict.keys())
+                        print(feed_dict["labels_pl"])
+                        print(feed_dict["images_pl"])
                     """
                     t = []
                     for e in softmax:
