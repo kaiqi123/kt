@@ -541,7 +541,7 @@ class VGG16(object):
 
                     teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
                     teacher_truecount,labels = sess.run([teacher_eval_correct,labels_placeholder], feed_dict=feed_dict)
-                    count = teacher_truecount.count(FLAGS.batch_size)
+                    count = list(teacher_truecount).count(FLAGS.batch_size)
                     print(teacher_truecount)
                     print(count)
                     print(labels)
