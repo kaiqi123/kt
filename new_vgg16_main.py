@@ -481,7 +481,7 @@ class VGG16(object):
                 _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
 
             if FLAGS.num_optimizers == 5:
-                print("run_dependent_student: 5 optimizer")
+                #print("run_dependent_student: 5 optimizer")
                 _,_, _,_,_,_, \
                 self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5, \
                 = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
@@ -557,15 +557,15 @@ class VGG16(object):
 
                     if FLAGS.dependent_student:
                         print(teacher_truecount_perEpoch_list)
-                        teacher_alltrue = teacher_truecount_perEpoch_list.count(128)
+                        teacher_alltrue = teacher_truecount_perEpoch_list.count(FLAGS.batch_size)
                         teacher_alltrue_list.append(teacher_alltrue)
 
-                        teacher_alltrue_list_127.append(teacher_truecount_perEpoch_list.count(127))
-                        teacher_alltrue_list_126.append(teacher_truecount_perEpoch_list.count(126))
+                        teacher_alltrue_list_127.append(teacher_truecount_perEpoch_list.count(FLAGS.batch_size-1))
+                        teacher_alltrue_list_126.append(teacher_truecount_perEpoch_list.count(FLAGS.batch_size-2))
 
-                        print("teacher_alltrue_list128:" + str(teacher_alltrue_list))
-                        print("teacher_alltrue_list127:" + str(teacher_alltrue_list_127))
-                        print("teacher_alltrue_list126:" + str(teacher_alltrue_list_126))
+                        print("teacher_alltrue_list" + str(FLAGS.batch_size)+":"+str(teacher_alltrue_list))
+                        print("teacher_alltrue_list" + str(FLAGS.batch_size-1)+":"+str(teacher_alltrue_list_127))
+                        print("teacher_alltrue_list" + str(FLAGS.batch_size-2)+":" + str(teacher_alltrue_list_126))
 
                         teacher_truecount_perEpoch_list = []
 
