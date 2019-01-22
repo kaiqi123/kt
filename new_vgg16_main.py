@@ -525,6 +525,7 @@ class VGG16(object):
 
                     teacher_eval_correct = self.evaluation_teacher(self.mentor_data_dict.softmax, labels_placeholder)
                     teacher_eval_correct_list,labels, softmax = sess.run([teacher_eval_correct,labels_placeholder,self.mentor_data_dict.softmax], feed_dict=feed_dict)
+                    teacher_eval_correct_list = list(teacher_eval_correct_list)
                     count0 = teacher_eval_correct_list.count(0)
                     if count0>0:
                         #teacher_eval_correct_list.index(0)
