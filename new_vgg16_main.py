@@ -540,7 +540,8 @@ class VGG16(object):
                 if FLAGS.dependent_student:
 
                     teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
-                    print(teacher_eval_correct)
+                    teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
+                    print(teacher_truecount)
                     print(labels_placeholder)
 
                 """
