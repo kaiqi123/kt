@@ -250,7 +250,7 @@ class Mentor(object):
 
 			self.softmax = tf.nn.softmax(self.fc3l/temp_softmax)
 			return self
-        
+
 	def variables_for_l2(self):
 
 		variables_for_l2 = []

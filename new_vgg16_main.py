@@ -544,7 +544,9 @@ class VGG16(object):
                     count = list(teacher_truecount).count(1)
                     print(teacher_truecount)
                     print(count)
+                    print(len(teacher_truecount))
                     print(labels)
+                    print(len(labels))
 
                 """
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
