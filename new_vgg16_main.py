@@ -307,13 +307,14 @@ class VGG16(object):
         Student is trained by taking supervision from teacher for every batch of data
         Same batch of input data is passed to both teacher and student for every iteration
         """
-        print(FLAGS.dataset)
+
         if FLAGS.dataset == 'cifar10':
             print("Train dependent student (cifar10 or mnist)")
             vgg16_mentor = Teacher(False)
         if FLAGS.dataset == 'caltech101':
             print("Train dependent student (caltech101)")
-            vgg16_mentor = Mentor(False)
+            #vgg16_mentor = Mentor(False)
+            vgg16_mentor = Teacher(False)
 
         vgg16_mentee = Mentee(FLAGS.num_channels)
         self.mentor_data_dict = vgg16_mentor.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax,
