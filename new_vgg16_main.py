@@ -547,6 +547,8 @@ class VGG16(object):
                     print(len(teacher_truecount))
                     print(labels)
                     print(len(labels))
+                    for e in labels:
+                        print(e)
 
                 """
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
