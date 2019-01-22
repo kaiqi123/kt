@@ -2,8 +2,8 @@ import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-from vgg16mentee_temp import Mentee
-#from vgg16mentee import Mentee
+#from vgg16mentee_temp import Mentee
+from vgg16mentee import Mentee
 #from vgg16mentee_original import Mentee
 from vgg16mentor import Mentor
 from vgg16embed import Embed
@@ -349,28 +349,21 @@ class VGG16(object):
 
         if FLAGS.initialization:
             for var in tf.global_variables():
-                if var.op.name == "mentor_conv1_1/mentor_weights":
-                    print("initialization: conv1_1")
-                    self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
+                if FLAGS.num_optimizers == 5:
+                    print("initialization: conv5_fc2")
+                    if var.op.name == "mentor_conv1_1/mentor_weights":
+                        self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
 
-                if FLAGS.num_optimizers >= 2:
                     if var.op.name == "mentor_conv2_1/mentor_weights":
-                        print("initialization: conv2_1")
                         self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
 
-                if FLAGS.num_optimizers >= 3:
                     if var.op.name == "mentor_conv3_1/mentor_weights":
-                        print("initialization: conv3_1")
                         self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
 
-                if FLAGS.num_optimizers >= 4:
                     if var.op.name == "mentor_conv4_1/mentor_weights":
-                        print("initialization: conv4_1")
                         self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
 
-                if FLAGS.num_optimizers == 5:
                     if var.op.name == "mentor_conv5_1/mentor_weights":
-                        print("initialization: conv5_1")
                         self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
 
                     if var.op.name == "mentor_fc1/mentor_weights":
@@ -378,6 +371,26 @@ class VGG16(object):
 
                     if var.op.name == "mentor_fc3/mentor_weights":
                         self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
+
+                else:
+                    if var.op.name == "mentor_conv1_1/mentor_weights":
+                        print("initialization: conv1_1")
+                        self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
+
+                    if FLAGS.num_optimizers >= 2:
+                        if var.op.name == "mentor_conv2_1/mentor_weights":
+                            print("initialization: conv2_1")
+                            self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
+
+                    if FLAGS.num_optimizers >= 3:
+                        if var.op.name == "mentor_conv3_1/mentor_weights":
+                            print("initialization: conv3_1")
+                            self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
+
+                    if FLAGS.num_optimizers >= 4:
+                        if var.op.name == "mentor_conv4_1/mentor_weights":
+                            print("initialization: conv4_1")
+                            self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
 
 
     def select_optimizers_and_loss(self,cosine):

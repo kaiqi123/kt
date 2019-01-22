@@ -70,7 +70,6 @@ class Mentee(object):
 			#self.conv2_1 = BatchNormalization(axis = -1, name= 'mentee_bn_conv2_1')(self.conv2_1)
 			self.parameters += [kernel, biases]
 
-
 		with tf.name_scope('mentee_conv3_1') as scope:
 			kernel = tf.Variable(tf.truncated_normal([3, 3, 128, 256], dtype=tf.float32,
 													 stddev=1e-2, seed = seed), trainable = self.trainable, name='mentee_weights')
