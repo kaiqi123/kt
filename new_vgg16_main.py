@@ -467,8 +467,11 @@ class VGG16(object):
 
             if FLAGS.num_optimizers == 2:
                 #print("run_dependent_student: 2 optimizer")
-                _,_, _,self.loss_value0, self.loss_value1, self.loss_value2\
-                    = sess.run([self.train_op0, self.train_op1, self.train_op2, self.loss, self.l1, self.l2], feed_dict=feed_dict)
+                #_,_, _,self.loss_value0, self.loss_value1, self.loss_value2\
+                #    = sess.run([self.train_op0, self.train_op1, self.train_op2, self.loss, self.l1, self.l2], feed_dict=feed_dict)
+                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
 
             if FLAGS.num_optimizers == 5:
                 print("run_dependent_student: 5 optimizer")
@@ -512,8 +515,6 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-
-
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_truecount_perEpoch_list.append(teacher_truecount)
 
@@ -533,7 +534,6 @@ class VGG16(object):
                         if FLAGS.num_optimizers == 5:
                             print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                         print ("\n")
-
 
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
@@ -581,10 +581,6 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-
-
-
-
 
         except Exception as e:
             print(e)
