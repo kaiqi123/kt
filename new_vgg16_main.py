@@ -313,8 +313,7 @@ class VGG16(object):
             vgg16_mentor = Teacher(False)
         if FLAGS.dataset == 'caltech101':
             print("Train dependent student (caltech101)")
-            #vgg16_mentor = Mentor(False)
-            vgg16_mentor = Teacher(False)
+            vgg16_mentor = Mentor(False)
 
         vgg16_mentee = Mentee(FLAGS.num_channels)
         self.mentor_data_dict = vgg16_mentor.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax,
