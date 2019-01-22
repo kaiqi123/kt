@@ -532,7 +532,6 @@ class VGG16(object):
                     print(labels)
                     """
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
-                    print(teacher_truecount)
                     teacher_truecount_perEpoch_list.append(teacher_truecount)
 
                     self.run_dependent_student(feed_dict, sess, i)
