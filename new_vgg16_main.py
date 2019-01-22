@@ -532,8 +532,8 @@ class VGG16(object):
 
                         print(teacher_eval_correct_list)
                         print(labels)
-                        print(feed_dict['labels_pl'])
-                        print(feed_dict['images_pl'])
+                        feed_dict_result = sess.run(feed_dict,feed_dict=feed_dict)
+                        print(feed_dict_result)
                     """
                     t = []
                     for e in softmax:
