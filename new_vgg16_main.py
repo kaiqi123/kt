@@ -543,15 +543,19 @@ class VGG16(object):
                     teacher_truecount,labels, softmax = sess.run([teacher_eval_correct,labels_placeholder,self.mentor_data_dict.softmax], feed_dict=feed_dict)
                     count = list(teacher_truecount).count(1)
                     print(teacher_truecount)
+                    t = []
                     for e in softmax:
+                        e = list(e)
+                        n = e.index(max(e))
                         print(e)
-                        print(max(e))
+                        print(n)
+                        t.append(n)
+                        print("\n")
                     #print(count)
                     #print(len(teacher_truecount))
+                    print(t)
                     print(labels)
-                    print(len(labels))
-                    for e in labels:
-                        print(e)
+
 
                 """
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
