@@ -2,9 +2,8 @@ import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-from vgg16mentee_temp import Mentee
-#from vgg16mentee import Mentee
-#from vgg16mentee_original import Mentee
+#from vgg16mentee_temp import Mentee
+from vgg16mentee import Mentee
 from vgg16mentor import Mentor
 from vgg16embed import Embed
 from mentor import Teacher
@@ -370,6 +369,7 @@ class VGG16(object):
 
                 if FLAGS.num_optimizers == 5:
                     if var.op.name == "mentor_conv5_1/mentor_weights":
+                        print("initialization: conv5_1")
                         self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
 
                     if var.op.name == "mentor_fc1/mentor_weights":
@@ -487,17 +487,19 @@ class VGG16(object):
 
             if FLAGS.num_optimizers == 5:
                 #print("run_dependent_student: 5 optimizer")
+                """
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                 _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
                 _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
                 _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
                 _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
+                """
 
-                #_,_, _,_,_,_, \
-                #self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5, \
-                #= sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
-                #                self.loss, self.l1, self.l2, self.l3, self.l4, self.l5], feed_dict=feed_dict)
+                _,_, _,_,_,_, \
+                self.loss_value0, self.loss_value1, self.loss_value2, self.loss_value3, self.loss_value4, self.loss_value5, \
+                = sess.run([self.train_op0, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5,
+                                self.loss, self.l1, self.l2, self.l3, self.l4, self.l5], feed_dict=feed_dict)
 
 
         else:
