@@ -548,6 +548,7 @@ class VGG16(object):
                         e = list(e)
                         n = e.index(max(e))
                         print(e)
+                        print(len(e))
                         print(n)
                         t.append(n)
                         print("\n")
