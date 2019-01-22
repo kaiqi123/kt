@@ -79,7 +79,7 @@ class VGG16(object):
                 labels_pl: labels_feed,
                 phase_train: False
             }
-        return feed_dict
+        return feed_dict, images_feed, labels_feed
 
     def evaluation(self, logits, labels):
 
@@ -123,7 +123,7 @@ class VGG16(object):
                 if FLAGS.dataset == 'mnist':
                     feed_dict = {images_placeholder: np.reshape(dataset.test.next_batch(FLAGS.batch_size)[0], [FLAGS.batch_size, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels]), labels_placeholder: dataset.test.next_batch(FLAGS.batch_size)[1]}
                 else:
-                    feed_dict = self.fill_feed_dict(dataset, images_placeholder,
+                    feed_dict, images_feed, labels_feed = self.fill_feed_dict(dataset, images_placeholder,
                                                             labels_placeholder,sess, mode,phase_train)
                 count = sess.run(eval_correct, feed_dict=feed_dict)
                 true_count = true_count + count
@@ -509,8 +509,7 @@ class VGG16(object):
 
             for i in range(NUM_ITERATIONS):
 
-
-                feed_dict = self.fill_feed_dict(data_input_train, images_placeholder,
+                feed_dict, images_feed, labels_feed = self.fill_feed_dict(data_input_train, images_placeholder,
                                                 labels_placeholder, sess, 'Train', phase_train)
 
                 if FLAGS.student or FLAGS.teacher:
@@ -531,9 +530,9 @@ class VGG16(object):
                         #teacher_eval_correct_list.index(0)
 
                         print(teacher_eval_correct_list)
+                        print(images_feed)
+                        print(labels_feed)
                         print(labels)
-                        feed_dict_result = sess.run(feed_dict,feed_dict=feed_dict)
-                        print(feed_dict_result)
                     """
                     t = []
                     for e in softmax:
