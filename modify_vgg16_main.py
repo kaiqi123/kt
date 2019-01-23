@@ -538,14 +538,15 @@ class VGG16(object):
                         print(teacher_eval_correct_array.shape)
 
                         images_num_remain = FLAGS.batch_size - count0
-                        labels_feed_new = np.zeros((1,images_num_remain))
+                        labels_feed_new = []
                         images_feed_new = np.zeros((images_num_remain, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels))
                         for i in range(FLAGS.batch_size):
                             if teacher_eval_correct_array[i] == 1:
                                 #print(teacher_eval_correct_array[i])
-                                labels_feed_new[i] = labels_feed[i]
+                                labels_feed_new.append(labels_feed[i])
                                 #images_feed_new[i] = images_feed[i]
                         #print(images_feed_new.shape)
+                        labels_feed_new = np.array(labels_feed_new)
                         print(labels_feed_new)
                         print(labels_feed_new.shape)
 
