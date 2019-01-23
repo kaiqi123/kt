@@ -509,7 +509,7 @@ class VGG16(object):
 
             for i in range(NUM_ITERATIONS):
 
-                print("iteration: "+str(i))
+                #print("iteration: "+str(i))
 
                 feed_dict, images_feed, labels_feed = self.fill_feed_dict(data_input_train, images_placeholder,
                                                 labels_placeholder, sess, 'Train', phase_train)
