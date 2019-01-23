@@ -503,9 +503,9 @@ class VGG16(object):
 
             eval_correct = self.evaluation(self.softmax, labels_placeholder)
 
-            #if FLAGS.dependent_student:
-            #    teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
-            #    teacher_truecount_perEpoch_list = []
+            if FLAGS.dependent_student:
+                teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
+                teacher_truecount_perEpoch_list = []
 
             for i in range(NUM_ITERATIONS):
 
@@ -521,6 +521,7 @@ class VGG16(object):
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
+                    """
 
                     teacher_eval_correct = self.evaluation_teacher(self.mentor_data_dict.softmax, labels_placeholder)
                     teacher_eval_correct_array,labels, softmax = sess.run([teacher_eval_correct,labels_placeholder,self.mentor_data_dict.softmax], feed_dict=feed_dict)
@@ -550,7 +551,7 @@ class VGG16(object):
 
 
 
-                    """
+                    
                     t = []
                     for e in softmax:
                         e = list(e)
@@ -566,7 +567,7 @@ class VGG16(object):
                     
                     """
 
-                """
+
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_truecount_perEpoch_list.append(teacher_truecount)
 
@@ -634,7 +635,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-                    """
+
 
 
         except Exception as e:
