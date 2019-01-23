@@ -534,10 +534,11 @@ class VGG16(object):
                         print(type(images_feed))
                         print(type(labels_feed))
                         print(labels)
+                        print(teacher_eval_correct_array.shape[1])
 
-                        #labels_feed_new = []
-                        #images_feed_new = []
-                        #for i in range(len(teacher_eval_correct_list)):
+                        labels_feed_new = []
+                        images_feed_new = []
+                        #for i in range(teacher_eval_correct_array.shape[1]):
                         #    if teacher_eval_correct_list[i] == 1:
 
                     """
