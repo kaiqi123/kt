@@ -543,8 +543,8 @@ class VGG16(object):
                             if teacher_eval_correct_array[i] == 1:
                                 #print(teacher_eval_correct_array[i])
                                 labels_feed_new[i] = labels_feed[i]
-                                images_feed_new[i] = images_feed[i]
-                        print(images_feed_new.shape)
+                                #images_feed_new[i] = images_feed[i]
+                        #print(images_feed_new.shape)
                         print(labels_feed_new)
                         print(labels_feed_new.shape)
 
