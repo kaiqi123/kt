@@ -528,6 +528,7 @@ class VGG16(object):
                     teacher_eval_correct_array,labels, softmax = sess.run([teacher_eval_correct,labels_placeholder,self.mentor_data_dict.softmax], feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
                     count0 = teacher_eval_correct_list.count(0)
+                    index1 = teacher_eval_correct_list.index(1)
                     if count0>0:
                         #teacher_eval_correct_list.index(0)
                         print(images_feed.shape)
@@ -541,6 +542,10 @@ class VGG16(object):
                             if teacher_eval_correct_array[i] == 1:
                                 labels_feed_new.append(labels_feed[i])
                                 images_feed_new.append(images_feed[i])
+                            else:
+                                labels_feed_new.append(labels_feed[index1])
+                                images_feed_new.append(images_feed[index1])
+
                         labels_feed_new = np.array(labels_feed_new)
                         images_feed_new = np.array(images_feed_new)
 
@@ -548,13 +553,9 @@ class VGG16(object):
                         print(labels_feed_new.shape)
                         print(images_feed_new.shape)
 
-                        remain_size = FLAGS.batch_size - count0
-                        images_placeholder_new = tf.placeholder(tf.float32, shape=(remain_size, FLAGS.image_height, FLAGS.image_width, FLAGS.num_channels))
-                        labels_placeholder_new = tf.placeholder(tf.int32, shape=(remain_size))
-
                         feed_dict_new = {
-                            images_placeholder_new: images_feed_new,
-                            labels_placeholder_new: labels_feed_new,
+                            images_placeholder: images_feed_new,
+                            labels_placeholder: labels_feed_new,
                             phase_train: True
                         }
 
