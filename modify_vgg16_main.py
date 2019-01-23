@@ -530,11 +530,6 @@ class VGG16(object):
                     count0 = teacher_eval_correct_list.count(0)
                     index1 = teacher_eval_correct_list.index(1)
                     if count0>0:
-                        print(images_feed.shape)
-                        print(teacher_eval_correct_array)
-                        print(labels_feed)
-                        print(labels_feed.shape)
-
                         labels_feed_new = []
                         images_feed_new = []
                         for i in range(FLAGS.batch_size):
@@ -548,10 +543,6 @@ class VGG16(object):
                         labels_feed_new = np.array(labels_feed_new)
                         images_feed_new = np.array(images_feed_new)
 
-                        print(labels_feed_new)
-                        print(labels_feed_new.shape)
-                        print(images_feed_new.shape)
-
                         feed_dict_new = {
                             images_placeholder: images_feed_new,
                             labels_placeholder: labels_feed_new,
@@ -562,9 +553,7 @@ class VGG16(object):
                         self.run_dependent_student(feed_dict, sess, i)
 
                     teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
-                    print(teacher_truecount_perEpoch)
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
-
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
@@ -579,7 +568,6 @@ class VGG16(object):
                         if FLAGS.num_optimizers == 5:
                             print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                         print ("\n")
-
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
 
@@ -608,7 +596,6 @@ class VGG16(object):
 
                         teacher_truecount_perEpoch_list = []
 
-
                     print ("Training Data Eval:")
                     self.do_eval(sess,
                                  eval_correct,
@@ -627,9 +614,6 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-
-
-
 
         except Exception as e:
             print(e)
