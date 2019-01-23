@@ -21,7 +21,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 3
+NUM_ITERATIONS = 7820
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -480,7 +480,6 @@ class VGG16(object):
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
             _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
             if FLAGS.num_optimizers >= 2:
-                print("222222")
                 _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
             if FLAGS.num_optimizers >= 3:
                 _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
