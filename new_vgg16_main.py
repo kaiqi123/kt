@@ -540,7 +540,7 @@ class VGG16(object):
                         labels_feed_new = np.zeros((1,images_num_remain))
                         images_feed_new = np.zeros((images_num_remain, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels))
                         for i in range(FLAGS.batch_size):
-                            if teacher_eval_correct_array[0,i] == 1:
+                            if teacher_eval_correct_array[0][i] == 1:
                                 print(teacher_eval_correct_array[0, i])
                                 #labels_feed_new[0,i] = labels_feed[0,i]
                                 #images_feed_new[i] = images_feed[i]
