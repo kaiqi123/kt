@@ -530,8 +530,9 @@ class VGG16(object):
                         #teacher_eval_correct_list.index(0)
 
                         print(teacher_eval_correct_array)
+                        print(type(teacher_eval_correct_array))
                         print(type(images_feed))
-                        print(labels_feed)
+                        print(type(labels_feed))
                         print(labels)
 
                         #labels_feed_new = []
