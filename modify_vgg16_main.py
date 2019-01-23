@@ -529,13 +529,10 @@ class VGG16(object):
                     count0 = teacher_eval_correct_list.count(0)
                     if count0>0:
                         #teacher_eval_correct_list.index(0)
-
-                        print(teacher_eval_correct_array)
-                        print(type(teacher_eval_correct_array))
                         print(images_feed.shape)
-                        print(type(labels_feed))
+                        print(teacher_eval_correct_array)
                         print(labels_feed)
-                        print(teacher_eval_correct_array.shape)
+                        print(labels_feed.shape)
 
                         images_num_remain = FLAGS.batch_size - count0
                         labels_feed_new = []
@@ -544,11 +541,12 @@ class VGG16(object):
                             if teacher_eval_correct_array[i] == 1:
                                 #print(teacher_eval_correct_array[i])
                                 labels_feed_new.append(labels_feed[i])
-                                #images_feed_new[i] = images_feed[i]
-                        #print(images_feed_new.shape)
+                                images_feed_new[i] = images_feed[i]
+
                         labels_feed_new = np.array(labels_feed_new)
                         print(labels_feed_new)
                         print(labels_feed_new.shape)
+                        print(images_feed_new.shape)
 
 
                     """
