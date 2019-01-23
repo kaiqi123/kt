@@ -480,6 +480,7 @@ class VGG16(object):
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
             _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
             if FLAGS.num_optimizers >= 2:
+                print("222222")
                 _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
             if FLAGS.num_optimizers >= 3:
                 _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
@@ -534,21 +535,30 @@ class VGG16(object):
                         print(labels_feed)
                         print(labels_feed.shape)
 
-                        images_num_remain = FLAGS.batch_size - count0
                         labels_feed_new = []
                         images_feed_new = []
                         for i in range(FLAGS.batch_size):
                             if teacher_eval_correct_array[i] == 1:
-                                #print(teacher_eval_correct_array[i])
                                 labels_feed_new.append(labels_feed[i])
                                 images_feed_new.append(images_feed[i])
-
                         labels_feed_new = np.array(labels_feed_new)
                         images_feed_new = np.array(images_feed_new)
 
                         print(labels_feed_new)
                         print(labels_feed_new.shape)
                         print(images_feed_new.shape)
+
+                        remain_size = FLAGS.batch_size - count0
+                        images_placeholder_new = tf.placeholder(tf.float32, shape=(remain_size, FLAGS.image_height, FLAGS.image_width, FLAGS.num_channels))
+                        labels_placeholder_new = tf.placeholder(tf.int32, shape=(remain_size))
+
+                        feed_dict_new = {
+                            images_placeholder_new: images_feed_new,
+                            labels_placeholder_new: labels_feed_new,
+                            phase_train: True
+                        }
+
+                        self.run_dependent_student(feed_dict_new, sess, i)
 
 
 
