@@ -530,9 +530,15 @@ class VGG16(object):
                         #teacher_eval_correct_list.index(0)
 
                         print(teacher_eval_correct_list)
-                        print(images_feed)
+                        print(type(images_feed))
                         print(labels_feed)
                         print(labels)
+
+                        #labels_feed_new = []
+                        #images_feed_new = []
+                        #for i in range(len(teacher_eval_correct_list)):
+                        #    if teacher_eval_correct_list[i] == 1:
+
                     """
                     t = []
                     for e in softmax:
@@ -727,7 +733,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--teacher_weights_filename',
         type=str,
-        default="./summary-log/new_method_teacher_weights_filename_caltech101_new"
+        default="./summary-log/new_method_teacher_weights_filename_caltech101"
     )
     parser.add_argument(
         '--student_filename',
