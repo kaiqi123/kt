@@ -505,7 +505,7 @@ class VGG16(object):
             eval_correct = self.evaluation(self.softmax, labels_placeholder)
 
             if FLAGS.dependent_student:
-                teacher_eval_correct = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
+                teacher_eval_correct = self.evaluation_teacher(self.mentor_data_dict.softmax, labels_placeholder)
                 teacher_truecount_perEpoch_list = []
 
             for i in range(NUM_ITERATIONS):
@@ -523,14 +523,11 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-
-                    teacher_eval_correct = self.evaluation_teacher(self.mentor_data_dict.softmax, labels_placeholder)
-                    teacher_eval_correct_array,labels, softmax = sess.run([teacher_eval_correct,labels_placeholder,self.mentor_data_dict.softmax], feed_dict=feed_dict)
+                    teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
                     count0 = teacher_eval_correct_list.count(0)
                     index1 = teacher_eval_correct_list.index(1)
                     if count0>0:
-                        #teacher_eval_correct_list.index(0)
                         print(images_feed.shape)
                         print(teacher_eval_correct_array)
                         print(labels_feed)
@@ -558,32 +555,13 @@ class VGG16(object):
                             labels_placeholder: labels_feed_new,
                             phase_train: True
                         }
-
                         self.run_dependent_student(feed_dict_new, sess, i)
+                    else:
+                        self.run_dependent_student(feed_dict, sess, i)
 
-
-
-                    """
-                    t = []
-                    for e in softmax:
-                        e = list(e)
-                        n = e.index(max(e))
-                        print(e)
-                        print(len(e))
-                        print(n)
-                        t.append(n)
-                        print("\n")
-                    #print(count)
-                    #print(len(teacher_truecount))
-                    print(t)
-                    """
-                    
-
-                    """
-                    teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
-                    teacher_truecount_perEpoch_list.append(teacher_truecount)
-
-                    self.run_dependent_student(feed_dict, sess, i)
+                    teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
+                    print(teacher_truecount_perEpoch)
+                    teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
 
 
                     if i % 10 == 0:
@@ -647,7 +625,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-                    """
+
 
 
 
