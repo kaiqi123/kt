@@ -531,15 +531,23 @@ class VGG16(object):
 
                         print(teacher_eval_correct_array)
                         print(type(teacher_eval_correct_array))
-                        print(type(images_feed))
+                        print(images_feed.shape)
                         print(type(labels_feed))
-                        print(labels)
-                        print(teacher_eval_correct_array.shape[1])
+                        print(labels_feed)
+                        print(teacher_eval_correct_array.shape)
 
-                        labels_feed_new = []
-                        images_feed_new = []
-                        #for i in range(teacher_eval_correct_array.shape[1]):
-                        #    if teacher_eval_correct_list[i] == 1:
+                        images_num_remain = FLAGS.batch_size - count0
+                        labels_feed_new = np.zeros((1,images_num_remain))
+                        images_feed_new = np.zeros((images_num_remain, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels))
+                        for i in range(FLAGS.batch_size):
+                            if teacher_eval_correct_list[i] == 1:
+                                labels_feed_new[i] = labels_feed[i]
+                                images_feed_new[i] = images_feed[i]
+                        print(images_feed_new.shape)
+                        print(labels_feed_new)
+                        print(labels_feed_new.shape)
+
+
 
                     """
                     t = []
