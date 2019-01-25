@@ -514,7 +514,7 @@ class VGG16(object):
 
             for i in range(NUM_ITERATIONS):
 
-                #print("iteration: "+str(i))
+                print("iteration: "+str(i))
 
                 feed_dict, images_feed, labels_feed = self.fill_feed_dict(data_input_train, images_placeholder,
                                                 labels_placeholder, sess, 'Train', phase_train)
@@ -627,6 +627,7 @@ class VGG16(object):
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
 
                     # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
+                    print("11111111")
 
                     if FLAGS.teacher:
                         print("save teacher to: "+str(FLAGS.teacher_weights_filename))
