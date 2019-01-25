@@ -187,7 +187,7 @@ class VGG16(object):
 
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
 
-        self.train_op_soft = tf.train.AdamOptimizer(lr).minimize(self.softloss)
+        #self.train_op_soft = tf.train.AdamOptimizer(lr).minimize(self.softloss)
 
         l1_var_list = []
         l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
