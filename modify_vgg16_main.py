@@ -527,6 +527,7 @@ class VGG16(object):
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
+
                     """
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
@@ -557,7 +558,6 @@ class VGG16(object):
 
                     teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
-
 
                     
                     eval_correct1 = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
