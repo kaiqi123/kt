@@ -21,7 +21,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 7820
+NUM_ITERATIONS = 3
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -514,7 +514,7 @@ class VGG16(object):
 
             for i in range(NUM_ITERATIONS):
 
-                #print("iteration: "+str(i))
+                print("iteration: "+str(i))
 
                 feed_dict, images_feed, labels_feed = self.fill_feed_dict(data_input_train, images_placeholder,
                                                 labels_placeholder, sess, 'Train', phase_train)
@@ -529,8 +529,25 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    teacher_eval_correct_array = sess.run(teacher_eval_correct, feed_dict=feed_dict)
-                    print(teacher_eval_correct_array)
+                    #teacher_eval_correct_array = sess.run(teacher_eval_correct, feed_dict=feed_dict)
+                    #print(teacher_eval_correct_array)
+
+                    eval_correct1 = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
+
+                    steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
+                    num_examples = steps_per_epoch * FLAGS.batch_size
+
+                    true_count = 0
+                    for step in xrange(steps_per_epoch):
+                        feed_dict, images_feed, labels_feed = self.fill_feed_dict(data_input_train, images_placeholder,
+                                                                                      labels_placeholder, sess, 'Train',
+                                                                                      phase_train)
+                        count = sess.run(eval_correct1, feed_dict=feed_dict)
+                        true_count = true_count + count
+
+                    precision = float(true_count) / num_examples
+                    print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' %
+                           (num_examples, true_count, precision))
 
 
                     """
@@ -677,6 +694,7 @@ class VGG16(object):
             print("NUM_ITERATIONS: "+str(NUM_ITERATIONS))
             print("learning_rate: " + str(FLAGS.learning_rate))
             print("batch_size: " + str(FLAGS.batch_size))
+            print("teacher_weights_filename: "+FLAGS.teacher_weights_filename)
 
             if FLAGS.student:
                 self.define_independent_student(images_placeholder, labels_placeholder, seed, phase_train, global_step,
