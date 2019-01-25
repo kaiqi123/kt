@@ -2,8 +2,8 @@ import tensorflow as tf
 import numpy as np
 import random
 from DataInput import DataInput
-#from vgg16mentee_temp import Mentee
-from vgg16mentee import Mentee
+from vgg16mentee_temp import Mentee
+#from vgg16mentee import Mentee
 from vgg16mentor import Mentor
 from vgg16embed import Embed
 from mentor import Teacher
