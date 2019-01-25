@@ -479,7 +479,7 @@ class VGG16(object):
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
-            _, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
+            #_, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
 
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
             _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
@@ -609,7 +609,7 @@ class VGG16(object):
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
-                        print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
+                        #print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
                         print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                         print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                         if FLAGS.num_optimizers >= 2:
@@ -626,7 +626,6 @@ class VGG16(object):
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
 
                     # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
-                    print("11111111")
 
                     if FLAGS.teacher:
                         print("save teacher to: "+str(FLAGS.teacher_weights_filename))
