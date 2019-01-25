@@ -529,6 +529,11 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
+                    teacher_eval_correct_array = sess.run(teacher_eval_correct, feed_dict=feed_dict)
+                    print(teacher_eval_correct_array)
+
+
+                    """
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
                     count0 = teacher_eval_correct_list.count(0)
@@ -619,6 +624,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
+                    """
 
         except Exception as e:
             print(e)
