@@ -149,9 +149,7 @@ class VGG16(object):
         Here layers of same width are mapped together.
         """
 
-        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.mentor_data_dict.softmax, logits=self.mentee_data_dict.softmax, name='xentropy')
-        self.softloss = tf.reduce_mean(cross_entropy)
-        #self.softloss = (tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
+
 
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         if FLAGS.num_optimizers >= 2:
@@ -216,7 +214,6 @@ class VGG16(object):
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
 
         """
-
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
         self.train_op11 = tf.train.AdamOptimizer(lr).minimize(self.l11, var_list=l1_var_list)
         self.train_op12 = tf.train.AdamOptimizer(lr).minimize(self.l12, var_list=l1_var_list)
@@ -497,7 +494,6 @@ class VGG16(object):
             if FLAGS.num_optimizers == 5:
                 _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
-            _, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
 
 
         else:
@@ -534,6 +530,17 @@ class VGG16(object):
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
+
+                    #cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.mentor_data_dict.softmax,
+                    #                                                              logits=self.mentee_data_dict.softmax,
+                    #                                                               name='xentropy')
+                    #self.softloss = tf.reduce_mean(cross_entropy)
+                    #self.softloss = (tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
+
+                    _, mentor_softmax, mentee_sofmax = sess.run([self.mentor_data_dict.softmax, self.mentee_data_dict.softmax], feed_dict=feed_dict)
+
+                    print(mentor_softmax.shape)
+                    print(mentee_sofmax.shape)
 
                     """
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
@@ -583,6 +590,7 @@ class VGG16(object):
                            (num_examples, true_count, precision))
                     """
 
+                    """
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
                     count0 = teacher_eval_correct_list.count(0)
@@ -627,6 +635,7 @@ class VGG16(object):
                         if FLAGS.num_optimizers == 5:
                             print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                         print ("\n")
+                    
 
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
@@ -674,6 +683,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
+                    """
 
 
         except Exception as e:
