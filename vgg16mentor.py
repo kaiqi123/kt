@@ -21,7 +21,7 @@ class Mentor(object):
         
 	def build(self, rgb, num_classes, temp_softmax, train_mode=None):
 
-		# conv1_1
+
 		with tf.name_scope('mentor_conv1_1') as scope:
                         
 			kernel = tf.Variable(self.data_dict["conv1_1"][0], name='mentor_weights', trainable= self.trainable)
@@ -37,7 +37,7 @@ class Mentor(object):
 			self.parameters += [kernel, biases]
 
 			
-		# conv1_2
+
 		with tf.name_scope('mentor_conv1_2') as scope:
 			kernel = tf.Variable(self.data_dict["conv1_2"][0], name='mentor_weights', trainable= self.trainable)
 			conv = tf.nn.conv2d(self.conv1_1, kernel, [1, 1, 1, 1], padding='SAME')
@@ -248,8 +248,8 @@ class Mentor(object):
                         
 			self.parameters += [fc3w, fc3b]        
 
-			self.softmax = tf.nn.softmax(self.fc3l/temp_softmax)
-			return self
+		self.softmax = tf.nn.softmax(self.fc3l/temp_softmax)
+		return self
 
 	def variables_for_l2(self):
 

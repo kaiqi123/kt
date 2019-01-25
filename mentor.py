@@ -269,7 +269,7 @@ class Teacher(object):
 			#self.fc3l = tf.nn.relu(fc3l)
 			self.parameters += [fc3w, fc3b]
 
-			self.softmax = tf.nn.softmax(self.fc3l/temp_softmax)
+		self.softmax = tf.nn.softmax(self.fc3l/temp_softmax)
 
 		return self
 

@@ -122,8 +122,8 @@ class Mentee(object):
 			# self.fc3 = tf.nn.relu(fc3l)
 			self.parameters += [fc3w, fc3b]
 
-			self.softmax = tf.nn.softmax(self.fc3l / temp_softmax)
-			return self
+		self.softmax = tf.nn.softmax(self.fc3l / temp_softmax)
+		return self
 
 	def build_conv3fc1(self, rgb, num_classes, temp_softmax, seed, train_mode):
 
@@ -199,8 +199,8 @@ class Mentee(object):
 			# self.fc3 = tf.nn.relu(fc3l)
 			self.parameters += [fc3w, fc3b]
 
-			self.softmax = tf.nn.softmax(self.fc3l / temp_softmax)
-			return self
+		self.softmax = tf.nn.softmax(self.fc3l / temp_softmax)
+		return self
 
 	def build_conv2fc1(self, rgb, num_classes, temp_softmax, seed,train_mode):
 
@@ -258,8 +258,8 @@ class Mentee(object):
 			# self.fc3 = tf.nn.relu(fc3l)
 			self.parameters += [fc3w, fc3b]
 
-			self.softmax = tf.nn.softmax(self.fc3l / temp_softmax)
-			return self
+		self.softmax = tf.nn.softmax(self.fc3l / temp_softmax)
+		return self
 
 	def build_conv1fc1(self, rgb, num_classes, temp_softmax, seed, train_mode):
 		K.set_learning_phase(True)
@@ -298,8 +298,8 @@ class Mentee(object):
 			# self.fc3 = tf.nn.relu(fc3l)
 			self.parameters += [fc3w, fc3b]
 
-			self.softmax = tf.nn.softmax(self.fc3l / temp_softmax)
-			return self
+		self.softmax = tf.nn.softmax(self.fc3l / temp_softmax)
+		return self
 
 	def loss(self, labels):
 		#labels = tf.to_int64(labels)
