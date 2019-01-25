@@ -21,7 +21,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 3
+NUM_ITERATIONS = 4680
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -529,14 +529,41 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    #teacher_eval_correct_array = sess.run(teacher_eval_correct, feed_dict=feed_dict)
-                    #print(teacher_eval_correct_array)
+                    teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
+                    teacher_eval_correct_list = list(teacher_eval_correct_array)
+                    count0 = teacher_eval_correct_list.count(1)
+                    index1 = teacher_eval_correct_list.index(0)
+                    if count0>0:
+                        labels_feed_new = []
+                        images_feed_new = []
+                        for i in range(FLAGS.batch_size):
+                            if teacher_eval_correct_array[i] == 0:
+                                labels_feed_new.append(labels_feed[i])
+                                images_feed_new.append(images_feed[i])
+                            else:
+                                labels_feed_new.append(labels_feed[index1])
+                                images_feed_new.append(images_feed[index1])
 
+                        labels_feed_new = np.array(labels_feed_new)
+                        images_feed_new = np.array(images_feed_new)
+
+                        feed_dict_new = {
+                            images_placeholder: images_feed_new,
+                            labels_placeholder: labels_feed_new,
+                            phase_train: True
+                        }
+                        self.run_dependent_student(feed_dict_new, sess, i)
+                    else:
+                        self.run_dependent_student(feed_dict, sess, i)
+
+                    teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
+                    teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
+
+
+                    """
                     eval_correct1 = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
-
                     steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
                     num_examples = steps_per_epoch * FLAGS.batch_size
-
                     true_count = 0
                     for step in xrange(steps_per_epoch):
                         feed_dict, images_feed, labels_feed = self.fill_feed_dict(data_input_train, images_placeholder,
@@ -548,6 +575,7 @@ class VGG16(object):
                     precision = float(true_count) / num_examples
                     print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' %
                            (num_examples, true_count, precision))
+                    """
 
 
                     """
@@ -580,6 +608,7 @@ class VGG16(object):
 
                     teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
+                    """
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
@@ -595,6 +624,7 @@ class VGG16(object):
                         if FLAGS.num_optimizers == 5:
                             print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                         print ("\n")
+
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
 
@@ -641,7 +671,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-                    """
+
 
         except Exception as e:
             print(e)
