@@ -537,7 +537,7 @@ class VGG16(object):
                     #self.softloss = tf.reduce_mean(cross_entropy)
                     #self.softloss = (tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
 
-                    _, mentor_softmax, mentee_sofmax = sess.run([self.mentor_data_dict.softmax, self.mentee_data_dict.softmax], feed_dict=feed_dict)
+                    mentor_softmax, mentee_sofmax = sess.run([self.mentor_data_dict.softmax, self.mentee_data_dict.softmax], feed_dict=feed_dict)
 
                     print(mentor_softmax.shape)
                     print(mentee_sofmax.shape)
