@@ -490,7 +490,7 @@ class VGG16(object):
             if FLAGS.num_optimizers == 5:
                 _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
-            _, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
+            #_, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
 
 
 
