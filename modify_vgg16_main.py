@@ -539,7 +539,7 @@ class VGG16(object):
 
                     mentor_softmax, mentee_sofmax = sess.run([self.mentor_data_dict.softmax, self.mentee_data_dict.softmax], feed_dict=feed_dict)
 
-                    print(mentor_softmax.shape)
+                    print(mentor_softmax)
                     print(mentee_sofmax.shape)
 
                     """
