@@ -148,7 +148,11 @@ class VGG16(object):
         """
         Here layers of same width are mapped together.
         """
-        self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
+
+        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.mentor_data_dict.softmax, logits=self.mentee_data_dict.softmax, name='xentropy')
+        self.softloss = tf.reduce_mean(cross_entropy)
+        #self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
+
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         if FLAGS.num_optimizers >= 2:
             self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
@@ -184,6 +188,7 @@ class VGG16(object):
         print("define multiple optimizers")
 
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
+
         self.train_op_soft = tf.train.AdamOptimizer(lr).minimize(self.softloss)
 
         l1_var_list = []
