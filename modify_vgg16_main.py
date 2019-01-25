@@ -21,7 +21,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 4680
+NUM_ITERATIONS = 7280
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -528,7 +528,7 @@ class VGG16(object):
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
-
+                    """
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
                     count0 = teacher_eval_correct_list.count(1)
@@ -560,7 +560,7 @@ class VGG16(object):
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
 
 
-                    """
+                    
                     eval_correct1 = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
                     steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
                     num_examples = steps_per_epoch * FLAGS.batch_size
@@ -577,8 +577,6 @@ class VGG16(object):
                            (num_examples, true_count, precision))
                     """
 
-
-                    """
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
                     count0 = teacher_eval_correct_list.count(0)
@@ -608,7 +606,7 @@ class VGG16(object):
 
                     teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
-                    """
+
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
