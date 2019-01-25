@@ -490,7 +490,7 @@ class VGG16(object):
             if FLAGS.num_optimizers == 5:
                 _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
-            #_, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
+            _, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
 
 
 
@@ -610,7 +610,7 @@ class VGG16(object):
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
-                        #print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
+                        print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
                         print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                         print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                         if FLAGS.num_optimizers >= 2:
