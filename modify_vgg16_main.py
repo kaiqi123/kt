@@ -151,7 +151,7 @@ class VGG16(object):
 
         cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.mentor_data_dict.softmax, logits=self.mentee_data_dict.softmax, name='xentropy')
         self.softloss = tf.reduce_mean(cross_entropy)
-        #self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
+        #self.softloss = (tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
 
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         if FLAGS.num_optimizers >= 2:
@@ -612,7 +612,6 @@ class VGG16(object):
 
                     teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
-
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
