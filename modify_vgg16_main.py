@@ -546,8 +546,8 @@ class VGG16(object):
 
                     print(subtract.shape)
                     print(square.shape)
-                    print(mean.shape)
-                    print(loss.shape)
+                    print(mean)
+                    print(loss)
 
                     #print(mentee_sofmax.shape)
 
