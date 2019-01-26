@@ -481,6 +481,7 @@ class VGG16(object):
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
+            _, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
             _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
             if FLAGS.num_optimizers >= 2:
@@ -492,6 +493,7 @@ class VGG16(object):
             if FLAGS.num_optimizers == 5:
                 _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
+            """
             subtract = tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
             square = tf.square(subtract)
             mean = tf.reduce_mean(square)
@@ -502,6 +504,7 @@ class VGG16(object):
             print(square.shape)
             print(mean)
             print(loss)
+            """
 
 
 
@@ -539,6 +542,7 @@ class VGG16(object):
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
+                    self.run_dependent_student(feed_dict, sess, i)
 
                     """
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
@@ -588,7 +592,7 @@ class VGG16(object):
                            (num_examples, true_count, precision))
                     """
 
-
+                    """
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
                     count0 = teacher_eval_correct_list.count(0)
@@ -618,10 +622,11 @@ class VGG16(object):
 
                     teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
+                    """
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
-                        #print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
+                        print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
                         print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                         print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                         if FLAGS.num_optimizers >= 2:
