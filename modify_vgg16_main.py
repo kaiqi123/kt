@@ -537,10 +537,19 @@ class VGG16(object):
                     #self.softloss = tf.reduce_mean(cross_entropy)
                     #self.softloss = (tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
 
-                    mentor_softmax, mentee_sofmax = sess.run([self.mentor_data_dict.softmax, self.mentee_data_dict.softmax], feed_dict=feed_dict)
+                    subtract = tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1)
+                    square = tf.square(subtract)
+                    mean = tf.reduce_mean(square)
+                    loss = tf.sqrt(mean)
+                    #mentor_softmax, mentee_sofmax = sess.run([self.mentor_data_dict.softmax, self.mentee_data_dict.softmax], feed_dict=feed_dict)
+                    subtract, square, mean, loss  = sess.run([subtract, square, mean, loss], feed_dict=feed_dict)
 
-                    print(mentor_softmax)
-                    print(mentee_sofmax.shape)
+                    print(subtract.shape)
+                    print(square.shape)
+                    print(mean.shape)
+                    print(loss.shape)
+
+                    #print(mentee_sofmax.shape)
 
                     """
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
