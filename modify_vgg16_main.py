@@ -151,7 +151,7 @@ class VGG16(object):
 
         self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
 
-        self.fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3l, self.mentee_data_dict.fc3l))))
+        self.loss_fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3l, self.mentee_data_dict.fc3l))))
 
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         if FLAGS.num_optimizers >= 2:
@@ -188,7 +188,7 @@ class VGG16(object):
         print("define multiple optimizers")
 
         self.train_op_soft = tf.train.AdamOptimizer(lr).minimize(self.softloss)
-        self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.fc3)
+        self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3)
 
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
 
@@ -496,7 +496,8 @@ class VGG16(object):
             if FLAGS.num_optimizers == 5:
                 _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
-            _, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
+            #_, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
+            _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
 
             """
             subtract = tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
@@ -581,7 +582,9 @@ class VGG16(object):
                     #print("iteration222: " + str(i))
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
-                        #print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
+                        # print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
+                        print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
+
                         print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                         print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                         if FLAGS.num_optimizers >= 2:
