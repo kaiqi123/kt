@@ -542,7 +542,7 @@ class VGG16(object):
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
-                    self.run_dependent_student(feed_dict, sess, i)
+
 
                     """
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
@@ -592,7 +592,7 @@ class VGG16(object):
                            (num_examples, true_count, precision))
                     """
 
-                    """
+
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
                     count0 = teacher_eval_correct_list.count(0)
@@ -622,7 +622,7 @@ class VGG16(object):
 
                     teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
-                    """
+
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
