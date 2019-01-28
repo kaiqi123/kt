@@ -148,6 +148,7 @@ class VGG16(object):
         """
         Here layers of same width are mapped together.
         """
+        self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
 
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         if FLAGS.num_optimizers >= 2:
@@ -182,6 +183,7 @@ class VGG16(object):
 
         print("define multiple optimizers")
 
+        self.train_op_soft = tf.train.AdamOptimizer(lr).minimize(self.softloss)
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
 
         l1_var_list = []
@@ -477,6 +479,7 @@ class VGG16(object):
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
+            _, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
             _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
             if FLAGS.num_optimizers >= 2:
@@ -521,52 +524,6 @@ class VGG16(object):
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
-                    """
-
-                    teacher_eval_correct = self.evaluation_teacher(self.mentor_data_dict.softmax, labels_placeholder)
-                    teacher_eval_correct_array,labels, softmax = sess.run([teacher_eval_correct,labels_placeholder,self.mentor_data_dict.softmax], feed_dict=feed_dict)
-                    teacher_eval_correct_list = list(teacher_eval_correct_array)
-                    count0 = teacher_eval_correct_list.count(0)
-                    if count0>0:
-                        #teacher_eval_correct_list.index(0)
-
-                        print(teacher_eval_correct_array)
-                        print(type(teacher_eval_correct_array))
-                        print(images_feed.shape)
-                        print(type(labels_feed))
-                        print(labels_feed)
-                        print(teacher_eval_correct_array.shape)
-
-                        images_num_remain = FLAGS.batch_size - count0
-                        labels_feed_new = np.zeros((1,images_num_remain))
-                        images_feed_new = np.zeros((images_num_remain, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels))
-                        for i in range(FLAGS.batch_size):
-                            if teacher_eval_correct_array[i] == 1:
-                                #print(teacher_eval_correct_array[i])
-                                labels_feed_new[i] = labels_feed[i]
-                                #images_feed_new[i] = images_feed[i]
-                        #print(images_feed_new.shape)
-                        print(labels_feed_new)
-                        print(labels_feed_new.shape)
-
-
-
-                    
-                    t = []
-                    for e in softmax:
-                        e = list(e)
-                        n = e.index(max(e))
-                        print(e)
-                        print(len(e))
-                        print(n)
-                        t.append(n)
-                        print("\n")
-                    #print(count)
-                    #print(len(teacher_truecount))
-                    print(t)
-                    
-                    """
-
 
                     teacher_truecount = sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_truecount_perEpoch_list.append(teacher_truecount)
@@ -576,6 +533,7 @@ class VGG16(object):
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
+                        print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
                         print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                         print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                         if FLAGS.num_optimizers >= 2:
@@ -635,8 +593,6 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-
-
 
         except Exception as e:
             print(e)
