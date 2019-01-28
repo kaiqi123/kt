@@ -543,56 +543,6 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-
-                    """
-                    teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
-                    teacher_eval_correct_list = list(teacher_eval_correct_array)
-                    count0 = teacher_eval_correct_list.count(1)
-                    index1 = teacher_eval_correct_list.index(0)
-                    if count0>0:
-                        labels_feed_new = []
-                        images_feed_new = []
-                        for i in range(FLAGS.batch_size):
-                            if teacher_eval_correct_array[i] == 0:
-                                labels_feed_new.append(labels_feed[i])
-                                images_feed_new.append(images_feed[i])
-                            else:
-                                labels_feed_new.append(labels_feed[index1])
-                                images_feed_new.append(images_feed[index1])
-
-                        labels_feed_new = np.array(labels_feed_new)
-                        images_feed_new = np.array(images_feed_new)
-
-                        feed_dict_new = {
-                            images_placeholder: images_feed_new,
-                            labels_placeholder: labels_feed_new,
-                            phase_train: True
-                        }
-                        self.run_dependent_student(feed_dict_new, sess, i)
-                    else:
-                        self.run_dependent_student(feed_dict, sess, i)
-
-                    teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
-                    teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
-
-                    
-                    eval_correct1 = self.evaluation(self.mentor_data_dict.softmax, labels_placeholder)
-                    steps_per_epoch = FLAGS.num_training_examples // FLAGS.batch_size
-                    num_examples = steps_per_epoch * FLAGS.batch_size
-                    true_count = 0
-                    for step in xrange(steps_per_epoch):
-                        feed_dict, images_feed, labels_feed = self.fill_feed_dict(data_input_train, images_placeholder,
-                                                                                      labels_placeholder, sess, 'Train',
-                                                                                      phase_train)
-                        count = sess.run(eval_correct1, feed_dict=feed_dict)
-                        true_count = true_count + count
-
-                    precision = float(true_count) / num_examples
-                    print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' %
-                           (num_examples, true_count, precision))
-                    """
-
-
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
                     count0 = teacher_eval_correct_list.count(0)
@@ -600,10 +550,10 @@ class VGG16(object):
                     if count0>0:
                         labels_feed_new = []
                         images_feed_new = []
-                        for i in range(FLAGS.batch_size):
-                            if teacher_eval_correct_array[i] == 1:
-                                labels_feed_new.append(labels_feed[i])
-                                images_feed_new.append(images_feed[i])
+                        for j in range(FLAGS.batch_size):
+                            if teacher_eval_correct_array[j] == 1:
+                                labels_feed_new.append(labels_feed[j])
+                                images_feed_new.append(images_feed[j])
                             else:
                                 labels_feed_new.append(labels_feed[index1])
                                 images_feed_new.append(images_feed[index1])
