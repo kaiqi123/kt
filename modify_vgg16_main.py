@@ -624,7 +624,7 @@ class VGG16(object):
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
 
 
-                    if i % 10 == 0:
+                    if i % 1 == 0:
                         # print("train function: dependent student, multiple optimizers")
                         print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
                         print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
