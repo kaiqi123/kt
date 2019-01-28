@@ -151,6 +151,8 @@ class VGG16(object):
 
         self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
 
+        self.fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3l, self.mentee_data_dict.fc3l))))
+
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         if FLAGS.num_optimizers >= 2:
             self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
@@ -185,9 +187,10 @@ class VGG16(object):
 
         print("define multiple optimizers")
 
-        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
-
         self.train_op_soft = tf.train.AdamOptimizer(lr).minimize(self.softloss)
+        self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.fc3)
+
+        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
 
         l1_var_list = []
         l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
@@ -481,7 +484,7 @@ class VGG16(object):
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
-            # _, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
+
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
             _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
             if FLAGS.num_optimizers >= 2:
@@ -492,6 +495,8 @@ class VGG16(object):
                 _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
             if FLAGS.num_optimizers == 5:
                 _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
+
+            _, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
 
             """
             subtract = tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
