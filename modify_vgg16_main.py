@@ -612,7 +612,7 @@ class VGG16(object):
                         saver_new.save(sess, FLAGS.dependent_student_filename)
 
                     if FLAGS.dependent_student:
-                        #print(teacher_truecount_perEpoch_list)
+                        print(teacher_truecount_perEpoch_list)
                         teacher_alltrue = teacher_truecount_perEpoch_list.count(FLAGS.batch_size)
                         teacher_alltrue_list.append(teacher_alltrue)
 
