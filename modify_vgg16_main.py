@@ -598,8 +598,8 @@ class VGG16(object):
                         print ("\n")
                     
 
-                if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
-
+                #if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
+                if (i) % 10 == 0 or (i) == NUM_ITERATIONS - 1:
                     # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
                     if FLAGS.teacher:
