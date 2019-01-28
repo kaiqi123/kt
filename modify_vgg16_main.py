@@ -623,7 +623,7 @@ class VGG16(object):
                     teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
 
-
+                    print("iteration222: " + str(i))
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
                         print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
