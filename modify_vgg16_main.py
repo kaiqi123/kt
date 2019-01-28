@@ -484,6 +484,8 @@ class VGG16(object):
             #cosine = sess.run(self.cosine, feed_dict=feed_dict)
             #self.select_optimizers_and_loss(cosine)
 
+            _, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
+            #_, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
 
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
             _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
@@ -496,8 +498,6 @@ class VGG16(object):
             if FLAGS.num_optimizers == 5:
                 _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
-            #_, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
-            _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
 
             """
             subtract = tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
@@ -582,8 +582,8 @@ class VGG16(object):
                     #print("iteration222: " + str(i))
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
-                        # print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
-                        print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
+                        print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
+                        #print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
 
                         print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                         print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
