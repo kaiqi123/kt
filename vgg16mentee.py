@@ -35,7 +35,7 @@ class Mentee(object):
 
 	def build_conv5fc2(self, rgb, num_classes, temp_softmax, seed,train_mode):
 
-		print("build_7layers")
+		print("build student conv5_fc2")
 		K.set_learning_phase(True)
 
 		# conv1_1
