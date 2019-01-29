@@ -572,7 +572,7 @@ class VGG16(object):
                                     images_feed_new.append(images_feed[index1])
                                 else:
                                     labels_feed_new.append(labels_feed_new[k])
-                                    images_feed_new.append(labels_feed_new[k])
+                                    images_feed_new.append(images_feed_new[k])
                                     k = k + 1
 
                         labels_feed_new = np.array(labels_feed_new)

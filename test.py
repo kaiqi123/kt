@@ -1,6 +1,13 @@
 import tensorflow as tf
 import numpy as np
 
+
+a = []
+for i in range(5):
+    a.append(i)
+print(0)
+
+"""
 x = tf.constant([[1., 1.], [1., 2.]])
 y = tf.reduce_mean(x)
 
@@ -17,4 +24,5 @@ with tf.Session() as sess:
 
     coord.request_stop()
     coord.join(threads)
+"""
 
