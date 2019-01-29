@@ -534,7 +534,7 @@ class VGG16(object):
 
             for i in range(NUM_ITERATIONS):
 
-                # print("iteration: "+str(i))
+                print("iteration: "+str(i))
 
                 feed_dict, images_feed, labels_feed = self.fill_feed_dict(data_input_train, images_placeholder,
                                                 labels_placeholder, sess, 'Train', phase_train)
@@ -551,24 +551,33 @@ class VGG16(object):
 
                     #self.run_dependent_student(feed_dict, sess, i)
 
-
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
+                    print(teacher_eval_correct_list)
+                    print(labels_feed)
+
                     count0 = teacher_eval_correct_list.count(0)
                     index1 = teacher_eval_correct_list.index(1)
                     if count0>0:
                         labels_feed_new = []
                         images_feed_new = []
+                        k = 0
                         for j in range(FLAGS.batch_size):
                             if teacher_eval_correct_array[j] == 1:
                                 labels_feed_new.append(labels_feed[j])
                                 images_feed_new.append(images_feed[j])
                             else:
-                                labels_feed_new.append(labels_feed[index1])
-                                images_feed_new.append(images_feed[index1])
+                                if len(labels_feed_new)==0:
+                                    labels_feed_new.append(labels_feed[index1])
+                                    images_feed_new.append(images_feed[index1])
+                                else:
+                                    labels_feed_new.append(labels_feed_new[k])
+                                    images_feed_new.append(labels_feed_new[k])
+                                    k = k + 1
 
                         labels_feed_new = np.array(labels_feed_new)
                         images_feed_new = np.array(images_feed_new)
+                        print(labels_feed_new)
 
                         feed_dict_new = {
                             images_placeholder: images_feed_new,
@@ -602,8 +611,8 @@ class VGG16(object):
                         print ("\n")
                     
 
-                #if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
-                if (i) % 10 == 0 or (i) == NUM_ITERATIONS - 1:
+                if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
+                #if (i) % 10 == 0 or (i) == NUM_ITERATIONS - 1:
                     # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
                     if FLAGS.teacher:
