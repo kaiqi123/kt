@@ -21,7 +21,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 391
+NUM_ITERATIONS = 7820
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -534,7 +534,7 @@ class VGG16(object):
 
             for i in range(NUM_ITERATIONS):
 
-                print("iteration: "+str(i))
+                #print("iteration: "+str(i))
 
                 feed_dict, images_feed, labels_feed = self.fill_feed_dict(data_input_train, images_placeholder,
                                                 labels_placeholder, sess, 'Train', phase_train)
@@ -553,13 +553,13 @@ class VGG16(object):
 
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
-                    print(teacher_eval_correct_list)
-                    print(labels_feed)
+                    #print(teacher_eval_correct_list)
+                    #print(labels_feed)
 
                     count0 = teacher_eval_correct_list.count(0)
-                    print(count0)
                     index1 = teacher_eval_correct_list.index(1)
                     if count0>0:
+                        #print(count0)
                         labels_feed_new = []
                         images_feed_new = []
                         k = 0
@@ -578,7 +578,7 @@ class VGG16(object):
 
                         labels_feed_new = np.array(labels_feed_new)
                         images_feed_new = np.array(images_feed_new)
-                        print(labels_feed_new)
+                        #print(labels_feed_new)
 
                         feed_dict_new = {
                             images_placeholder: images_feed_new,
@@ -592,7 +592,7 @@ class VGG16(object):
                     teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
 
-                    """
+
                     #print("iteration222: " + str(i))
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
@@ -657,7 +657,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
-                    """
+
 
 
 
