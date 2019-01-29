@@ -549,9 +549,9 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    self.run_dependent_student(feed_dict, sess, i)
+                    #self.run_dependent_student(feed_dict, sess, i)
 
-                    """
+
                     teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                     teacher_eval_correct_list = list(teacher_eval_correct_array)
                     count0 = teacher_eval_correct_list.count(0)
@@ -581,7 +581,7 @@ class VGG16(object):
 
                     teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
-                    """
+
 
                     #print("iteration222: " + str(i))
                     if i % 10 == 0:
