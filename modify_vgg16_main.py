@@ -557,6 +557,7 @@ class VGG16(object):
                     print(labels_feed)
 
                     count0 = teacher_eval_correct_list.count(0)
+                    print(count0)
                     index1 = teacher_eval_correct_list.index(1)
                     if count0>0:
                         labels_feed_new = []
@@ -591,7 +592,7 @@ class VGG16(object):
                     teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
                     teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
 
-
+                    """
                     #print("iteration222: " + str(i))
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
@@ -656,6 +657,7 @@ class VGG16(object):
                                  data_input_test,
                                  'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
+                    """
 
 
 
