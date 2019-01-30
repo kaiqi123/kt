@@ -21,7 +21,7 @@ from compute_cosine_similarity import cosine_similarity_of_same_width
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 391
+NUM_ITERATIONS = 2
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -149,9 +149,14 @@ class VGG16(object):
         Here layers of same width are mapped together.
         """
 
-        self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
+        #self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
+        #self.loss_fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3l, self.mentee_data_dict.fc3l))))
 
-        self.loss_fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3l, self.mentee_data_dict.fc3l))))
+        y_pred_tf = tf.convert_to_tensor(self.mentor_data_dict.softmax, np.float32)
+        y_true_tf = tf.convert_to_tensor(self.mentee_data_dict.softmax, np.float32)
+        eps = 1e-6
+        cliped_y_pref_tf = tf.clip_by_value(y_pred_tf, eps, 1 - eps)
+        self.loss_softCrossEntropy = tf.reduce_mean(-tf.reduce_sum(y_true_tf * tf.log(cliped_y_pref_tf), axis=1))
 
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         if FLAGS.num_optimizers >= 2:
@@ -187,8 +192,9 @@ class VGG16(object):
 
         print("define multiple optimizers")
 
-        self.train_op_soft = tf.train.AdamOptimizer(lr).minimize(self.softloss)
-        self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3)
+        #self.train_op_soft = tf.train.AdamOptimizer(lr).minimize(self.softloss)
+        #self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3)
+        self.train_op_softCrossEntropy = tf.train.AdamOptimizer(lr).minimize(self.loss_softCrossEntropy)
 
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
 
@@ -486,6 +492,7 @@ class VGG16(object):
 
             #_, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
             #_, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
+            _, self.loss_value_softCrossEntropy = sess.run([self.train_op_softCrossEntropy, self.loss_softCrossEntropy], feed_dict=feed_dict)
 
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
             _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
@@ -598,6 +605,7 @@ class VGG16(object):
                         # print("train function: dependent student, multiple optimizers")
                         #print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
                         #print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
+                        print ('Step %d: loss_value_softCrossEntropy = %.20f' % (i, self.loss_value_softCrossEntropy))
 
                         print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                         print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
@@ -612,8 +620,8 @@ class VGG16(object):
                         print ("\n")
                     
 
-                #if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
-                if (i) % 10 == 0 or (i) == NUM_ITERATIONS - 1:
+                if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
+                #if (i) % 10 == 0 or (i) == NUM_ITERATIONS - 1:
                     # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
                     if FLAGS.teacher:
