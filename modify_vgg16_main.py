@@ -482,48 +482,42 @@ class VGG16(object):
 
     def run_dependent_student(self, feed_dict, sess, i):
 
-        if (i % FLAGS.num_iterations == 0):
-
-            #print("connect teacher: "+str(i))
-
-            #self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict, FLAGS.num_optimizers)
-            #cosine = sess.run(self.cosine, feed_dict=feed_dict)
-            #self.select_optimizers_and_loss(cosine)
-
-            #_, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
-            #_, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
-            _, self.loss_value_softCrossEntropy = sess.run([self.train_op_softCrossEntropy, self.loss_softCrossEntropy], feed_dict=feed_dict)
-
-            _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-            _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
-            if FLAGS.num_optimizers >= 2:
-                _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
-            if FLAGS.num_optimizers >= 3:
-                _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-            if FLAGS.num_optimizers >= 4:
-                _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
-            if FLAGS.num_optimizers == 5:
-                _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
 
-            """
-            subtract = tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
-            square = tf.square(subtract)
-            mean = tf.reduce_mean(square)
-            loss = tf.sqrt(mean)
-            subtract, square, mean, loss = sess.run([subtract, square, mean, loss], feed_dict=feed_dict)
+        #print("connect teacher: "+str(i))
 
-            print(subtract.shape)
-            print(square.shape)
-            print(mean)
-            print(loss)
-            """
+        #self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict, FLAGS.num_optimizers)
+        #cosine = sess.run(self.cosine, feed_dict=feed_dict)
+        #self.select_optimizers_and_loss(cosine)
+
+        #_, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
+        #_, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
+        #_, self.loss_value_softCrossEntropy = sess.run([self.train_op_softCrossEntropy, self.loss_softCrossEntropy], feed_dict=feed_dict)
+
+        _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+        _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+        if FLAGS.num_optimizers >= 2:
+            _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+        if FLAGS.num_optimizers >= 3:
+            _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+        if FLAGS.num_optimizers >= 4:
+            _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
+        if FLAGS.num_optimizers == 5:
+            _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
 
+        """
+        subtract = tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
+        square = tf.square(subtract)
+        mean = tf.reduce_mean(square)
+        loss = tf.sqrt(mean)
+        subtract, square, mean, loss = sess.run([subtract, square, mean, loss], feed_dict=feed_dict)
 
-        else:
-            print("do not connect teacher: "+str(i))
-            _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+        print(subtract.shape)
+        print(square.shape)
+        print(mean)
+        print(loss)
+        """
 
 
 
@@ -556,48 +550,53 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    #self.run_dependent_student(feed_dict, sess, i)
+                    if (i % FLAGS.num_iterations == 0):
 
-                    teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
-                    teacher_eval_correct_list = list(teacher_eval_correct_array)
-                    #print(teacher_eval_correct_list)
-                    #print(labels_feed)
+                        #self.run_dependent_student(feed_dict, sess, i)
 
-                    count0 = teacher_eval_correct_list.count(0)
-                    index1 = teacher_eval_correct_list.index(1)
-                    if count0>0:
-                        #print(count0)
-                        labels_feed_new = []
-                        images_feed_new = []
-                        k = 0
-                        for j in range(FLAGS.batch_size):
-                            if teacher_eval_correct_array[j] == 1:
-                                labels_feed_new.append(labels_feed[j])
-                                images_feed_new.append(images_feed[j])
-                            else:
-                                if len(labels_feed_new)==0:
-                                    labels_feed_new.append(labels_feed[index1])
-                                    images_feed_new.append(images_feed[index1])
+                        teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
+                        teacher_eval_correct_list = list(teacher_eval_correct_array)
+                        #print(teacher_eval_correct_list)
+                        #print(labels_feed)
+
+                        count0 = teacher_eval_correct_list.count(0)
+                        index1 = teacher_eval_correct_list.index(1)
+                        if count0>0:
+                            #print(count0)
+                            labels_feed_new = []
+                            images_feed_new = []
+                            k = 0
+                            for j in range(FLAGS.batch_size):
+                                if teacher_eval_correct_array[j] == 1:
+                                    labels_feed_new.append(labels_feed[j])
+                                    images_feed_new.append(images_feed[j])
                                 else:
-                                    labels_feed_new.append(labels_feed_new[k])
-                                    images_feed_new.append(images_feed_new[k])
-                                    k = k + 1
+                                    if len(labels_feed_new)==0:
+                                        labels_feed_new.append(labels_feed[index1])
+                                        images_feed_new.append(images_feed[index1])
+                                    else:
+                                        labels_feed_new.append(labels_feed_new[k])
+                                        images_feed_new.append(images_feed_new[k])
+                                        k = k + 1
 
-                        labels_feed_new = np.array(labels_feed_new)
-                        images_feed_new = np.array(images_feed_new)
-                        #print(labels_feed_new)
+                            labels_feed_new = np.array(labels_feed_new)
+                            images_feed_new = np.array(images_feed_new)
+                            #print(labels_feed_new)
 
-                        feed_dict_new = {
-                            images_placeholder: images_feed_new,
-                            labels_placeholder: labels_feed_new,
-                            phase_train: True
-                        }
-                        self.run_dependent_student(feed_dict_new, sess, i)
+                            feed_dict_new = {
+                                images_placeholder: images_feed_new,
+                                labels_placeholder: labels_feed_new,
+                                phase_train: True
+                            }
+                            self.run_dependent_student(feed_dict_new, sess, i)
+                        else:
+                            self.run_dependent_student(feed_dict, sess, i)
+
+                        teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
+                        teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
+
                     else:
-                        self.run_dependent_student(feed_dict, sess, i)
-
-                    teacher_truecount_perEpoch = sum(teacher_eval_correct_list)
-                    teacher_truecount_perEpoch_list.append(teacher_truecount_perEpoch)
+                        _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
 
                     #print("iteration222: " + str(i))
@@ -605,7 +604,7 @@ class VGG16(object):
                         # print("train function: dependent student, multiple optimizers")
                         #print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
                         #print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
-                        print ('Step %d: loss_value_softCrossEntropy = %.20f' % (i, self.loss_value_softCrossEntropy))
+                        #print ('Step %d: loss_value_softCrossEntropy = %.20f' % (i, self.loss_value_softCrossEntropy))
 
                         print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                         print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
