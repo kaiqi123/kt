@@ -552,7 +552,7 @@ class VGG16(object):
 
                     if (i % FLAGS.num_iterations == 0):
 
-                        #self.run_dependent_student(feed_dict, sess, i)
+                        print("connect to teacher: "+ str(i))
 
                         teacher_eval_correct_array= sess.run(teacher_eval_correct, feed_dict=feed_dict)
                         teacher_eval_correct_list = list(teacher_eval_correct_array)
