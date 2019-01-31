@@ -512,7 +512,7 @@ class VGG16(object):
                     _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
         else:
-            print("do not connect teacher: "+str(i))
+            #print("do not connect teacher: "+str(i))
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
 
