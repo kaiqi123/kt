@@ -8,8 +8,8 @@ from tensorflow.python.keras.layers import BatchNormalization
 from tensorflow.python.keras import backend as K
 """
 Removed all kinds of regularizers such as dropout and batch_normalization
-
 """
+
 class Mentee(object):
 
 	def __init__(self, num_channels, trainable=True):

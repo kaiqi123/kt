@@ -1,6 +1,5 @@
-import tensorflow as tf
+#import tensorflow as tf
 import numpy as np
-
 
 input = 32*32*3
 pool1 = 16*16*64
@@ -14,18 +13,16 @@ fc2 = 4096*4096
 fc3 = 4096*10
 fc_total = fc1 + fc2 +fc3
 
-
 m = np.power(10,6)
 VGG16 = 138*m - 4096000 - 16777216 - 102760448 + fc_total
 print(VGG16) #33M
 
-
-conv11 = (3*3*3)*50
+conv11 = (3*3*3)*64
 
 input = 32*32*3
-pool1 = 16*16*50
-fc3 = pool1*200
-softmax = 200*10
+pool1 = 16*16*64
+fc3 = pool1*10
+#softmax = 200*10
 conv2_fc1 = conv11 + fc3
 print(conv2_fc1) #157376
 
