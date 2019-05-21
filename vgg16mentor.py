@@ -55,6 +55,7 @@ class Mentor(object):
 									strides=[1, 2, 2, 1],
 									padding='SAME',
     									name='pool1')
+		print(self.pool1)
                         
 		with tf.name_scope('mentor_conv2_1') as scope:
 			kernel = tf.Variable(self.data_dict["conv2_1"][0], name='mentor_weights', trainable= self.trainable)
@@ -83,6 +84,7 @@ class Mentor(object):
 									strides=[1, 2, 2, 1],
 									padding='SAME',
 									name='pool2')
+		print(self.pool2)
 
 		with tf.name_scope('mentor_conv3_1') as scope:
 			kernel = tf.Variable(self.data_dict["conv3_1"][0], name='mentor_weights', trainable= self.trainable)
@@ -122,6 +124,7 @@ class Mentor(object):
 									strides=[1, 2, 2, 1],
 									padding='SAME',
 									name='pool3')
+		print(self.pool3)
 
 		# conv4_1
 		with tf.name_scope('mentor_conv4_1') as scope:
@@ -165,7 +168,7 @@ class Mentor(object):
 							   strides=[1, 2, 2, 1],
 							   padding='SAME',
 							   name='pool4')
-
+		print(self.pool4)
 
 		# conv5_1
 		with tf.name_scope('mentor_conv5_1') as scope:
@@ -209,6 +212,7 @@ class Mentor(object):
 							   strides=[1, 2, 2, 1],
 							   padding='SAME',
 							   name='pool4')
+		print(self.pool5)
 
 		# fc1
 		with tf.name_scope('mentor_fc1') as scope:
@@ -223,6 +227,7 @@ class Mentor(object):
 			#if train_mode == True:
 			#self.fc1 = tf.nn.dropout(self.fc1, 0.5)
 			self.parameters += [fc1w, fc1b]
+		print(self.fc1)
 
 
 		# fc2
@@ -236,6 +241,7 @@ class Mentor(object):
 			#if train_mode == True:
 			#self.fc2 = tf.nn.dropout(self.fc2, 0.5)
 			self.parameters += [fc2w, fc2b]
+		print(self.fc2)
 
 		# fc3
 		with tf.name_scope('mentor_fc3') as scope:
