@@ -272,7 +272,7 @@ class Teacher(object):
 			fc3b = tf.Variable(tf.constant(1.0, shape=[num_classes], dtype=tf.float32),
 								 trainable=self.trainable, name='mentor_biases')
 			self.fc3l = tf.nn.bias_add(tf.matmul(self.fc2, fc3w), fc3b)
-			#self.fc3l = tf.nn.relu(fc3l)
+			#self.fc3l = tf.nn.4096(fc3l)
 			self.parameters += [fc3w, fc3b]
 		print(self.fc3l)
 
