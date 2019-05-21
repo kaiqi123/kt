@@ -52,6 +52,7 @@ class Teacher(object):
 									strides=[1, 2, 2, 1],
 									padding='SAME',
 									name='mentor_pool1')
+		print(self.pool1)
 
 		with tf.name_scope('mentor_conv2_1') as scope:
 			kernel = tf.Variable(tf.truncated_normal([3, 3, 64, 128], dtype=tf.float32,
@@ -85,7 +86,8 @@ class Teacher(object):
 									strides=[1, 2, 2, 1],
 									padding='SAME',
 									name='mentor_pool2')
-		
+		print(self.pool2)
+
 		with tf.name_scope('mentor_conv3_1') as scope:
 			kernel = tf.Variable(tf.truncated_normal([3, 3, 128, 256], dtype=tf.float32,
 													 stddev=1e-2), trainable = self.trainable, name='mentor_weights')
@@ -133,7 +135,8 @@ class Teacher(object):
 									strides=[1, 2, 2, 1],
 									padding='SAME',
 									name='mentor_pool3')
-		
+		print(self.pool3)
+
 		with tf.name_scope('mentor_conv4_1') as scope:
 			kernel = tf.Variable(tf.truncated_normal([3, 3, 256, 512], dtype=tf.float32,
 													 stddev=1e-2), trainable = self.trainable,name='mentor_weights')
@@ -181,6 +184,7 @@ class Teacher(object):
 									strides=[1, 2, 2, 1],
 									padding='SAME',
 									name='mentor_pool4')
+		print(self.pool4)
 
 		with tf.name_scope('mentor_conv5_1') as scope:
 			kernel = tf.Variable(tf.truncated_normal([3, 3, 512, 512], dtype=tf.float32,
@@ -228,6 +232,8 @@ class Teacher(object):
 									strides=[1, 2, 2, 1],
 									padding='SAME',
 									name='mentor_pool5')
+		print(self.pool5)
+
 		# fc1
 		with tf.name_scope('mentor_fc1') as scope:
 			shape = int(np.prod(self.pool5.get_shape()[1:]))
@@ -244,8 +250,8 @@ class Teacher(object):
 			# self.fc1 = Dropout((0.4))(self.fc1)
 			#self.fc1 = tf.nn.dropout(self.fc1, 0.5)
 			self.parameters += [fc1w, fc1b]
-                
-                
+		print(self.fc1)
+
 		with tf.name_scope('mentor_fc2') as scope:
 			fc2w = tf.Variable(tf.truncated_normal([4096, 4096],
 		    dtype=tf.float32, stddev=1e-2), trainable = self.trainable,name='mentor_weights')
@@ -258,8 +264,8 @@ class Teacher(object):
 			if train_mode == True:
 				self.fc2 = tf.nn.dropout(self.fc2, 0.5)
 			self.parameters += [fc2w, fc2b]
-            
-                
+		print(self.fc2)
+
 		with tf.name_scope('mentor_fc3') as scope:
 			fc3w = tf.Variable(tf.truncated_normal([4096, num_classes],
 					dtype=tf.float32, stddev=1e-2), trainable =self.trainable,name='mentor_weights')
@@ -268,6 +274,7 @@ class Teacher(object):
 			self.fc3l = tf.nn.bias_add(tf.matmul(self.fc2, fc3w), fc3b)
 			#self.fc3l = tf.nn.relu(fc3l)
 			self.parameters += [fc3w, fc3b]
+		print(self.fc3l)
 
 		self.softmax = tf.nn.softmax(self.fc3l/temp_softmax)
 
