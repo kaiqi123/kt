@@ -810,7 +810,7 @@ if __name__ == '__main__':
         '--top_1_accuracy',
         type=bool,
         help='top-1-accuracy',
-        default=False
+        default=True
     )
     parser.add_argument(
         '--top_3_accuracy',
