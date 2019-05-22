@@ -8,7 +8,7 @@ from tensorflow.python.client import device_lib
 
 from DataInput import DataInput
 from teacherCifar10 import Teacher
-from vgg16mentee_temp import Mentee
+from studentModels import Mentee
 from teacherCaltech101 import Mentor
 
 dataset_path = "./"

@@ -62,7 +62,11 @@ class Mentee(object):
 			pool5 = tf.nn.max_pool(conv5_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
 			print(pool5)
 
-			fc1 = self.fc_student(pool5, "fc1", 4096)
+			conv6_1 = self.build_student_oneConvLayer(pool5, "conv6_1", 512)
+			pool6 = tf.nn.max_pool(conv6_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool6')
+			print(pool6)
+
+			fc1 = self.fc_student(pool6, "fc1", 4096)
 			fc2 = self.fc_student(fc1, "fc2", 4096)
 			self.fc3 = self.fc_student(fc2, "fc3", num_classes)
 			self.softmax = tf.nn.softmax(self.fc3 / temp_softmax)
@@ -78,7 +82,8 @@ class Mentee(object):
 
 	def training(self, loss, learning_rate, global_step):
 		# optimizer = tf.train.MomentumOptimizer(learning_rate, momentum = 0.9, use_nesterov = True)
-		optimizer = tf.train.AdamOptimizer(learning_rate)
+		# optimizer = tf.train.AdamOptimizer(learning_rate)
+		optimizer = tf.train.GradientDescentOptimizer(learning_rate)
 		train_op = optimizer.minimize(loss, global_step=global_step)
 		return train_op
 

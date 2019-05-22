@@ -98,8 +98,7 @@ class TeacherForCifar10(object):
 		return tf.reduce_mean(cross_entropy, name='xentropy_mean')
 
 	def training(self, loss, learning_rate, global_step):
-		# optimizer = tf.train.GradientDescentOptimizer(learning_rate)
-		optimizer = tf.train.AdamOptimizer(learning_rate)
+		optimizer = tf.train.GradientDescentOptimizer(learning_rate)
 		train_op = optimizer.minimize(loss, global_step=global_step)
 		return train_op
 

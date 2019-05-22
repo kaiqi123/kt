@@ -9,7 +9,7 @@ from tensorflow.python.client import device_lib
 from DataInput import DataInput
 from teacherCifar10 import TeacherForCifar10
 from teacherCaltech101 import MentorForCaltech101
-from vgg16mentee_temp import Mentee
+from studentModels import Mentee
 
 dataset_path = "./"
 tf.reset_default_graph()
@@ -139,13 +139,13 @@ class VGG16(object):
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
 
     def define_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
-        print("Independent student")
-        student = Mentee(FLAGS.num_channels)
+        print("Build Independent student")
+        student = Mentee(seed)
         num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
-        ## number of steps after which learning rate should decay
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
 
         if FLAGS.num_optimizers == 6:
+            build_student_conv6fc3(self, images, num_classes, temp_softmax)
             mentee_data_dict = student.build_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
         if FLAGS.num_optimizers == 5:
             mentee_data_dict = student.build_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
