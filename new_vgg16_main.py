@@ -33,11 +33,11 @@ class VGG16(object):
     def fill_feed_dict(self, data_input, images_pl, labels_pl, sess, mode, phase_train):
         images_feed, labels_feed = sess.run([data_input.example_batch, data_input.label_batch])
         if mode == 'Train':
-            feed_dict = {images_pl: images_feed, labels_pl: labels_feed,phase_train: True}
+            feed_dict = {images_pl: images_feed, labels_pl: labels_feed, phase_train: True}
         if mode == 'Test':
-            feed_dict = {images_pl: images_feed,labels_pl: labels_feed,phase_train: False }
+            feed_dict = {images_pl: images_feed,labels_pl: labels_feed, phase_train: False }
         if mode == 'Validation':
-            feed_dict = {images_pl: images_feed,labels_pl: labels_feed,phase_train: False}
+            feed_dict = {images_pl: images_feed,labels_pl: labels_feed, phase_train: False}
         return feed_dict, images_feed, labels_feed
 
     def evaluation(self, logits, labels):

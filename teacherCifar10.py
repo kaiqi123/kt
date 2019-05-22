@@ -12,7 +12,7 @@ VGG_MEAN = [103.939, 116.779, 123.68]
 
 class TeacherForCifar10(object):
 
-	def __init__(self):
+	def __init__(self, trainable=True, dropout=0.5):
 		#self.trainable = trainable
 		#self.dropout = dropout
 		self.parameters = []
@@ -21,30 +21,30 @@ class TeacherForCifar10(object):
 		with tf.name_scope(layerName):
 			if layerName == "fc1":
 				shape = int(np.prod(input.get_shape()[1:]))
-				fc_weights = tf.Variable(tf.truncated_normal([shape, out_filter], dtype=tf.float32, stddev=1e-2),trainable=is_training, name='weights')
-				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=is_training,name='biases')
+				fc_weights = tf.Variable(tf.truncated_normal([shape, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
+				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=True,name='biases')
 				input_flat = tf.reshape(input, [-1, shape])
 				fc = tf.nn.bias_add(tf.matmul(input_flat, fc_weights), fc_biases)
 				fc = tf.nn.relu(fc)
 				fc = BatchNormalization(axis=-1, name=layerName + 'bn')(fc)
 			elif layerName == "fc2":
-				fc_weights = tf.Variable(tf.truncated_normal([4096, out_filter], dtype=tf.float32, stddev=1e-2),trainable=is_training, name='weights')
-				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=is_training,name='biases')
+				fc_weights = tf.Variable(tf.truncated_normal([4096, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
+				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=True,name='biases')
 				fc = tf.nn.bias_add(tf.matmul(input, fc_weights), fc_biases)
 				fc = tf.nn.relu(fc)
 				fc = BatchNormalization(axis=-1, name=layerName + 'bn')(fc)
 				if is_training == True:
 					fc = tf.nn.dropout(fc, 0.5)
 			elif layerName == "fc3":
-				fc_weights = tf.Variable(tf.truncated_normal([4096, out_filter], dtype=tf.float32, stddev=1e-2),trainable=is_training, name='weights')
-				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=is_training,name='biases')
+				fc_weights = tf.Variable(tf.truncated_normal([4096, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
+				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=True,name='biases')
 				fc = tf.nn.bias_add(tf.matmul(input, fc_weights), fc_biases)
 			return fc
 
 	def build_teacher_oneConvLayer(self, input, layerName, out_filter, is_training):
 		with tf.name_scope(layerName):
 			num_filters_in = int(input.shape[3])
-			kernel = tf.Variable(tf.truncated_normal([3, 3, num_filters_in, out_filter], dtype=tf.float32, stddev=1e-2),trainable=is_training, name='weights')
+			kernel = tf.Variable(tf.truncated_normal([3, 3, num_filters_in, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
 			conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
 			relu = tf.nn.relu(conv, name="relu")
 			bn = BatchNormalization(axis=-1, name='bn')(relu)
