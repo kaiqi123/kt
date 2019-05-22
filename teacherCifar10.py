@@ -46,7 +46,7 @@ class TeacherForCifar10(object):
 			num_filters_in = int(input.shape[3])
 			kernel = tf.Variable(tf.truncated_normal([3, 3, num_filters_in, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
 			conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(tf.constant(0.0, shape=[64], dtype=tf.float32), trainable=True, name='biases')
+			biases = tf.Variable(tf.constant(0.0, shape=[out_filter], dtype=tf.float32), trainable=True, name='biases')
 			out = tf.nn.bias_add(conv, biases)
 			mean, var = tf.nn.moments(out, axes= [0])
 			bn = (out - mean)/tf.sqrt(var + tf.Variable(1e-10))
