@@ -199,6 +199,7 @@ class VGG16(object):
             print(tvar)
         print('Mentor, trainable variables: %d' % len(tf.trainable_variables()))
 
+        mentor._calc_num_trainable_params()
         self.softmax = mentor_data_dict.softmax
         init = tf.global_variables_initializer()
         sess.run(init)
@@ -397,10 +398,6 @@ class VGG16(object):
         except Exception as e:
             print(e)
 
-    def _calc_num_trainable_params(self):
-        self.num_trainable_params = np.sum([np.prod(var.get_shape().as_list()) for var in tf.trainable_variables()])
-        tf.logging.info('number of trainable params: {}'.format(self.num_trainable_params))
-
     def main(self, _):
         start_time = time.time()
         with tf.Graph().as_default():
@@ -458,8 +455,6 @@ class VGG16(object):
 
             elif FLAGS.dependent_student:
                 self.define_dependent_student(images_placeholder, labels_placeholder, phase_train, seed, global_step,sess)
-
-            self._calc_num_trainable_params()
 
             self.train_model(data_input_train, data_input_test, images_placeholder, labels_placeholder, sess, phase_train)
 
