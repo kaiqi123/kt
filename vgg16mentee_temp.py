@@ -27,10 +27,30 @@ class Mentee(object):
 		out = (out - mean) / tf.sqrt(var + tf.constant(1e-10))
 		return out
 
+	def build_student_conv(self, input, layerName, out_filter):
+		with tf.name_scope(layerName):
+			num_filters_in = int(input.shape[3])
+			kernel = tf.Variable(tf.truncated_normal([3, 3, num_filters_in, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
+			conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
+			relu = tf.nn.relu(conv, name="relu")
+			return relu
+
+	def build_student_conv(self):
+		with tf.name_scope('mentee_conv1_1') as scope:
+			kernel = tf.Variable(tf.truncated_normal([3, 3, self.num_channels, 64], dtype=tf.float32, stddev=1e-2), trainable=self.trainable,
+								 name='mentee_weights')
+			conv = tf.nn.conv2d(rgb, kernel, [1, 1, 1, 1], padding='SAME')
+			biases = tf.Variable(tf.constant(0.0, shape=[64], dtype=tf.float32),
+								 trainable=self.trainable, name='mentee_biases')
+			out = tf.nn.bias_add(conv, biases)
+			# out = self.extra_regularization(out)
+
+			self.conv1_1 = tf.nn.relu(out, name=scope)
+			# self.conv1_1 = BatchNormalization(axis = -1, name= 'mentee_bn_conv1_1')(self.conv1_1)
+			self.parameters += [kernel, biases]
+
 	def build_conv6fc3(self, rgb, num_classes, temp_softmax, seed, train_mode):
-
 		print("build student conv6fc3")
-
 		K.set_learning_phase(True)
 		# conv1_1
 		with tf.name_scope('mentee_conv1_1') as scope:
