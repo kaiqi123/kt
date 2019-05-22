@@ -12,12 +12,12 @@ VGG_MEAN = [103.939, 116.779, 123.68]
 
 class TeacherForCifar10(object):
 
-	def __init__(self, trainable=True, dropout=0.5):
-		self.trainable = trainable
-		self.dropout = dropout
+	def __init__(self):
+		#self.trainable = trainable
+		#self.dropout = dropout
 		self.parameters = []
 
-	def fc_teacher(input, layerName, out_filter, is_training):
+	def fc_teacher(self, input, layerName, out_filter, is_training):
 		with tf.name_scope(layerName):
 			if layerName == "fc1":
 				shape = int(np.prod(input.get_shape()[1:]))
@@ -41,7 +41,7 @@ class TeacherForCifar10(object):
 				fc = tf.nn.bias_add(tf.matmul(input, fc_weights), fc_biases)
 			return fc
 
-	def build_teacher_oneConvLayer(input, layerName, out_filter, is_training):
+	def build_teacher_oneConvLayer(self, input, layerName, out_filter, is_training):
 		with tf.name_scope(layerName):
 			num_filters_in = int(input.shape[3])
 			kernel = tf.Variable(tf.truncated_normal([3, 3, num_filters_in, out_filter], dtype=tf.float32, stddev=1e-2),trainable=is_training, name='weights')
