@@ -21,7 +21,6 @@ class MentorForCaltech101(object):
         
 	def build(self, rgb, num_classes, temp_softmax, train_mode=None):
 
-
 		with tf.name_scope('mentor_conv1_1') as scope:
                         
 			kernel = tf.Variable(self.data_dict["conv1_1"][0], name='mentor_weights', trainable= self.trainable)

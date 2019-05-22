@@ -16,20 +16,15 @@ class Mentee(object):
 		self.trainable = trainable
 		self.parameters = []
 		self.num_channels = num_channels
-		"""
-            This function is not being used currently; if we need regularization we call it.
-            as mentioned below.
-        """
 
 	def extra_regularization(self, out):
-		out = tf.contrib.layers.batch_norm(out,  decay=0.999,
-								center=True,
-								scale=False,
-								updates_collections= None, is_training= train_mode)
+		"""
+            This function is not being used currently; if we need regularization we call it as mentioned below.
+        """
+		out = tf.contrib.layers.batch_norm(out,  decay=0.999,center=True,scale=False,updates_collections= None, is_training= train_mode)
 		mean, var = tf.nn.moments(out, axes=[0])
 		out = tf.nn.batch_normalization(out, mean, var)
 		out = (out - mean) / tf.sqrt(var + tf.constant(1e-10))
-
 		return out
 
 	def build_conv6fc3(self, rgb, num_classes, temp_softmax, seed, train_mode):
