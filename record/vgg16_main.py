@@ -1,24 +1,20 @@
-import tensorflow as tf
-import numpy as np
-import random
-from DataInput import DataInput
-
-#from vgg16mentee import Mentee
-from vgg16mentee_original import Mentee
-
-from vgg16mentor import Mentor
-from vgg16embed import Embed
-from mentor import Teacher
-import os
-import time
-import pdb
-import sys
-from tensorflow.python import debug as tf_debug
-from tensorflow.contrib.learn.python.learn.datasets.mnist import read_data_sets
-from PIL import Image
 import argparse
-import csv
+import os
+import sys
+import time
+
+import numpy as np
+import tensorflow as tf
+from PIL import Image
+from tensorflow.contrib.learn.python.learn.datasets.mnist import read_data_sets
 from tensorflow.python.client import device_lib
+
+from DataInput import DataInput
+from teacherCifar10 import Teacher
+from record.vgg16embed import Embed
+from record.vgg16mentee_original import Mentee
+from teacherCaltech101 import Mentor
+
 #import matplotlib.pyplot as plt
 dataset_path = "./"
 tf.reset_default_graph()

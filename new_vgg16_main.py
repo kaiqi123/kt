@@ -1,22 +1,15 @@
-import tensorflow as tf
-import numpy as np
-import random
-from DataInput import DataInput
-from vgg16mentee_temp import Mentee
-from vgg16mentor import Mentor
-from vgg16embed import Embed
-from mentor import Teacher
-import os
-import time
-import pdb
-import sys
-from tensorflow.python import debug as tf_debug
-from tensorflow.contrib.learn.python.learn.datasets.mnist import read_data_sets
-from PIL import Image
 import argparse
-import csv
+import sys
+import time
+
+import numpy as np
+import tensorflow as tf
 from tensorflow.python.client import device_lib
-from compute_cosine_similarity import cosine_similarity_of_same_width
+
+from DataInput import DataInput
+from teacherCifar10 import TeacherForCifar10
+from teacherCaltech101 import MentorForCaltech101
+from vgg16mentee_temp import Mentee
 
 dataset_path = "./"
 tf.reset_default_graph()
@@ -38,60 +31,25 @@ class VGG16(object):
 
     ### placeholders are filled with actual images and labels which are fed to the network while training.
     def fill_feed_dict(self, data_input, images_pl, labels_pl, sess, mode, phase_train):
-        """
-        Based on the mode whether it is train, test or validation; we fill the feed_dict with appropriate images and labels.
-        Args:
-            data_input: object instantiated for DataInput class
-            images_pl: placeholder to hold images of the datasets
-            labels_pl: placeholder to hold labels of the datasets
-            mode: mode is either train or test or validation
-
-
-        Returns:
-            feed_dict: dictionary consists of images placeholder, labels placeholder and phase_train as keys
-                       and images, labels and a boolean value phase_train as values.
-
-        """
-
         images_feed, labels_feed = sess.run([data_input.example_batch, data_input.label_batch])
-
-        #print(images_feed.shape)
-        #print(len(labels_feed))
-
         if mode == 'Train':
-            feed_dict = {
-                images_pl: images_feed,
-                labels_pl: labels_feed,
-                phase_train: True
-            }
-
+            feed_dict = {images_pl: images_feed, labels_pl: labels_feed,phase_train: True}
         if mode == 'Test':
-            feed_dict = {
-                images_pl: images_feed,
-                labels_pl: labels_feed,
-                phase_train: False
-            }
-
+            feed_dict = {images_pl: images_feed,labels_pl: labels_feed,phase_train: False }
         if mode == 'Validation':
-            feed_dict = {
-                images_pl: images_feed,
-                labels_pl: labels_feed,
-                phase_train: False
-            }
+            feed_dict = {images_pl: images_feed,labels_pl: labels_feed,phase_train: False}
         return feed_dict, images_feed, labels_feed
 
     def evaluation(self, logits, labels):
-
         if FLAGS.top_1_accuracy:
-            print('evaluation: top 1 accuracy ')
             correct = tf.nn.in_top_k(logits, labels, 1)
         elif FLAGS.top_3_accuracy:
             correct = tf.nn.in_top_k(logits, labels, 3)
         elif FLAGS.top_5_accuracy:
             correct = tf.nn.in_top_k(logits, labels, 5)
-
+        else:
+            raise ValueError("Not found top_1&3&5_accuracy")
         return tf.reduce_sum(tf.cast(correct, tf.int32))
-
 
     def evaluation_teacher(self, logits, labels):
 
@@ -105,7 +63,7 @@ class VGG16(object):
 
         return tf.cast(correct, tf.int32)
 
-    def do_eval(self, sess, eval_correct, logits, images_placeholder, labels_placeholder, dataset,mode, phase_train):
+    def do_eval(self, sess, eval_correct, logits, images_placeholder, labels_placeholder, dataset, mode, phase_train):
 
             if mode == 'Test':
                 steps_per_epoch = FLAGS.num_testing_examples //FLAGS.batch_size
@@ -122,33 +80,24 @@ class VGG16(object):
                 if FLAGS.dataset == 'mnist':
                     feed_dict = {images_placeholder: np.reshape(dataset.test.next_batch(FLAGS.batch_size)[0], [FLAGS.batch_size, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels]), labels_placeholder: dataset.test.next_batch(FLAGS.batch_size)[1]}
                 else:
-                    feed_dict, images_feed, labels_feed = self.fill_feed_dict(dataset, images_placeholder,
-                                                            labels_placeholder,sess, mode,phase_train)
+                    feed_dict, images_feed, labels_feed = self.fill_feed_dict(dataset, images_placeholder, labels_placeholder,sess, mode, phase_train)
                 count = sess.run(eval_correct, feed_dict=feed_dict)
                 true_count = true_count + count
 
             precision = float(true_count) / num_examples
-            print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' %
-                            (num_examples, true_count, precision))
+            print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' %(num_examples, true_count, precision))
 
             if mode == 'Test':
                 test_accuracy_list.append(precision)
 
     def get_mentor_variables_to_restore(self):
-
-        """
-        Returns:: names of the weights and biases of the teacher model
-
-        """
-        return [var for var in tf.global_variables() if var.op.name.startswith("mentor") and (var.op.name.endswith("biases") or var.op.name.endswith("weights")) and (var.op.name != ("mentor_fc3/mentor_weights") and  var.op.name != ("mentor_fc3/mentor_biases"))]
+        return [var for var in tf.global_variables() if var.op.name.startswith("mentor") and
+                (var.op.name.endswith("biases") or var.op.name.endswith("weights"))
+                and (var.op.name != ("mentor_fc3/mentor_weights")
+                     and  var.op.name != ("mentor_fc3/mentor_biases"))]
 
     def caculate_rmse_loss(self):
-
-        """
-        Here layers of same width are mapped together.
-        """
         self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
-
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         if FLAGS.num_optimizers >= 2:
             self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
@@ -158,30 +107,10 @@ class VGG16(object):
             self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1))))
         if FLAGS.num_optimizers == 5:
             self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1))))
-        """
-        self.l11 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_1, self.mentee_data_dict.conv1_1))))
-        self.l12 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
 
-        self.l21 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
-        self.l22 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_2, self.mentee_data_dict.conv2_1))))
-
-        self.l31 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_1, self.mentee_data_dict.conv3_1))))
-        self.l32 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_2, self.mentee_data_dict.conv3_1))))
-        self.l33 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1))))
-
-        if FLAGS.num_optimizers == 5:
-            self.l41 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_1, self.mentee_data_dict.conv4_1))))
-            self.l42 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1))))
-            self.l43 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1))))
-
-            self.l51 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_1, self.mentee_data_dict.conv5_1))))
-            self.l52 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1))))
-            self.l53 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1))))
-        """
     def define_multiple_optimizers(self, lr):
 
         print("define multiple optimizers")
-
         self.train_op_soft = tf.train.AdamOptimizer(lr).minimize(self.softloss)
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
 
@@ -209,43 +138,9 @@ class VGG16(object):
             l5_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv5_1/mentee_weights"][0])
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
 
-        """
-
-        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
-        self.train_op11 = tf.train.AdamOptimizer(lr).minimize(self.l11, var_list=l1_var_list)
-        self.train_op12 = tf.train.AdamOptimizer(lr).minimize(self.l12, var_list=l1_var_list)
-
-        self.train_op21 = tf.train.AdamOptimizer(lr).minimize(self.l21, var_list=l2_var_list)
-        self.train_op22 = tf.train.AdamOptimizer(lr).minimize(self.l22, var_list=l2_var_list)
-
-        self.train_op31 = tf.train.AdamOptimizer(lr).minimize(self.l31, var_list=l3_var_list)
-        self.train_op32 = tf.train.AdamOptimizer(lr).minimize(self.l32, var_list=l3_var_list)
-        self.train_op33 = tf.train.AdamOptimizer(lr).minimize(self.l33, var_list=l3_var_list)
-
-        if FLAGS.num_optimizers == 5:
-            self.train_op41 = tf.train.AdamOptimizer(lr).minimize(self.l41, var_list=l4_var_list)
-            self.train_op42 = tf.train.AdamOptimizer(lr).minimize(self.l42, var_list=l4_var_list)
-            self.train_op43 = tf.train.AdamOptimizer(lr).minimize(self.l43, var_list=l4_var_list)
-
-            self.train_op51 = tf.train.AdamOptimizer(lr).minimize(self.l51, var_list=l5_var_list)
-            self.train_op52 = tf.train.AdamOptimizer(lr).minimize(self.l52, var_list=l5_var_list)
-            self.train_op53 = tf.train.AdamOptimizer(lr).minimize(self.l53, var_list=l5_var_list)
-        """
-
     def define_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
-
-        """
-            Student is trained without taking knowledge from teacher
-
-            Args:
-                images_placeholder: placeholder to hold images of dataset
-                labels_placeholder: placeholder to hold labels of the images of the dataset
-                seed: seed value to have sequence in the randomness
-                phase_train: determines test or train state of the network
-        """
-
-        student = Mentee(FLAGS.num_channels)
         print("Independent student")
+        student = Mentee(FLAGS.num_channels)
         num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
         ## number of steps after which learning rate should decay
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
@@ -276,37 +171,33 @@ class VGG16(object):
         self.saver = tf.train.Saver()
 
     def define_teacher(self, images_placeholder, labels_placeholder, phase_train, global_step, sess):
-
-        """
-            1. Train teacher prior to student so that knowledge from teacher can be transferred to train student.
-            2. Teacher object is trained by importing weights from a pretrained vgg 16 network
-            3. Mentor object is a network trained from scratch. We did not find the pretrained network with the same architecture for cifar10.
-               Thus, trained the network from scratch on cifar10
-
-        """
-
-        if FLAGS.dataset == 'cifar10' or 'mnist':
-            print("Train Teacher (cifar10 or mnist)")
-            mentor = Teacher()
-        if FLAGS.dataset == 'caltech101':
+        if FLAGS.dataset == 'cifar10':
+            print("Train Teacher (cifar10)")
+            mentor = TeacherForCifar10()
+        elif FLAGS.dataset == 'caltech101':
             print("Train Teacher (caltech101)")
-            mentor = Mentor()
+            mentor = MentorForCaltech101()
+        else:
+            raise ValueError("Not found dataset name")
 
         num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
+        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,staircase=True)
 
-        mentor_data_dict = mentor.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
+        mentor_data_dict = mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
         self.loss = mentor.loss(labels_placeholder)
-        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,
-                                        staircase=True)
+
         if FLAGS.dataset == 'caltech101':
-            ## restore all the weights
             variables_to_restore = self.get_mentor_variables_to_restore()
-            self.train_op = mentor.training(self.loss, FLAGS.learning_rate_pretrained, lr, global_step,
-                                            variables_to_restore, mentor.get_training_vars())
-        if FLAGS.dataset == 'cifar10':
-            print("cifar10")
-            self.train_op = mentor.training(self.loss, FLAGS.learning_rate, global_step)
+            self.train_op = mentor.training(self.loss, FLAGS.learning_rate_pretrained, lr, global_step, variables_to_restore, mentor.get_training_vars())
+        elif FLAGS.dataset == 'cifar10':
+            self.train_op = mentor.training(self.loss, lr, global_step)
+        else:
+            raise ValueError("Not found dataset name")
+
+        for tvar in tf.trainable_variables():
+            print(tvar)
+        print('Mentor, trainable variables: %d' % len(tf.trainable_variables()))
 
         self.softmax = mentor_data_dict.softmax
         init = tf.global_variables_initializer()
@@ -315,12 +206,6 @@ class VGG16(object):
 
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, phase_train, seed, global_step, sess):
-
-        """
-        Student is trained by taking supervision from teacher for every batch of data
-        Same batch of input data is passed to both teacher and student for every iteration
-        """
-
         if FLAGS.dataset == 'cifar10':
             print("Train dependent student (cifar10 or mnist)")
             vgg16_mentor = Teacher(False)
@@ -405,82 +290,6 @@ class VGG16(object):
 
                     if var.op.name == "mentor_fc3/mentor_weights":
                         self.mentee_data_dict.parameters[16].assign(var.eval(session=sess)).eval(session=sess)
-
-
-    def select_optimizers_and_loss(self,cosine):
-        #print(cosine)
-        if cosine[0] == 1:
-            #print("1:11")
-            self.train_op1 = self.train_op11
-            self.l1 = self.l11
-            count_cosine[0]=count_cosine[0]+1
-        else:
-            #print("1:222")
-            self.train_op1 = self.train_op12
-            self.l1 = self.l12
-            count_cosine[1] = count_cosine[1] + 1
-
-        if cosine[1] == 1:
-            #print("2:11")
-            self.train_op2 = self.train_op21
-            self.l2 = self.l21
-            count_cosine[2] = count_cosine[2] + 1
-        else:
-            #print("2:222")
-            self.train_op2 = self.train_op22
-            self.l2 = self.l22
-            count_cosine[3] = count_cosine[3] + 1
-
-        if cosine[2] == 1:
-            #print("3:11")
-            self.train_op3 = self.train_op31
-            self.l3 = self.l31
-            count_cosine[4] = count_cosine[4] + 1
-        elif cosine[2] == 2:
-            #print("3:222")
-            self.train_op3 = self.train_op32
-            self.l3 = self.l32
-            count_cosine[5] = count_cosine[5] + 1
-        else:
-            #print("3:333")
-            self.train_op3 = self.train_op33
-            self.l3 = self.l33
-            count_cosine[6] = count_cosine[6] + 1
-
-        if FLAGS.num_optimizers == 5:
-
-            if cosine[3] == 1:
-                #print("4:11")
-                self.train_op4 = self.train_op41
-                self.l4 = self.l41
-                count_cosine[7] = count_cosine[7] + 1
-            elif cosine[3] == 2:
-                #print("4:222")
-                self.train_op4 = self.train_op42
-                self.l4 = self.l42
-                count_cosine[8] = count_cosine[8] + 1
-            else:
-                #print("4:33")
-                self.train_op4 = self.train_op43
-                self.l4 = self.l43
-                count_cosine[9] = count_cosine[9] + 1
-
-            if cosine[4] == 1:
-                #print("5:11")
-                self.train_op5 = self.train_op51
-                self.l5 = self.l51
-                count_cosine[10] = count_cosine[10] + 1
-            elif cosine[4] == 2:
-                #print("5:222")
-                self.train_op5 = self.train_op52
-                self.l5 = self.l52
-                count_cosine[11] = count_cosine[11] + 1
-            else:
-                #print("5:333")
-                self.train_op5 = self.train_op53
-                self.l5 = self.l53
-                count_cosine[12] = count_cosine[12] + 1
-
 
     def run_dependent_student(self, feed_dict, sess, i):
 
@@ -569,9 +378,9 @@ class VGG16(object):
 
                     # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
-                    #if FLAGS.teacher:
-                    #    print("save teacher to: "+str(FLAGS.teacher_weights_filename))
-                    #    self.saver.save(sess, FLAGS.teacher_weights_filename)
+                    if FLAGS.teacher:
+                        print("save teacher to: "+str(FLAGS.teacher_weights_filename))
+                        self.saver.save(sess, FLAGS.teacher_weights_filename)
                     #elif FLAGS.student:
                     #    saver.save(sess, FLAGS.student_filename)
                     #elif FLAGS.dependent_student:
@@ -579,26 +388,18 @@ class VGG16(object):
                     #    saver_new.save(sess, FLAGS.dependent_student_filename)
 
                     print ("Training Data Eval:")
-                    self.do_eval(sess,
-                                 eval_correct,
-                                 self.softmax,
-                                 images_placeholder,
-                                 labels_placeholder,
-                                 data_input_train,
-                                 'Train', phase_train)
+                    self.do_eval(sess,eval_correct,self.softmax,images_placeholder,labels_placeholder,data_input_train,'Train', phase_train)
 
                     print ("Test  Data Eval:")
-                    self.do_eval(sess,
-                                 eval_correct,
-                                 self.softmax,
-                                 images_placeholder,
-                                 labels_placeholder,
-                                 data_input_test,
-                                 'Test', phase_train)
+                    self.do_eval(sess,eval_correct,self.softmax,images_placeholder,labels_placeholder,data_input_test,'Test', phase_train)
                     print ("max test accuracy % f", max(test_accuracy_list))
 
         except Exception as e:
             print(e)
+
+    def _calc_num_trainable_params(self):
+        self.num_trainable_params = np.sum([np.prod(var.get_shape().as_list()) for var in tf.trainable_variables()])
+        tf.logging.info('number of trainable params: {}'.format(self.num_trainable_params))
 
     def main(self, _):
         start_time = time.time()
@@ -650,27 +451,26 @@ class VGG16(object):
             print("batch_size: " + str(FLAGS.batch_size))
 
             if FLAGS.student:
-                self.define_independent_student(images_placeholder, labels_placeholder, seed, phase_train, global_step,
-                                               sess)
+                self.define_independent_student(images_placeholder, labels_placeholder, seed, phase_train, global_step,sess)
 
             elif FLAGS.teacher:
                 self.define_teacher(images_placeholder, labels_placeholder, phase_train, global_step, sess)
 
             elif FLAGS.dependent_student:
-                self.define_dependent_student(images_placeholder, labels_placeholder, phase_train, seed, global_step,
-                                             sess)
+                self.define_dependent_student(images_placeholder, labels_placeholder, phase_train, seed, global_step,sess)
 
-            self.train_model(data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
-                             phase_train)
+            self._calc_num_trainable_params()
+
+            self.train_model(data_input_train, data_input_test, images_placeholder, labels_placeholder, sess, phase_train)
 
             print(test_accuracy_list)
-            writer_tensorboard = tf.summary.FileWriter('tensorboard/', sess.graph)
+            #writer_tensorboard = tf.summary.FileWriter('tensorboard/', sess.graph)
 
             coord.request_stop()
             coord.join(threads)
 
         sess.close()
-        writer_tensorboard.close()
+        #writer_tensorboard.close()
 
         end_time = time.time()
         runtime = round((end_time - start_time) / (60 * 60), 2)
@@ -683,177 +483,37 @@ class VGG16(object):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--teacher',
-        type=bool,
-        help='train teacher',
-        default=False
-    )
-    parser.add_argument(
-        '--dependent_student',
-        type=bool,
-        help='train dependent student',
-        default=False
-    )
-    parser.add_argument(
-        '--student',
-        type=bool,
-        help='train independent student',
-        default=False
-    )
-    parser.add_argument(
-        '--teacher_weights_filename',
-        type=str,
-        default="./summary-log/new_method_teacher_weights_filename_caltech101"
-    )
-    parser.add_argument(
-        '--student_filename',
-        type=str,
-        default="./summary-log/new_method_student_weights_filename_caltech101"
-    )
-    parser.add_argument(
-        '--dependent_student_filename',
-        type=str,
-        default="./summary-log/new_method_dependent_student_weights_filename_caltech101"
-    )
-
-    parser.add_argument(
-        '--learning_rate',
-        type=float,
-        default=0.0001
-    )
-
-    parser.add_argument(
-        '--batch_size',
-        type=int,
-        default=25
-    )
-    parser.add_argument(
-        '--image_height',
-        type=int,
-        default=224
-    )
-    parser.add_argument(
-        '--image_width',
-        type=int,
-        default=224
-    )
-    parser.add_argument(
-        '--train_dataset',
-        type=str,
-        default="dataset_input/caltech101-train.txt"
-    )
-    parser.add_argument(
-        '--test_dataset',
-        type=str,
-        default="dataset_input/caltech101-test.txt"
-    )
-    parser.add_argument(
-        '--validation_dataset',
-        type=str,
-        default="dataset_input/caltech101-validation.txt"
-    )
-    parser.add_argument(
-        '--temp_softmax',
-        type=int,
-        default=1
-    )
-    parser.add_argument(
-        '--num_classes',
-        type=int,
-        default=102
-    )
-    parser.add_argument(
-        '--learning_rate_pretrained',
-        type=float,
-        default=0.0001
-    )
-    parser.add_argument(
-        '--NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN',
-        type=int,
-        default=5853
-    )
-    parser.add_argument(
-        '--num_training_examples',
-        type=int,
-        default=5853
-    )
-    parser.add_argument(
-        '--num_testing_examples',
-        type=int,
-        default=1829
-    )
-    parser.add_argument(
-        '--num_validation_examples',
-        type=int,
-        default=1463
-    )
-    parser.add_argument(
-        '--dataset',
-        type=str,
-        help='name of the dataset',
-        default='caltech101'
-    )
-    parser.add_argument(
-        '--mnist_data_dir',
-        type=str,
-        help='name of the dataset',
-        default='./mnist_data'
-    )
-    parser.add_argument(
-        '--num_channels',
-        type=int,
-        help='number of channels in the initial layer if it is RGB it will 3 , if it is gray scale it will be 1',
-        default='3'
-    )
-    parser.add_argument(
-        '--top_1_accuracy',
-        type=bool,
-        help='top-1-accuracy',
-        default=True
-    )
-    parser.add_argument(
-        '--top_3_accuracy',
-        type=bool,
-        help='top-3-accuracy',
-        default=False
-    )
-    parser.add_argument(
-        '--top_5_accuracy',
-        type=bool,
-        help='top-5-accuracy',
-        default=False
-    )
-    parser.add_argument(
-        '--num_iterations',
-        type=int,
-        help='num_iterations',
-        default=1
-    )
-    parser.add_argument(
-        '--interval_output_train',
-        type=bool,
-        help='interval_output_train',
-        default=False
-    )
-    parser.add_argument(
-        '--interval_lossValue_train',
-        type=bool,
-        help='interval_lossValue_train',
-        default=False
-    )
-    parser.add_argument(
-        '--initialization',
-        type=bool,
-        help='initialization',
-        default=False
-    )
-    parser.add_argument(
-        '--num_optimizers',
-        type=int,
-        help='number of mapping layers from teacher',
-        default=5
-    )
+    parser.add_argument('--teacher',type=bool,help='train teacher',default=False)
+    parser.add_argument('--dependent_student',type=bool,help='train dependent student',default=False)
+    parser.add_argument('--student',type=bool,help='train independent student',default=False)
+    parser.add_argument('--teacher_weights_filename',type=str,default="./summary-log/new_method_teacher_weights_filename_caltech101")
+    parser.add_argument('--student_filename',type=str,default="./summary-log/new_method_student_weights_filename_caltech101")
+    parser.add_argument('--dependent_student_filename',type=str,default="./summary-log/new_method_dependent_student_weights_filename_caltech101")
+    parser.add_argument( '--learning_rate',type=float,default=0.0001)
+    parser.add_argument('--batch_size',type=int,default=25)
+    parser.add_argument('--image_height',type=int,default=224)
+    parser.add_argument('--image_width',type=int,default=224)
+    parser.add_argument('--train_dataset',type=str,default="dataset_input/caltech101-train.txt")
+    parser.add_argument('--test_dataset',type=str,default="dataset_input/caltech101-test.txt")
+    parser.add_argument('--validation_dataset',type=str,default="dataset_input/caltech101-validation.txt")
+    parser.add_argument('--temp_softmax',type=int,default=1)
+    parser.add_argument('--num_classes',type=int,default=102)
+    parser.add_argument('--learning_rate_pretrained',type=float,default=0.0001)
+    parser.add_argument('--NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN',type=int,default=5853)
+    parser.add_argument('--num_training_examples',type=int,default=5853)
+    parser.add_argument('--num_testing_examples',type=int,default=1829)
+    parser.add_argument('--num_validation_examples',type=int,default=1463)
+    parser.add_argument('--dataset',type=str,help='name of the dataset',default='caltech101')
+    parser.add_argument('--mnist_data_dir',type=str,help='name of the dataset',default='./mnist_data')
+    parser.add_argument('--num_channels',type=int,help='number of channels in the initial layer if it is RGB it will 3 , if it is gray scale it will be 1',default='3')
+    parser.add_argument('--top_1_accuracy',type=bool,help='top-1-accuracy',default=True)
+    parser.add_argument('--top_3_accuracy',type=bool,help='top-3-accuracy',default=False)
+    parser.add_argument('--top_5_accuracy',type=bool,help='top-5-accuracy',default=False)
+    parser.add_argument('--num_iterations',type=int,help='num_iterations',default=1)
+    parser.add_argument('--interval_output_train',type=bool,help='interval_output_train',default=False)
+    parser.add_argument('--interval_lossValue_train',type=bool,help='interval_lossValue_train',default=False)
+    parser.add_argument('--initialization',type=bool,help='initialization',default=False)
+    parser.add_argument('--num_optimizers',type=int,help='number of mapping layers from teacher',default=5)
 
     FLAGS, unparsed = parser.parse_known_args()
     ex = VGG16()

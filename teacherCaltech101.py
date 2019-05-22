@@ -10,7 +10,7 @@ beta = 0.0005
 Removed all kinds of regularizers such as dropout and batch normalization
 """
 
-class Mentor(object):
+class MentorForCaltech101(object):
 
 	def __init__(self, trainable=True, dropout=0.5):
 		self.trainable = trainable

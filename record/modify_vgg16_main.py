@@ -1,23 +1,15 @@
-import tensorflow as tf
-import numpy as np
-import random
-from DataInput import DataInput
-from vgg16mentee_temp import Mentee
-#from vgg16mentee import Mentee
-from vgg16mentor import Mentor
-from vgg16embed import Embed
-from mentor import Teacher
-import os
-import time
-import pdb
-import sys
-from tensorflow.python import debug as tf_debug
-from tensorflow.contrib.learn.python.learn.datasets.mnist import read_data_sets
-from PIL import Image
 import argparse
-import csv
+import sys
+import time
+
+import numpy as np
+import tensorflow as tf
 from tensorflow.python.client import device_lib
-from compute_cosine_similarity import cosine_similarity_of_same_width
+
+from DataInput import DataInput
+from teacherCifar10 import Teacher
+from vgg16mentee_temp import Mentee
+from teacherCaltech101 import Mentor
 
 dataset_path = "./"
 tf.reset_default_graph()
