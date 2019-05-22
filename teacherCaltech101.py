@@ -31,7 +31,6 @@ class MentorForCaltech101(object):
 			mean, var = tf.nn.moments(out, axes=[0])
 			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
 
-
 			self.conv1_1 = tf.nn.relu(batch_norm, name=scope)
 			#tf.nn.dropout(self.conv1_1, keep_prob=0.7)
 			self.parameters += [kernel, biases]

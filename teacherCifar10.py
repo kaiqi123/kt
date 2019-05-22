@@ -46,12 +46,15 @@ class TeacherForCifar10(object):
 			num_filters_in = int(input.shape[3])
 			kernel = tf.Variable(tf.truncated_normal([3, 3, num_filters_in, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
 			conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
-			relu = tf.nn.relu(conv, name="relu")
-			bn = BatchNormalization(axis=-1, name='bn')(relu)
-			return bn
+			biases = tf.Variable(tf.constant(0.0, shape=[64], dtype=tf.float32), trainable=True, name='biases')
+			out = tf.nn.bias_add(conv, biases)
+			mean, var = tf.nn.moments(out, axes= [0])
+			bn = (out - mean)/tf.sqrt(var + tf.Variable(1e-10))
+			relu = tf.nn.relu(bn, name="relu")
+			#bn = BatchNormalization(axis=-1, name='bn')(relu)
+			return relu
 
 	def build_vgg16_teacher(self, images, num_classes, temp_softmax, is_training):
-	#def build_vgg16_teacher(images, num_classes, is_training):
 		#K.set_learning_phase(True)
 		with tf.name_scope('mentor'):
 			conv1_1 = self.build_teacher_oneConvLayer(images, "conv1_1", 64)
