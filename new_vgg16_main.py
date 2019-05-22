@@ -200,6 +200,7 @@ class VGG16(object):
         print('Mentor, trainable variables: %d' % len(tf.trainable_variables()))
 
         mentor._calc_num_trainable_params()
+
         self.softmax = mentor_data_dict.softmax
         init = tf.global_variables_initializer()
         sess.run(init)
