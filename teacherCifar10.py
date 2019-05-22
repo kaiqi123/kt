@@ -41,7 +41,7 @@ class TeacherForCifar10(object):
 				fc = tf.nn.bias_add(tf.matmul(input, fc_weights), fc_biases)
 			return fc
 
-	def build_teacher_oneConvLayer(self, input, layerName, out_filter, is_training):
+	def build_teacher_oneConvLayer(self, input, layerName, out_filter):
 		with tf.name_scope(layerName):
 			num_filters_in = int(input.shape[3])
 			kernel = tf.Variable(tf.truncated_normal([3, 3, num_filters_in, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
@@ -54,31 +54,31 @@ class TeacherForCifar10(object):
 	#def build_vgg16_teacher(images, num_classes, is_training):
 		K.set_learning_phase(True)
 		with tf.name_scope('mentor'):
-			conv1_1 = self.build_teacher_oneConvLayer(images, "conv1_1", 64, is_training)
-			conv1_2 = self.build_teacher_oneConvLayer(conv1_1, "conv1_2", 64, is_training)
+			conv1_1 = self.build_teacher_oneConvLayer(images, "conv1_1", 64)
+			conv1_2 = self.build_teacher_oneConvLayer(conv1_1, "conv1_2", 64)
 			pool1 = tf.nn.max_pool(conv1_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
 			print(pool1)
 
-			conv2_1 = self.build_teacher_oneConvLayer(pool1, "conv2_1", 128, is_training)
-			conv2_2 = self.build_teacher_oneConvLayer(conv2_1, "conv2_2", 128, is_training)
+			conv2_1 = self.build_teacher_oneConvLayer(pool1, "conv2_1", 128)
+			conv2_2 = self.build_teacher_oneConvLayer(conv2_1, "conv2_2", 128)
 			pool2 = tf.nn.max_pool(conv2_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
 			print(pool2)
 
-			conv3_1 = self.build_teacher_oneConvLayer(pool2, "conv3_1", 256, is_training)
-			conv3_2 = self.build_teacher_oneConvLayer(conv3_1, "conv3_2", 256, is_training)
-			conv3_3 = self.build_teacher_oneConvLayer(conv3_2, "conv3_3", 256, is_training)
+			conv3_1 = self.build_teacher_oneConvLayer(pool2, "conv3_1", 256)
+			conv3_2 = self.build_teacher_oneConvLayer(conv3_1, "conv3_2", 256)
+			conv3_3 = self.build_teacher_oneConvLayer(conv3_2, "conv3_3", 256)
 			pool3 = tf.nn.max_pool(conv3_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
 			print(pool3)
 
-			conv4_1 = self.build_teacher_oneConvLayer(pool3, "conv4_1", 512, is_training)
-			conv4_2 = self.build_teacher_oneConvLayer(conv4_1, "conv4_2", 512, is_training)
-			conv4_3 = self.build_teacher_oneConvLayer(conv4_2, "conv4_3", 512, is_training)
+			conv4_1 = self.build_teacher_oneConvLayer(pool3, "conv4_1", 512)
+			conv4_2 = self.build_teacher_oneConvLayer(conv4_1, "conv4_2", 512)
+			conv4_3 = self.build_teacher_oneConvLayer(conv4_2, "conv4_3", 512)
 			pool4 = tf.nn.max_pool(conv4_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
 			print(pool4)
 
-			conv5_1 = self.build_teacher_oneConvLayer(pool4, "conv5_1", 512, is_training)
-			conv5_2 = self.build_teacher_oneConvLayer(conv5_1, "conv5_2", 512, is_training)
-			conv5_3 = self.build_teacher_oneConvLayer(conv5_2, "conv5_3", 512, is_training)
+			conv5_1 = self.build_teacher_oneConvLayer(pool4, "conv5_1", 512)
+			conv5_2 = self.build_teacher_oneConvLayer(conv5_1, "conv5_2", 512)
+			conv5_3 = self.build_teacher_oneConvLayer(conv5_2, "conv5_3", 512)
 			pool5 = tf.nn.max_pool(conv5_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
 			print(pool5)
 
