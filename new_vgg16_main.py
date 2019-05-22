@@ -332,7 +332,7 @@ class VGG16(object):
                     phase_train):
 
         try:
-            print('train model')
+            print('Begin to train model.....................................................')
 
             eval_correct = self.evaluation(self.softmax, labels_placeholder)
 
@@ -423,11 +423,8 @@ class VGG16(object):
             #                                  FLAGS.num_validation_examples, FLAGS.image_width, FLAGS.image_height,
             #                                  FLAGS.num_channels, seed, FLAGS.dataset)
 
-            images_placeholder = tf.placeholder(tf.float32,
-                                                shape=(FLAGS.batch_size, FLAGS.image_height,
-                                                       FLAGS.image_width, FLAGS.num_channels))
-            labels_placeholder = tf.placeholder(tf.int32,
-                                                shape=(FLAGS.batch_size))
+            images_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size, FLAGS.image_height, FLAGS.image_width, FLAGS.num_channels))
+            labels_placeholder = tf.placeholder(tf.int32, shape=(FLAGS.batch_size))
 
             # config = tf.ConfigProto(allow_soft_placement=True)
             config = tf.ConfigProto()
