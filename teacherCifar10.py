@@ -93,7 +93,7 @@ class TeacherForCifar10(object):
 
 	def loss(self, labels):
 		labels = tf.to_int64(labels)
-		cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels,logits=self.fc3l, name='xentropy')
+		cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels,logits=self.fc3, name='xentropy')
 		return tf.reduce_mean(cross_entropy, name='xentropy_mean')
 
 	def training(self, loss, learning_rate, global_step):
