@@ -253,8 +253,7 @@ class Teacher(object):
 		print(self.fc1)
 
 		with tf.name_scope('mentor_fc2') as scope:
-			fc2w = tf.Variable(tf.truncated_normal([4096, 4096],
-		    dtype=tf.float32, stddev=1e-2), trainable = self.trainable,name='mentor_weights')
+			fc2w = tf.Variable(tf.truncated_normal([4096, 4096],dtype=tf.float32, stddev=1e-2), trainable = self.trainable,name='mentor_weights')
 			fc2b = tf.Variable(tf.constant(1.0, shape=[4096], dtype=tf.float32),trainable=self.trainable, name='mentor_biases')
 			fc2l = tf.nn.bias_add(tf.matmul(self.fc1, fc2w), fc2b)
 			#mean , var = tf.nn.moments(fc2l, axes= [0])
