@@ -380,9 +380,9 @@ class VGG16(object):
 
                     # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
-                    if FLAGS.teacher:
-                        print("save teacher to: "+str(FLAGS.teacher_weights_filename))
-                        self.saver.save(sess, FLAGS.teacher_weights_filename)
+                    #if FLAGS.teacher:
+                    #    print("save teacher to: "+str(FLAGS.teacher_weights_filename))
+                    #    self.saver.save(sess, FLAGS.teacher_weights_filename)
                     #elif FLAGS.student:
                     #    saver.save(sess, FLAGS.student_filename)
                     #elif FLAGS.dependent_student:
