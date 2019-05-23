@@ -354,14 +354,14 @@ class VGG16(object):
 
                 if FLAGS.student or FLAGS.teacher:
                     _, loss_value = sess.run([self.train_op, self.loss], feed_dict=feed_dict)
-                    if i % 20 == 0:
+                    if i % 10 == 0:
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
 
                     self.run_dependent_student(feed_dict, sess, i)
 
-                    if i % 20 == 0:
+                    if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
                         if FLAGS.num_optimizers == 6:
                             print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
