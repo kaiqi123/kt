@@ -16,6 +16,7 @@ class TeacherForCifar10(object):
 		self.trainable = trainable
 		#self.dropout = dropout
 		self.parameters = []
+		self.teacher_dict = {}
 
 	def fc_teacher(self, input, layerName, out_filter, is_training):
 		with tf.name_scope(layerName):
@@ -49,6 +50,7 @@ class TeacherForCifar10(object):
 			conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
 			out = tf.nn.bias_add(conv, biases)
 			out = tf.nn.relu(out, name="relu")
+			self.teacher_dict[layerName] = out
 			out = BatchNormalization(axis=-1, name='bn')(out)
 			return out
 

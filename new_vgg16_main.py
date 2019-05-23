@@ -385,9 +385,9 @@ class VGG16(object):
                 if FLAGS.dependent_student:
 
                     mentor_conv1_1, mentor_conv2_1, mentor_conv3_1, mentor_conv4_1, mentor_conv5_1 \
-                        = sess.run([self.mentor_data_dict.conv1_1,self.mentor_data_dict.conv2_1,
-                                    self.mentor_data_dict.conv3_1,self.mentor_data_dict.conv4_1,
-                                    self.mentor_data_dict.conv5_1], feed_dict=feed_dict)
+                        = sess.run([self.mentor_data_dict.teacher_dict["conv1_1"],self.mentor_data_dict.teacher_dict["conv2_1"],
+                                    self.mentor_data_dict.teacher_dict["conv3_1"],self.mentor_data_dict.teacher_dict["conv4_1"],
+                                    self.mentor_data_dict.teacher_dict["conv5_1"]], feed_dict=feed_dict)
                     self.count_filter0_num(mentor_conv1_1, "conv1_1")
                     self.count_filter0_num(mentor_conv2_1, "conv2_1")
                     self.count_filter0_num(mentor_conv3_1, "conv3_1")
