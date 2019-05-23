@@ -566,9 +566,7 @@ class Mentee(object):
 
 		with tf.name_scope('mentee_fc3') as scope:
 			shape = int(np.prod(self.pool1.get_shape()[1:]))
-			fc3w = tf.Variable(tf.truncated_normal([shape, num_classes],
-												   dtype=tf.float32, stddev=1e-2, seed=seed), trainable=self.trainable,
-							   name='mentee_weights')
+			fc3w = tf.Variable(tf.truncated_normal([shape, num_classes],dtype=tf.float32, stddev=1e-2, seed=seed), trainable=self.trainable, name='mentee_weights')
 			fc3b = tf.Variable(tf.constant(0.0, shape=[num_classes], dtype=tf.float32),
 							   trainable=self.trainable, name='mentee_biases')
 			pool1_flat = tf.reshape(self.pool1, [-1, shape])
@@ -581,18 +579,15 @@ class Mentee(object):
 
 	def loss(self, labels):
 		#labels = tf.to_int64(labels)
-		cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels,
-			logits=self.fc3l, name='xentropy')
+		cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels,logits=self.fc3l, name='xentropy')
 		return tf.reduce_mean(cross_entropy, name='xentropy_mean')
-
 
 	def training(self, loss, learning_rate, global_step):
 		tf.summary.scalar('loss', loss)
 		#optimizer = tf.train.MomentumOptimizer(learning_rate, momentum = 0.9, use_nesterov = True)
-		optimizer = tf.train.AdamOptimizer(learning_rate)
-		
+		#optimizer = tf.train.AdamOptimizer(learning_rate)
+		optimizer = tf.train.GradientDescentOptimizer(learning_rate)
 		train_op = optimizer.minimize(loss, global_step=global_step)
-
 		return train_op
 
 	def _calc_num_trainable_params(self):
