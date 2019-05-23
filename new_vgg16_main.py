@@ -135,7 +135,9 @@ class VGG16(object):
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
         lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,staircase=True)
 
-        mentor_data_dict = mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
+        #mentor_data_dict = mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
+        mentor_data_dict = mentor.build_vgg16_teacher_deleteFilter(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
+
         self.loss = mentor.loss(labels_placeholder)
 
         if FLAGS.dataset == 'caltech101':
@@ -361,10 +363,6 @@ class VGG16(object):
             filter_count.append(count)
         print(filter_count)
 
-    def count_filter0_num_fc(self, output, name):
-        print(name)
-        print(output.shape)
-
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
                     phase_train):
 
@@ -412,8 +410,6 @@ class VGG16(object):
                     self.count_filter0_num(mentor_conv5_1, "conv5_1")
                     self.count_filter0_num(mentor_conv5_2, "conv5_2")
                     self.count_filter0_num(mentor_conv5_3, "conv5_3")
-                    self.count_filter0_num_fc(mentor_fc1, "fc1")
-                    #self.count_filter0_num(mentor_fc2, "fc2")
 
                     np.save("output_vgg16/filters_npy/mentor_conv1_1.npy", mentor_conv1_1)
                     np.save("output_vgg16/filters_npy/mentor_conv2_1.npy", mentor_conv2_1)

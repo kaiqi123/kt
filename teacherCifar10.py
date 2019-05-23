@@ -109,14 +109,12 @@ class TeacherForCifar10(object):
 			pool4 = tf.nn.max_pool(self.conv4_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
 			print(pool4)
 
-			self.conv5_1 = self.build_teacher_oneConvLayer(pool4, "conv5_1", 512)
-			self.conv5_2 = self.build_teacher_oneConvLayer(self.conv5_1, "conv5_2", 512)
-			self.conv5_3 = self.build_teacher_oneConvLayer(self.conv5_2, "conv5_3", 512)
+			self.conv5_1 = self.build_teacher_oneConvLayer(pool4, "conv5_1", 512-20)
+			self.conv5_2 = self.build_teacher_oneConvLayer(self.conv5_1, "conv5_2", 512-18)
+			self.conv5_3 = self.build_teacher_oneConvLayer(self.conv5_2, "conv5_3", 512-20)
 			pool5 = tf.nn.max_pool(self.conv5_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
 			print(pool5)
 
-			fc1 = self.fc_teacher(pool5, "fc1", 4096, is_training)
-			fc2 = self.fc_teacher(fc1, "fc2", 4096, is_training)
 			self.fc3 = self.fc_teacher(pool5, "fc3", num_classes, is_training)
 			self.softmax = tf.nn.softmax(self.fc3)
 			print(self.fc3)
