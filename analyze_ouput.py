@@ -11,7 +11,7 @@ import json
 from scipy import stats
 
 
-logName = "output_vgg16/num_of_filter0/log_50per.log"
+logName = "output_vgg16/num_of_filter0/log_100per.log"
 logging.basicConfig(filename=logName,level=logging.DEBUG)
 logging.FileHandler(logName, mode='w')
 
@@ -34,4 +34,4 @@ def loadOutput(filename, findName):
 
 findNames=['conv1_1', 'conv2_1','conv3_1','conv4_1','conv5_1']
 for findName in findNames:
-    loadOutput("output_vgg16/num_of_filter0/numOfFliter0_one_batch_50per", findName)
+    loadOutput("output_vgg16/num_of_filter0/numOfFliter0_one_batch_100per", findName)

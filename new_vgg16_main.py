@@ -361,9 +361,7 @@ class VGG16(object):
 
             filter_count.append(count)
         print(filter_count)
-        # print(filter_count.count(3))
-        # print(filter_count.count(4))
-        # print(filter_count.count(5))
+
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
                     phase_train):
@@ -386,15 +384,34 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    mentor_conv1_1, mentor_conv2_1, mentor_conv3_1, mentor_conv4_1, mentor_conv5_1 \
-                        = sess.run([self.mentor_data_dict.conv1_1,self.mentor_data_dict.conv2_1,
-                                    self.mentor_data_dict.conv3_1,self.mentor_data_dict.conv4_1,
-                                    self.mentor_data_dict.conv5_1], feed_dict=feed_dict)
+                    mentor_conv1_1, mentor_conv1_2, \
+                    mentor_conv2_1, mentor_conv2_2, \
+                    mentor_conv3_1, mentor_conv3_2, mentor_conv3_3,\
+                    mentor_conv4_1, mentor_conv4_2, mentor_conv4_3,\
+                    mentor_conv5_1, mentor_conv5_2, mentor_conv5_3,\
+                    mentor_fc1, mentor_fc2\
+                        = sess.run([self.mentor_data_dict.conv1_1,self.mentor_data_dict.conv1_2,
+                                    self.mentor_data_dict.conv2_1,self.mentor_data_dict.conv2_2,
+                                    self.mentor_data_dict.conv3_1,self.mentor_data_dict.conv3_2,self.mentor_data_dict.conv3_3,
+                                    self.mentor_data_dict.conv4_1,self.mentor_data_dict.conv4_2,self.mentor_data_dict.conv4_3,
+                                    self.mentor_data_dict.conv5_1,self.mentor_data_dict.conv5_2,self.mentor_data_dict.conv5_3,
+                                    self.mentor_data_dict.fc1, self.mentor_data_dict.fc2],
+                                   feed_dict=feed_dict)
                     self.count_filter0_num(mentor_conv1_1, "conv1_1")
-                    self.count_filter0_num(mentor_conv2_1, "conv2_1")
+                    self.count_filter0_num(mentor_conv1_1, "conv1_2")
+                    self.count_filter0_num(mentor_conv1_1, "conv2_1")
+                    self.count_filter0_num(mentor_conv2_1, "conv2_2")
                     self.count_filter0_num(mentor_conv3_1, "conv3_1")
+                    self.count_filter0_num(mentor_conv3_1, "conv3_2")
+                    self.count_filter0_num(mentor_conv3_1, "conv3_3")
                     self.count_filter0_num(mentor_conv4_1, "conv4_1")
+                    self.count_filter0_num(mentor_conv4_1, "conv4_2")
+                    self.count_filter0_num(mentor_conv4_1, "conv4_3")
                     self.count_filter0_num(mentor_conv5_1, "conv5_1")
+                    self.count_filter0_num(mentor_conv5_1, "conv5_2")
+                    self.count_filter0_num(mentor_conv5_1, "conv5_3")
+                    self.count_filter0_num(mentor_fc1, "fc1")
+                    self.count_filter0_num(mentor_fc2, "fc2")
 
                     self.run_dependent_student(feed_dict, sess, i)
 
