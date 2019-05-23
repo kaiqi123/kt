@@ -215,9 +215,12 @@ class VGG16(object):
     def define_multiple_optimizers(self, lr):
 
         print("define multiple optimizers")
-        #self.train_op_soft = tf.train.AdamOptimizer(lr).minimize(self.softloss)
-        self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.fc3loss)
-        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
+        tvars = [var for var in tf.trainable_variables() if var.op.name.startswith("mentee")]
+        self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.fc3loss, var_list=tvars)
+        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
+        for var in tvars:
+            print(var)
+        print('num of trainable_variables: %d' % len(tvars))
 
         l1_var_list = []
         l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee/conv1_1/weights"][0])
@@ -228,21 +231,25 @@ class VGG16(object):
             l2_var_list = []
             l2_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee/conv2_1/weights"][0])
             self.train_op2 = tf.train.AdamOptimizer(lr).minimize(self.l2, var_list=l2_var_list)
+            print(l2_var_list)
 
         if FLAGS.num_optimizers >= 3:
             l3_var_list = []
             l3_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee/conv3_1/weights"][0])
             self.train_op3 = tf.train.AdamOptimizer(lr).minimize(self.l3, var_list=l3_var_list)
+            print(l3_var_list)
 
         if FLAGS.num_optimizers >= 4:
             l4_var_list = []
             l4_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee/conv4_1/weights"][0])
             self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
+            print(l4_var_list)
 
         if FLAGS.num_optimizers == 5:
             l5_var_list = []
             l5_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee/conv5_1/weights"][0])
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
+            print(l5_var_list)
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, phase_train, seed, global_step, sess):
         if FLAGS.dataset == 'cifar10':
@@ -275,11 +282,7 @@ class VGG16(object):
         #mentor_variables_to_restore = get_mentor_variables_to_restore()
         for var in mentor_variables_to_restore:
             print(var)
-        print('num of global_variables: %d' % len(tf.global_variables()))
         print('num of mentor_variables_to_restore: %d' % len(mentor_variables_to_restore))
-        for var in tf.trainable_variables():
-            print(var)
-        print('num of trainable variables: %d' % len(tf.trainable_variables()))
 
         self.loss = vgg16_mentee.loss(labels_placeholder)
         num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
@@ -288,6 +291,7 @@ class VGG16(object):
 
         self.caculate_rmse_loss()
         self.define_multiple_optimizers(lr)
+        vgg16_mentee._calc_num_trainable_params()
 
         init = tf.initialize_all_variables()
         sess.run(init)
@@ -350,14 +354,14 @@ class VGG16(object):
 
                 if FLAGS.student or FLAGS.teacher:
                     _, loss_value = sess.run([self.train_op, self.loss], feed_dict=feed_dict)
-                    if i % 10 == 0:
+                    if i % 20 == 0:
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
 
                     self.run_dependent_student(feed_dict, sess, i)
 
-                    if i % 10 == 0:
+                    if i % 20 == 0:
                         # print("train function: dependent student, multiple optimizers")
                         if FLAGS.num_optimizers == 6:
                             print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
