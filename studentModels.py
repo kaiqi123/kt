@@ -40,6 +40,7 @@ class Mentee(object):
 			return out
 
 	def build_student_conv6fc3(self, images, num_classes, temp_softmax):
+		print("build_student_conv6fc3")
 		K.set_learning_phase(True)
 		with tf.name_scope('mentee'):
 			self.conv1_1 = self.build_student_oneConvLayer(images, "conv1_1", 64)

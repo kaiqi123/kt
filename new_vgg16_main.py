@@ -277,6 +277,8 @@ class VGG16(object):
             print(var)
         print('num of global_variables: %d' % len(tf.global_variables()))
         print('num of mentor_variables_to_restore: %d' % len(mentor_variables_to_restore))
+        for var in tf.trainable_variables():
+            print(var)
         print('num of trainable variables: %d' % len(tf.trainable_variables()))
 
         self.loss = vgg16_mentee.loss(labels_placeholder)

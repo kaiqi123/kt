@@ -53,6 +53,7 @@ class TeacherForCifar10(object):
 			return out
 
 	def build_vgg16_teacher(self, images, num_classes, temp_softmax, is_training):
+		print("build_vgg16_teacher")
 		K.set_learning_phase(True)
 		with tf.name_scope('mentor'):
 			self.conv1_1 = self.build_teacher_oneConvLayer(images, "conv1_1", 64)
