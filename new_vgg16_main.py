@@ -101,11 +101,6 @@ class VGG16(object):
             mentee_data_dict = student.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         if FLAGS.num_optimizers == 5:
             mentee_data_dict = student.build_student_conv5fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
-            self.conv1_1 = mentee_data_dict.conv1_1
-            self.conv2_1 = mentee_data_dict.conv2_1
-            self.conv3_1 = mentee_data_dict.conv3_1
-            self.conv4_1 = mentee_data_dict.conv4_1
-            self.conv5_1 = mentee_data_dict.conv5_1
         else:
             raise ValueError("Not found num_optimizers")
 
@@ -383,19 +378,21 @@ class VGG16(object):
 
                 if FLAGS.student or FLAGS.teacher:
 
-                    conv1_1, conv2_1, conv3_1, conv4_1, conv5_1 \
-                        = sess.run([self.conv1_1,self.conv2_1,self.conv3_1,self.conv4_1,self.conv5_1], feed_dict=feed_dict)
-                    self.count_filter0_num(conv1_1, "conv1_1")
-                    self.count_filter0_num(conv2_1, "conv2_1")
-                    self.count_filter0_num(conv3_1, "conv3_1")
-                    self.count_filter0_num(conv4_1, "conv4_1")
-                    self.count_filter0_num(conv5_1, "conv5_1")
-
                     _, loss_value = sess.run([self.train_op, self.loss], feed_dict=feed_dict)
                     if i % 10 == 0:
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
+
+                    mentor_conv1_1, mentor_conv2_1, mentor_conv3_1, mentor_conv4_1, mentor_conv5_1 \
+                        = sess.run([self.mentor_data_dict.conv1_1,self.mentor_data_dict.conv2_1,
+                                    self.mentor_data_dict.conv3_1,self.mentor_data_dict.conv4_1,
+                                    self.mentor_data_dict.conv5_1], feed_dict=feed_dict)
+                    self.count_filter0_num(mentor_conv1_1, "conv1_1")
+                    self.count_filter0_num(mentor_conv2_1, "conv2_1")
+                    self.count_filter0_num(mentor_conv3_1, "conv3_1")
+                    self.count_filter0_num(mentor_conv4_1, "conv4_1")
+                    self.count_filter0_num(mentor_conv5_1, "conv5_1")
 
                     self.run_dependent_student(feed_dict, sess, i)
 
@@ -427,9 +424,9 @@ class VGG16(object):
 
                     # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
-                    if FLAGS.teacher:
-                        print("save teacher to: "+str(FLAGS.teacher_weights_filename))
-                        self.saver.save(sess, FLAGS.teacher_weights_filename)
+                    #if FLAGS.teacher:
+                    #    print("save teacher to: "+str(FLAGS.teacher_weights_filename))
+                    #    self.saver.save(sess, FLAGS.teacher_weights_filename)
                     #elif FLAGS.student:
                     #    saver.save(sess, FLAGS.student_filename)
                     #elif FLAGS.dependent_student:
