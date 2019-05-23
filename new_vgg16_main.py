@@ -356,7 +356,7 @@ class VGG16(object):
                 # count number filters whose 90% output_wrn are 0
                 num_sum = img[j].shape[0] * img[j].shape[1]
                 count0_perFIlter = (num_sum - np.count_nonzero(img[j])) / num_sum
-                if count0_perFIlter > 0:
+                if count0_perFIlter > 0.5:
                     count = count + 1
 
 
@@ -399,20 +399,23 @@ class VGG16(object):
                                     self.mentor_data_dict.fc1, self.mentor_data_dict.fc2],
                                    feed_dict=feed_dict)
                     self.count_filter0_num(mentor_conv1_1, "conv1_1")
-                    self.count_filter0_num(mentor_conv1_1, "conv1_2")
-                    self.count_filter0_num(mentor_conv1_1, "conv2_1")
-                    self.count_filter0_num(mentor_conv2_1, "conv2_2")
+                    self.count_filter0_num(mentor_conv1_2, "conv1_2")
+                    self.count_filter0_num(mentor_conv2_1, "conv2_1")
+                    self.count_filter0_num(mentor_conv2_2, "conv2_2")
                     self.count_filter0_num(mentor_conv3_1, "conv3_1")
-                    self.count_filter0_num(mentor_conv3_1, "conv3_2")
-                    self.count_filter0_num(mentor_conv3_1, "conv3_3")
+                    self.count_filter0_num(mentor_conv3_2, "conv3_2")
+                    self.count_filter0_num(mentor_conv3_3, "conv3_3")
                     self.count_filter0_num(mentor_conv4_1, "conv4_1")
-                    self.count_filter0_num(mentor_conv4_1, "conv4_2")
-                    self.count_filter0_num(mentor_conv4_1, "conv4_3")
+                    self.count_filter0_num(mentor_conv4_2, "conv4_2")
+                    self.count_filter0_num(mentor_conv4_3, "conv4_3")
                     self.count_filter0_num(mentor_conv5_1, "conv5_1")
-                    self.count_filter0_num(mentor_conv5_1, "conv5_2")
-                    self.count_filter0_num(mentor_conv5_1, "conv5_3")
+                    self.count_filter0_num(mentor_conv5_2, "conv5_2")
+                    self.count_filter0_num(mentor_conv5_3, "conv5_3")
                     #self.count_filter0_num(mentor_fc1, "fc1")
                     #self.count_filter0_num(mentor_fc2, "fc2")
+
+                    #np.save("output_vgg16/filters_npy/mentor_conv1_1.npy", mentor_conv1_1)
+                    #np.save("output_vgg16/filters_npy/mentor_conv1_1.npy", mentor_conv1_1)
 
                     self.run_dependent_student(feed_dict, sess, i)
 
