@@ -410,8 +410,8 @@ class VGG16(object):
                     self.count_filter0_num(mentor_conv5_1, "conv5_1")
                     self.count_filter0_num(mentor_conv5_1, "conv5_2")
                     self.count_filter0_num(mentor_conv5_1, "conv5_3")
-                    self.count_filter0_num(mentor_fc1, "fc1")
-                    self.count_filter0_num(mentor_fc2, "fc2")
+                    #self.count_filter0_num(mentor_fc1, "fc1")
+                    #self.count_filter0_num(mentor_fc2, "fc2")
 
                     self.run_dependent_student(feed_dict, sess, i)
 
