@@ -346,6 +346,7 @@ class VGG16(object):
             img = img.transpose(2, 0, 1)
             count = 0
             for j in range(img.shape[0]):
+                """
                 #count number filters whose output_wrn are all 0
                 sum_oneFilter = np.sum(img[j])
                 if sum_oneFilter == 0:
@@ -355,9 +356,9 @@ class VGG16(object):
                 # count number filters whose 90% output_wrn are 0
                 num_sum = img[j].shape[0] * img[j].shape[1]
                 count0_perFIlter = (num_sum - np.count_nonzero(img[j])) / num_sum
-                if count0_perFIlter > 0.9:
+                if count0_perFIlter > 0.5:
                     count = count + 1
-                """
+
 
             filter_count.append(count)
         print(filter_count)
