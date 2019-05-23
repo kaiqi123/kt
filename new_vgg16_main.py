@@ -136,7 +136,7 @@ class VGG16(object):
         lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,staircase=True)
 
         #mentor_data_dict = mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
-        mentor_data_dict = mentor.build_vgg16_teacher_deleteFilter(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
+        mentor_data_dict = mentor.build_vgg16_teacher_deleteFilters(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
 
         self.loss = mentor.loss(labels_placeholder)
 
@@ -300,7 +300,6 @@ class VGG16(object):
 
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, FLAGS.teacher_weights_filename)
-        #saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101_clean_code")
 
         #if FLAGS.initialization:
         #    self.initilize(sess)

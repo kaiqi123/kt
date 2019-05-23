@@ -83,7 +83,7 @@ class TeacherForCifar10(object):
 			print(self.fc3)
 			return self
 
-	def build_vgg16_teacher_deleteFilter(self, images, num_classes, temp_softmax, is_training):
+	def build_vgg16_teacher_deleteFilters(self, images, num_classes, temp_softmax, is_training):
 		print("build_vgg16_teacher")
 		K.set_learning_phase(True)
 		with tf.name_scope('mentor'):
@@ -115,9 +115,7 @@ class TeacherForCifar10(object):
 			pool5 = tf.nn.max_pool(self.conv5_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
 			print(pool5)
 
-			self.fc1 = self.fc_teacher(pool5, "fc1", 4096, is_training)
-			self.fc2 = self.fc_teacher(self.fc1, "fc2", 4096, is_training)
-			self.fc3 = self.fc_teacher(self.fc2, "fc3", num_classes, is_training)
+			self.fc3 = self.fc_teacher(pool5, "fc3", num_classes, is_training)
 			self.softmax = tf.nn.softmax(self.fc3)
 			print(self.fc3)
 			return self
