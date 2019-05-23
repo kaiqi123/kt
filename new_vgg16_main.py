@@ -356,7 +356,7 @@ class VGG16(object):
                 # count number filters whose 90% output_wrn are 0
                 num_sum = img[j].shape[0] * img[j].shape[1]
                 count0_perFIlter = (num_sum - np.count_nonzero(img[j])) / num_sum
-                if count0_perFIlter > 0.3:
+                if count0_perFIlter > 0:
                     count = count + 1
 
 
