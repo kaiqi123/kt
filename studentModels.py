@@ -75,14 +75,40 @@ class Mentee(object):
 			print(self.fc3)
 			return self
 
+	def build_student_conv5fc1(self, images, num_classes, temp_softmax):
+		K.set_learning_phase(True)
+		with tf.name_scope('mentee'):
+			conv1_1 = self.build_student_oneConvLayer(images, "conv1_1", 64)
+			pool1 = tf.nn.max_pool(conv1_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
+			print(pool1)
+
+			conv2_1 = self.build_student_oneConvLayer(pool1, "conv2_1", 128)
+			pool2 = tf.nn.max_pool(conv2_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
+			print(pool2)
+
+			conv3_1 = self.build_student_oneConvLayer(pool2, "conv3_1", 256)
+			pool3 = tf.nn.max_pool(conv3_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
+			print(pool3)
+
+			conv4_1 = self.build_student_oneConvLayer(pool3, "conv4_1", 512)
+			pool4 = tf.nn.max_pool(conv4_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
+			print(pool4)
+
+			conv5_1 = self.build_student_oneConvLayer(pool4, "conv5_1", 512)
+			pool5 = tf.nn.max_pool(conv5_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
+			print(pool5)
+
+			self.fc3 = self.fc_student(pool5, "fc3", num_classes)
+			self.softmax = tf.nn.softmax(self.fc3 / temp_softmax)
+			print(self.fc3)
+			return self
+
 	def loss(self, labels):
 		labels = tf.to_int64(labels)
 		cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=self.fc3, name='xentropy')
 		return tf.reduce_mean(cross_entropy, name='xentropy_mean')
 
 	def training(self, loss, learning_rate, global_step):
-		# optimizer = tf.train.MomentumOptimizer(learning_rate, momentum = 0.9, use_nesterov = True)
-		# optimizer = tf.train.GradientDescentOptimizer(learning_rate)
 		optimizer = tf.train.AdamOptimizer(learning_rate)
 		train_op = optimizer.minimize(loss, global_step=global_step)
 		return train_op
