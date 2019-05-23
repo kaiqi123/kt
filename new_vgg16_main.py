@@ -358,10 +358,12 @@ class VGG16(object):
                 if count0_perFIlter > 0.5:
                     count = count + 1
 
-
             filter_count.append(count)
         print(filter_count)
 
+    def count_filter0_num_fc(self, output, name):
+        print(name)
+        print(output.shape)
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
                     phase_train):
@@ -410,7 +412,7 @@ class VGG16(object):
                     self.count_filter0_num(mentor_conv5_1, "conv5_1")
                     self.count_filter0_num(mentor_conv5_2, "conv5_2")
                     self.count_filter0_num(mentor_conv5_3, "conv5_3")
-                    #self.count_filter0_num(mentor_fc1, "fc1")
+                    self.count_filter0_num_fc(mentor_fc1, "fc1")
                     #self.count_filter0_num(mentor_fc2, "fc2")
 
                     np.save("output_vgg16/filters_npy/mentor_conv1_1.npy", mentor_conv1_1)
