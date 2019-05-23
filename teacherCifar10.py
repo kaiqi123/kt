@@ -50,8 +50,9 @@ class TeacherForCifar10(object):
 			conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
 			out = tf.nn.bias_add(conv, biases)
 
-			mean, var = tf.nn.moments(out, axes=[0])
-			out = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
+			#mean, var = tf.nn.moments(out, axes=[0])
+			#out = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
+			out = BatchNormalization(axis=-1, name='bn')(out)
 
 			out = tf.nn.relu(out, name="relu")
 			self.teacher_dict[layerName] = out
