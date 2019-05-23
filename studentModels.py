@@ -79,24 +79,24 @@ class Mentee(object):
 	def build_student_conv5fc1(self, images, num_classes, temp_softmax):
 		K.set_learning_phase(True)
 		with tf.name_scope('mentee'):
-			conv1_1 = self.build_student_oneConvLayer(images, "conv1_1", 64)
-			pool1 = tf.nn.max_pool(conv1_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
+			self.conv1_1 = self.build_student_oneConvLayer(images, "conv1_1", 64)
+			pool1 = tf.nn.max_pool(self.conv1_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
 			print(pool1)
 
-			conv2_1 = self.build_student_oneConvLayer(pool1, "conv2_1", 128)
-			pool2 = tf.nn.max_pool(conv2_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
+			self.conv2_1 = self.build_student_oneConvLayer(pool1, "conv2_1", 128)
+			pool2 = tf.nn.max_pool(self.conv2_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
 			print(pool2)
 
-			conv3_1 = self.build_student_oneConvLayer(pool2, "conv3_1", 256)
-			pool3 = tf.nn.max_pool(conv3_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
+			self.conv3_1 = self.build_student_oneConvLayer(pool2, "conv3_1", 256)
+			pool3 = tf.nn.max_pool(self.conv3_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
 			print(pool3)
 
-			conv4_1 = self.build_student_oneConvLayer(pool3, "conv4_1", 512)
-			pool4 = tf.nn.max_pool(conv4_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
+			self.conv4_1 = self.build_student_oneConvLayer(pool3, "conv4_1", 512)
+			pool4 = tf.nn.max_pool(self.conv4_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
 			print(pool4)
 
-			conv5_1 = self.build_student_oneConvLayer(pool4, "conv5_1", 512)
-			pool5 = tf.nn.max_pool(conv5_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
+			self.conv5_1 = self.build_student_oneConvLayer(pool4, "conv5_1", 512)
+			pool5 = tf.nn.max_pool(self.conv5_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
 			print(pool5)
 
 			self.fc3 = self.fc_student(pool5, "fc3", num_classes)
