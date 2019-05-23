@@ -171,10 +171,10 @@ class VGG16(object):
 
     def define_teacher(self, images_placeholder, labels_placeholder, phase_train, global_step, sess):
         if FLAGS.dataset == 'cifar10':
-            print("Train Teacher (cifar10)")
+            print("Build Teacher (cifar10)")
             mentor = TeacherForCifar10()
         elif FLAGS.dataset == 'caltech101':
-            print("Train Teacher (caltech101)")
+            print("Build Teacher (caltech101)")
             mentor = MentorForCaltech101()
         else:
             raise ValueError("Not found dataset name")
