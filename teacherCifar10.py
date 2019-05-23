@@ -13,7 +13,7 @@ VGG_MEAN = [103.939, 116.779, 123.68]
 class TeacherForCifar10(object):
 
 	def __init__(self, trainable=True, dropout=0.5):
-		#self.trainable = trainable
+		self.trainable = trainable
 		#self.dropout = dropout
 		self.parameters = []
 
@@ -21,31 +21,31 @@ class TeacherForCifar10(object):
 		with tf.name_scope(layerName):
 			if layerName == "fc1":
 				shape = int(np.prod(input.get_shape()[1:]))
-				fc_weights = tf.Variable(tf.truncated_normal([shape, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
-				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=True,name='biases')
+				fc_weights = tf.Variable(tf.truncated_normal([shape, out_filter], dtype=tf.float32, stddev=1e-2),trainable=self.trainable, name='weights')
+				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=self.trainable,name='biases')
 				input_flat = tf.reshape(input, [-1, shape])
 				fc = tf.nn.bias_add(tf.matmul(input_flat, fc_weights), fc_biases)
 				fc = tf.nn.relu(fc)
 				fc = BatchNormalization(axis=-1, name=layerName + 'bn')(fc)
 			elif layerName == "fc2":
-				fc_weights = tf.Variable(tf.truncated_normal([4096, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
-				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=True,name='biases')
+				fc_weights = tf.Variable(tf.truncated_normal([4096, out_filter], dtype=tf.float32, stddev=1e-2),trainable=self.trainable, name='weights')
+				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=self.trainable,name='biases')
 				fc = tf.nn.bias_add(tf.matmul(input, fc_weights), fc_biases)
 				fc = tf.nn.relu(fc)
 				fc = BatchNormalization(axis=-1, name=layerName + 'bn')(fc)
 				if is_training == True:
 					fc = tf.nn.dropout(fc, 0.5)
 			elif layerName == "fc3":
-				fc_weights = tf.Variable(tf.truncated_normal([4096, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
-				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=True,name='biases')
+				fc_weights = tf.Variable(tf.truncated_normal([4096, out_filter], dtype=tf.float32, stddev=1e-2),trainable=self.trainable, name='weights')
+				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=self.trainable,name='biases')
 				fc = tf.nn.bias_add(tf.matmul(input, fc_weights), fc_biases)
 			return fc
 
 	def build_teacher_oneConvLayer(self, input, layerName, out_filter):
 		with tf.name_scope(layerName):
 			num_filters_in = int(input.shape[3])
-			kernel = tf.Variable(tf.truncated_normal([3, 3, num_filters_in, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
-			biases = tf.Variable(tf.constant(0.0, shape=[out_filter], dtype=tf.float32), trainable=True, name='biases')
+			kernel = tf.Variable(tf.truncated_normal([3, 3, num_filters_in, out_filter], dtype=tf.float32, stddev=1e-2),trainable=self.trainable, name='weights')
+			biases = tf.Variable(tf.constant(0.0, shape=[out_filter], dtype=tf.float32), trainable=self.trainable, name='biases')
 			conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
 			out = tf.nn.bias_add(conv, biases)
 			out = tf.nn.relu(out, name="relu")
@@ -55,32 +55,32 @@ class TeacherForCifar10(object):
 	def build_vgg16_teacher(self, images, num_classes, temp_softmax, is_training):
 		K.set_learning_phase(True)
 		with tf.name_scope('mentor'):
-			conv1_1 = self.build_teacher_oneConvLayer(images, "conv1_1", 64)
-			conv1_2 = self.build_teacher_oneConvLayer(conv1_1, "conv1_2", 64)
-			pool1 = tf.nn.max_pool(conv1_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
+			self.conv1_1 = self.build_teacher_oneConvLayer(images, "conv1_1", 64)
+			self.conv1_2 = self.build_teacher_oneConvLayer(self.conv1_1, "conv1_2", 64)
+			pool1 = tf.nn.max_pool(self.conv1_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
 			print(pool1)
 
-			conv2_1 = self.build_teacher_oneConvLayer(pool1, "conv2_1", 128)
-			conv2_2 = self.build_teacher_oneConvLayer(conv2_1, "conv2_2", 128)
-			pool2 = tf.nn.max_pool(conv2_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
+			self.conv2_1 = self.build_teacher_oneConvLayer(pool1, "conv2_1", 128)
+			self.conv2_2 = self.build_teacher_oneConvLayer(self.conv2_1, "conv2_2", 128)
+			pool2 = tf.nn.max_pool(self.conv2_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
 			print(pool2)
 
-			conv3_1 = self.build_teacher_oneConvLayer(pool2, "conv3_1", 256)
-			conv3_2 = self.build_teacher_oneConvLayer(conv3_1, "conv3_2", 256)
-			conv3_3 = self.build_teacher_oneConvLayer(conv3_2, "conv3_3", 256)
-			pool3 = tf.nn.max_pool(conv3_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
+			self.conv3_1 = self.build_teacher_oneConvLayer(pool2, "conv3_1", 256)
+			self.conv3_2 = self.build_teacher_oneConvLayer(self.conv3_1, "conv3_2", 256)
+			self.conv3_3 = self.build_teacher_oneConvLayer(self.conv3_2, "conv3_3", 256)
+			pool3 = tf.nn.max_pool(self.conv3_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
 			print(pool3)
 
-			conv4_1 = self.build_teacher_oneConvLayer(pool3, "conv4_1", 512)
-			conv4_2 = self.build_teacher_oneConvLayer(conv4_1, "conv4_2", 512)
-			conv4_3 = self.build_teacher_oneConvLayer(conv4_2, "conv4_3", 512)
-			pool4 = tf.nn.max_pool(conv4_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
+			self.conv4_1 = self.build_teacher_oneConvLayer(pool3, "conv4_1", 512)
+			self.conv4_2 = self.build_teacher_oneConvLayer(self.conv4_1, "conv4_2", 512)
+			self.conv4_3 = self.build_teacher_oneConvLayer(self.conv4_2, "conv4_3", 512)
+			pool4 = tf.nn.max_pool(self.conv4_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
 			print(pool4)
 
-			conv5_1 = self.build_teacher_oneConvLayer(pool4, "conv5_1", 512)
-			conv5_2 = self.build_teacher_oneConvLayer(conv5_1, "conv5_2", 512)
-			conv5_3 = self.build_teacher_oneConvLayer(conv5_2, "conv5_3", 512)
-			pool5 = tf.nn.max_pool(conv5_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
+			self.conv5_1 = self.build_teacher_oneConvLayer(pool4, "conv5_1", 512)
+			self.conv5_2 = self.build_teacher_oneConvLayer(self.conv5_1, "conv5_2", 512)
+			self.conv5_3 = self.build_teacher_oneConvLayer(self.conv5_2, "conv5_3", 512)
+			pool5 = tf.nn.max_pool(self.conv5_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
 			print(pool5)
 
 			fc1 = self.fc_teacher(pool5, "fc1", 4096, is_training)

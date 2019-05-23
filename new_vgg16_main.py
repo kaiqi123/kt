@@ -91,54 +91,6 @@ class VGG16(object):
             if mode == 'Test':
                 test_accuracy_list.append(precision)
 
-    def get_mentor_variables_to_restore(self):
-        return [var for var in tf.global_variables() if var.op.name.startswith("mentor") and
-                (var.op.name.endswith("biases") or var.op.name.endswith("weights"))
-                and (var.op.name != ("mentor_fc3/mentor_weights")
-                     and  var.op.name != ("mentor_fc3/mentor_biases"))]
-
-    def caculate_rmse_loss(self):
-        self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
-        self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
-        if FLAGS.num_optimizers >= 2:
-            self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
-        if FLAGS.num_optimizers >= 3:
-            self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_1, self.mentee_data_dict.conv3_1))))
-        if FLAGS.num_optimizers >= 4:
-            self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1))))
-        if FLAGS.num_optimizers == 5:
-            self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1))))
-
-    def define_multiple_optimizers(self, lr):
-
-        print("define multiple optimizers")
-        self.train_op_soft = tf.train.AdamOptimizer(lr).minimize(self.softloss)
-        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
-
-        l1_var_list = []
-        l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee_conv1_1/mentee_weights"][0])
-        self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
-
-        if FLAGS.num_optimizers >= 2:
-            l2_var_list = []
-            l2_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv2_1/mentee_weights"][0])
-            self.train_op2 = tf.train.AdamOptimizer(lr).minimize(self.l2, var_list=l2_var_list)
-
-        if FLAGS.num_optimizers >= 3:
-            l3_var_list = []
-            l3_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv3_1/mentee_weights"][0])
-            self.train_op3 = tf.train.AdamOptimizer(lr).minimize(self.l3, var_list=l3_var_list)
-
-        if FLAGS.num_optimizers >= 4:
-            l4_var_list = []
-            l4_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv4_1/mentee_weights"][0])
-            self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
-
-        if FLAGS.num_optimizers == 5:
-            l5_var_list = []
-            l5_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv5_1/mentee_weights"][0])
-            self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
-
     def define_independent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         print("Build Independent student")
         student = Mentee(seed)
@@ -204,39 +156,133 @@ class VGG16(object):
         sess.run(init)
         self.saver = tf.train.Saver()
 
+    def initilize(self, sess):
+        for var in tf.global_variables():
+            if var.op.name == "mentor/conv1_1/weights":
+                print("initialization: conv1_1")
+                self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
+
+            if FLAGS.num_optimizers >= 2:
+                if var.op.name == "mentor/conv2_1/weights":
+                    print("initialization: conv2_1")
+                    self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
+
+            if FLAGS.num_optimizers >= 3:
+                if var.op.name == "mentor/conv3_1/weights":
+                    print("initialization: conv3_1")
+                    self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
+
+            if FLAGS.num_optimizers >= 4:
+                if var.op.name == "mentor/conv4_1/weights":
+                    print("initialization: conv4_1")
+                    self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
+
+            if FLAGS.num_optimizers == 5:
+                if var.op.name == "mentor/conv5_1/weights":
+                    print("initialization: conv5_1")
+                    self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
+
+                if var.op.name == "mentor/fc1/weights":
+                    self.mentee_data_dict.parameters[10].assign(var.eval(session=sess)).eval(session=sess)
+
+                if var.op.name == "mentor_fc3/weights":
+                    self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
+
+            if FLAGS.num_optimizers == 6:
+                if var.op.name == "mentor/conv5_1/weights":
+                    self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
+
+                if var.op.name == "mentor/fc2/weights":
+                    print("initialization: conv6_1")
+                    self.mentee_data_dict.parameters[14].assign(var.eval(session=sess)).eval(session=sess)
+
+                if var.op.name == "mentor/fc3/weights":
+                    self.mentee_data_dict.parameters[16].assign(var.eval(session=sess)).eval(session=sess)
+
+    def caculate_rmse_loss(self):
+        #self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
+        self.fc3loss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
+        self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
+        if FLAGS.num_optimizers >= 2:
+            self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
+        if FLAGS.num_optimizers >= 3:
+            self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_1, self.mentee_data_dict.conv3_1))))
+        if FLAGS.num_optimizers >= 4:
+            self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1))))
+        if FLAGS.num_optimizers == 5:
+            self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1))))
+
+    def define_multiple_optimizers(self, lr):
+
+        print("define multiple optimizers")
+        #self.train_op_soft = tf.train.AdamOptimizer(lr).minimize(self.softloss)
+        self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.fc3loss)
+        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss)
+
+        l1_var_list = []
+        l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee/conv1_1/weights"][0])
+        self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
+        print(l1_var_list)
+
+        if FLAGS.num_optimizers >= 2:
+            l2_var_list = []
+            l2_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee/conv2_1/weights"][0])
+            self.train_op2 = tf.train.AdamOptimizer(lr).minimize(self.l2, var_list=l2_var_list)
+
+        if FLAGS.num_optimizers >= 3:
+            l3_var_list = []
+            l3_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee/conv3_1/weights"][0])
+            self.train_op3 = tf.train.AdamOptimizer(lr).minimize(self.l3, var_list=l3_var_list)
+
+        if FLAGS.num_optimizers >= 4:
+            l4_var_list = []
+            l4_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee/conv4_1/weights"][0])
+            self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
+
+        if FLAGS.num_optimizers == 5:
+            l5_var_list = []
+            l5_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee/conv5_1/weights"][0])
+            self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, phase_train, seed, global_step, sess):
         if FLAGS.dataset == 'cifar10':
-            print("Train dependent student (cifar10 or mnist)")
-            vgg16_mentor = Teacher(False)
-        if FLAGS.dataset == 'caltech101':
-            print("Train dependent student (caltech101)")
-            vgg16_mentor = Mentor(False)
+            print("Build dependent student (cifar10)")
+            vgg16_mentor = TeacherForCifar10(False)
+        elif FLAGS.dataset == 'caltech101':
+            print("Build dependent student (caltech101)")
+            vgg16_mentor = MentorForCaltech101(False)
+        else:
+            raise ValueError("Not found dataset name")
 
-        vgg16_mentee = Mentee(FLAGS.num_channels)
-        self.mentor_data_dict = vgg16_mentor.build(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax,
-                                                   phase_train)
+        vgg16_mentee = Mentee(seed)
+        self.mentor_data_dict = vgg16_mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax,phase_train)
+
         if FLAGS.num_optimizers == 6:
-            self.mentee_data_dict = vgg16_mentee.build_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
-        if FLAGS.num_optimizers == 5:
-            self.mentee_data_dict = vgg16_mentee.build_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
-        if FLAGS.num_optimizers == 4:
-            self.mentee_data_dict = vgg16_mentee.build_conv4fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
-        if FLAGS.num_optimizers == 3:
-            self.mentee_data_dict = vgg16_mentee.build_conv3fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
-        if FLAGS.num_optimizers == 2:
-            self.mentee_data_dict = vgg16_mentee.build_conv2fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
-        if FLAGS.num_optimizers == 1:
-            self.mentee_data_dict = vgg16_mentee.build_conv1fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
-
+            self.mentee_data_dict = vgg16_mentee.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+        elif FLAGS.num_optimizers == 5:
+            self.mentee_data_dict = vgg16_mentee.build_student_conv5fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+        else:
+            raise ValueError("Not found num_optimizers")
 
         self.softmax = self.mentee_data_dict.softmax
-        mentor_variables_to_restore = self.get_mentor_variables_to_restore()
+
+        def get_mentor_variables_to_restore():
+            return [var for var in tf.global_variables() if var.op.name.startswith("mentor") and
+                    (var.op.name.endswith("biases") or var.op.name.endswith("weights"))
+                    and (var.op.name != ("mentor/fc3/weights")
+                         and var.op.name != ("mentor/fc3/biases"))]
+        mentor_variables_to_restore = [var for var in tf.global_variables() if var.op.name.startswith("mentor")]
+        #mentor_variables_to_restore = get_mentor_variables_to_restore()
+        for var in mentor_variables_to_restore:
+            print(var)
+        print('num of global_variables: %d' % len(tf.global_variables()))
+        print('num of mentor_variables_to_restore: %d' % len(mentor_variables_to_restore))
+        print('num of trainable variables: %d' % len(tf.trainable_variables()))
+
         self.loss = vgg16_mentee.loss(labels_placeholder)
         num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
-        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,
-                                        staircase=True)
+        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR, staircase=True)
 
         self.caculate_rmse_loss()
         self.define_multiple_optimizers(lr)
@@ -248,48 +294,8 @@ class VGG16(object):
         saver.restore(sess, FLAGS.teacher_weights_filename)
         #saver.restore(sess, "./summary-log/new_method_teacher_weights_filename_caltech101_clean_code")
 
-        if FLAGS.initialization:
-            for var in tf.global_variables():
-                if var.op.name == "mentor_conv1_1/mentor_weights":
-                    print("initialization: conv1_1")
-                    self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
-
-                if FLAGS.num_optimizers >= 2:
-                    if var.op.name == "mentor_conv2_1/mentor_weights":
-                        print("initialization: conv2_1")
-                        self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
-
-                if FLAGS.num_optimizers >= 3:
-                    if var.op.name == "mentor_conv3_1/mentor_weights":
-                        print("initialization: conv3_1")
-                        self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
-
-                if FLAGS.num_optimizers >= 4:
-                    if var.op.name == "mentor_conv4_1/mentor_weights":
-                        print("initialization: conv4_1")
-                        self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
-
-                if FLAGS.num_optimizers == 5:
-                    if var.op.name == "mentor_conv5_1/mentor_weights":
-                        print("initialization: conv5_1")
-                        self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
-
-                    if var.op.name == "mentor_fc1/mentor_weights":
-                        self.mentee_data_dict.parameters[10].assign(var.eval(session=sess)).eval(session=sess)
-
-                    if var.op.name == "mentor_fc3/mentor_weights":
-                        self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
-
-                if FLAGS.num_optimizers == 6:
-                    if var.op.name == "mentor_conv5_1/mentor_weights":
-                        self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
-
-                    if var.op.name == "mentor_fc2/mentor_weights":
-                        print("initialization: conv6_1")
-                        self.mentee_data_dict.parameters[14].assign(var.eval(session=sess)).eval(session=sess)
-
-                    if var.op.name == "mentor_fc3/mentor_weights":
-                        self.mentee_data_dict.parameters[16].assign(var.eval(session=sess)).eval(session=sess)
+        #if FLAGS.initialization:
+        #    self.initilize(sess)
 
     def run_dependent_student(self, feed_dict, sess, i):
 
@@ -306,9 +312,10 @@ class VGG16(object):
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                 _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
                 _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-                _, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
+                _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.fc3loss], feed_dict=feed_dict)
             else:
                 #_, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
+                _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.fc3loss], feed_dict=feed_dict)
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                 if FLAGS.num_optimizers >= 2:
@@ -355,9 +362,10 @@ class VGG16(object):
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
                             print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
-                            print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
+                            print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
                         else:
                             #print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
+                            print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
                             print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             if FLAGS.num_optimizers >= 2:
