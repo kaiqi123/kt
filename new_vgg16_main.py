@@ -201,7 +201,7 @@ class VGG16(object):
 
     def caculate_rmse_loss(self):
         #self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
-        self.fc3loss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
+        #self.fc3loss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
         self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
         if FLAGS.num_optimizers >= 2:
             self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
@@ -216,7 +216,7 @@ class VGG16(object):
 
         print("define multiple optimizers")
         tvars = [var for var in tf.trainable_variables() if var.op.name.startswith("mentee")]
-        self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.fc3loss, var_list=tvars)
+        #self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.fc3loss, var_list=tvars)
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
         for var in tvars:
             print(var)
@@ -318,7 +318,7 @@ class VGG16(object):
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                 _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
                 _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
-                _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.fc3loss], feed_dict=feed_dict)
+                #_, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.fc3loss], feed_dict=feed_dict)
             else:
                 #_, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
                 _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.fc3loss], feed_dict=feed_dict)
@@ -368,7 +368,7 @@ class VGG16(object):
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
                             print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
-                            print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
+                            #print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
                         else:
                             #print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
                             print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
