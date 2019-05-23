@@ -9,8 +9,8 @@ from tensorflow.python.client import device_lib
 from DataInput import DataInput
 from teacherCifar10 import TeacherForCifar10
 from teacherCaltech101 import MentorForCaltech101
-#from studentModels import Mentee
-from vgg16mentee_temp import Mentee
+from studentModels import Mentee
+#from vgg16mentee_temp import Mentee
 
 dataset_path = "./"
 tf.reset_default_graph()
@@ -141,12 +141,12 @@ class VGG16(object):
 
     def define_independent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         print("Build Independent student")
-        #student = Mentee(seed)
-        student = Mentee(FLAGS.num_channels)
+        student = Mentee(seed)
+        #student = Mentee(FLAGS.num_channels)
 
         if FLAGS.num_optimizers == 6:
-            mentee_data_dict = student.build_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed)
-            #mentee_data_dict = student.build_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+            #mentee_data_dict = student.build_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed)
+            mentee_data_dict = student.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         else:
             raise ValueError("Not found num_optimizers")
 

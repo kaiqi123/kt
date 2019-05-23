@@ -22,6 +22,7 @@ class Mentee(object):
 		with tf.name_scope(layerName):
 			if layerName == "fc1":
 				shape = int(np.prod(input.get_shape()[1:]))
+				print(shape)
 			if layerName == "fc2" or layerName == "fc3":
 				shape = 4096
 			fc_weights = tf.Variable(tf.truncated_normal([shape, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
