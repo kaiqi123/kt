@@ -220,36 +220,29 @@ class VGG16(object):
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
         for var in tvars:
             print(var)
-        print('num of trainable_variables: %d' % len(tvars))
+        print('num of mentee trainable_variables: %d' % len(tvars))
 
-        l1_var_list = []
-        l1_var_list.append([var for var in tf.global_variables() if var.op.name == "mentee/conv1_1/weights"][0])
+        l1_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv1_1/weights"]
         self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
         print(l1_var_list)
-        test = [var for var in tf.global_variables() if var.op.name == "mentee/conv1_1/weights"]
-        print(test)
 
         if FLAGS.num_optimizers >= 2:
-            l2_var_list = []
-            l2_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee/conv2_1/weights"][0])
+            l2_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv2_1/weights"]
             self.train_op2 = tf.train.AdamOptimizer(lr).minimize(self.l2, var_list=l2_var_list)
             print(l2_var_list)
 
         if FLAGS.num_optimizers >= 3:
-            l3_var_list = []
-            l3_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee/conv3_1/weights"][0])
+            l3_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv3_1/weights"]
             self.train_op3 = tf.train.AdamOptimizer(lr).minimize(self.l3, var_list=l3_var_list)
             print(l3_var_list)
 
         if FLAGS.num_optimizers >= 4:
-            l4_var_list = []
-            l4_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee/conv4_1/weights"][0])
+            l4_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv4_1/weights"]
             self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
             print(l4_var_list)
 
         if FLAGS.num_optimizers == 5:
-            l5_var_list = []
-            l5_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee/conv5_1/weights"][0])
+            l5_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv5_1/weights"]
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
             print(l5_var_list)
 
@@ -285,6 +278,9 @@ class VGG16(object):
         for var in mentor_variables_to_restore:
             print(var)
         print('num of mentor_variables_to_restore: %d' % len(mentor_variables_to_restore))
+        print('num of mentee_variables: %d' % len([var for var in tf.global_variables() if var.op.name.startswith("mentee")]))
+        print('num of global_variables: %d' % len(tf.global_variables()))
+        print('num of local_variables: %d' % len(tf.local_variables()))
 
         self.loss = vgg16_mentee.loss(labels_placeholder)
         num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
