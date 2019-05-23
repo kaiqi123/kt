@@ -78,8 +78,8 @@ class TeacherForCifar10(object):
 			self.fc2 = self.fc_teacher(self.fc1, "fc2", 4096, is_training)
 			self.fc3 = self.fc_teacher(self.fc2, "fc3", num_classes, is_training)
 			self.softmax = tf.nn.softmax(self.fc3 / temp_softmax)
-			print(fc1)
-			print(fc2)
+			print(self.fc1)
+			print(self.fc2)
 			print(self.fc3)
 			return self
 
