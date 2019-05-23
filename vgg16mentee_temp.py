@@ -594,3 +594,7 @@ class Mentee(object):
 		train_op = optimizer.minimize(loss, global_step=global_step)
 
 		return train_op
+
+	def _calc_num_trainable_params(self):
+		self.num_trainable_params = np.sum([np.prod(var.get_shape().as_list()) for var in tf.trainable_variables()])
+		print('number of trainable params: ' + str(self.num_trainable_params))
