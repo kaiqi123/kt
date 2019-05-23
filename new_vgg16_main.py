@@ -142,7 +142,8 @@ class VGG16(object):
         print("Build Independent student")
         student = Mentee(seed)
         if FLAGS.num_optimizers == 6:
-            mentee_data_dict = student.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+            #mentee_data_dict = student.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+            mentee_data_dict = student.build_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         else:
             raise ValueError("Not found num_optimizers")
 
