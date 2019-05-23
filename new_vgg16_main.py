@@ -351,7 +351,6 @@ class VGG16(object):
                 sum_oneFilter = np.sum(img[j])
                 if sum_oneFilter == 0:
                     count = count + 1
-
                 """
                 # count number filters whose 90% output_wrn are 0
                 num_sum = img[j].shape[0] * img[j].shape[1]
@@ -415,7 +414,10 @@ class VGG16(object):
                     #self.count_filter0_num(mentor_fc2, "fc2")
 
                     np.save("output_vgg16/filters_npy/mentor_conv1_1.npy", mentor_conv1_1)
-                    np.save("output_vgg16/filters_npy/mentor_conv1_2.npy", mentor_conv1_2)
+                    np.save("output_vgg16/filters_npy/mentor_conv2_1.npy", mentor_conv2_1)
+                    np.save("output_vgg16/filters_npy/mentor_conv3_1.npy", mentor_conv3_1)
+                    np.save("output_vgg16/filters_npy/mentor_conv4_1.npy", mentor_conv4_1)
+                    np.save("output_vgg16/filters_npy/mentor_conv5_1.npy", mentor_conv5_1)
 
                     self.run_dependent_student(feed_dict, sess, i)
 
