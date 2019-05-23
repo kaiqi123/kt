@@ -101,6 +101,11 @@ class VGG16(object):
             mentee_data_dict = student.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         if FLAGS.num_optimizers == 5:
             mentee_data_dict = student.build_student_conv5fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+            self.conv1_1 = mentee_data_dict.conv1_1
+            self.conv1_2 = mentee_data_dict.conv1_2
+            self.conv1_3 = mentee_data_dict.conv1_3
+            self.conv1_4 = mentee_data_dict.conv1_4
+            self.conv1_5 = mentee_data_dict.conv1_5
         else:
             raise ValueError("Not found num_optimizers")
 
@@ -337,7 +342,31 @@ class VGG16(object):
             #print("do not connect teacher: "+str(i))
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
+    def count_filter0_num(self, output, name):
+        print(name)
+        filter_count = []
+        for i in range(output.shape[0]):
+            # print("image: "+str(i))
+            img = output[i]
+            img = img.transpose(2, 0, 1)
+            count = 0
+            for j in range(img.shape[0]):
+                # count number filters whose output_wrn are all 0
+                # sum_oneFilter = np.sum(img[j])
+                # if sum_oneFilter == 0:
+                #  count = count + 1
 
+                # count number filters whose 90% output_wrn are 0
+                num_sum = img[j].shape[0] * img[j].shape[1]
+                count0_perFIlter = (num_sum - np.count_nonzero(img[j])) / num_sum
+                if count0_perFIlter > 0.9:
+                    count = count + 1
+
+            filter_count.append(count)
+        print(filter_count)
+        # print(filter_count.count(3))
+        # print(filter_count.count(4))
+        # print(filter_count.count(5))
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
                     phase_train):
@@ -353,6 +382,15 @@ class VGG16(object):
                                                 labels_placeholder, sess, 'Train', phase_train)
 
                 if FLAGS.student or FLAGS.teacher:
+
+                    conv1_1, conv1_2, conv1_3, conv1_4, conv1_5 \
+                        = sess.run([self.conv1_1,self.conv1_2,self.conv1_3,self.conv1_4,self.conv1_5], feed_dict=feed_dict)
+                    self.count_filter0_num(conv1_1, "conv1_1")
+                    self.count_filter0_num(conv1_2, "conv1_2")
+                    self.count_filter0_num(conv1_3, "conv1_3")
+                    self.count_filter0_num(conv1_4, "conv1_4")
+                    self.count_filter0_num(conv1_5, "conv1_5")
+
                     _, loss_value = sess.run([self.train_op, self.loss], feed_dict=feed_dict)
                     if i % 10 == 0:
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
