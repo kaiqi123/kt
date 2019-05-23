@@ -27,7 +27,7 @@ class Mentee(object):
 		out = (out - mean) / tf.sqrt(var + tf.constant(1e-10))
 		return out
 
-	def build_conv6fc3(self, rgb, num_classes, temp_softmax, seed, train_mode):
+	def build_conv6fc3(self, rgb, num_classes, temp_softmax, seed):
 		print("build student conv6fc3")
 		K.set_learning_phase(True)
 		# conv1_1
