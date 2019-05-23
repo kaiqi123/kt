@@ -49,14 +49,9 @@ class TeacherForCifar10(object):
 			biases = tf.Variable(tf.constant(0.0, shape=[out_filter], dtype=tf.float32), trainable=self.trainable, name='biases')
 			conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
 			out = tf.nn.bias_add(conv, biases)
-
-			#mean, var = tf.nn.moments(out, axes=[0])
-			#out = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			#out = BatchNormalization(axis=-1, name='bn')(out)
-
+			out = BatchNormalization(axis=-1, name='bn')(out)
 			out = tf.nn.relu(out, name="relu")
 			self.teacher_dict[layerName] = out
-			#out = BatchNormalization(axis=-1, name='bn')(out)
 			return out
 
 	def build_vgg16_teacher(self, images, num_classes, temp_softmax, is_training):
