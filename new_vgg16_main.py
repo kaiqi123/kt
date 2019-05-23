@@ -138,36 +138,29 @@ class VGG16(object):
             l5_var_list.append([var for var in tf.global_variables() if var.op.name=="mentee_conv5_1/mentee_weights"][0])
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
 
-    def define_independent_student(self, images_placeholder, labels_placeholder, seed, phase_train, global_step, sess):
+    def define_independent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         print("Build Independent student")
         student = Mentee(seed)
+        if FLAGS.num_optimizers == 6:
+            mentee_data_dict = student.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+        else:
+            raise ValueError("Not found num_optimizers")
+
         num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
-
-        if FLAGS.num_optimizers == 6:
-            build_student_conv6fc3(self, images, num_classes, temp_softmax)
-            mentee_data_dict = student.build_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
-        if FLAGS.num_optimizers == 5:
-            mentee_data_dict = student.build_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
-        if FLAGS.num_optimizers == 4:
-            mentee_data_dict = student.build_conv4fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
-        if FLAGS.num_optimizers == 3:
-            mentee_data_dict = student.build_conv3fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
-        if FLAGS.num_optimizers == 2:
-            mentee_data_dict = student.build_conv2fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
-        if FLAGS.num_optimizers == 1:
-            mentee_data_dict = student.build_conv1fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed, phase_train)
+        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,staircase=True)
 
         self.loss = student.loss(labels_placeholder)
-        ## learning rate is decayed exponentially with a decay factor of 0.9809 after every epoch
-        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,
-                                        staircase=True)
         self.train_op = student.training(self.loss, lr, global_step)
         self.softmax = mentee_data_dict.softmax
-        # initialize all the variables of the network
+
+        for tvar in tf.trainable_variables():
+            print(tvar)
+        print('Mentor, trainable variables: %d' % len(tf.trainable_variables()))
+
+        student._calc_num_trainable_params()
         init = tf.initialize_all_variables()
         sess.run(init)
-        ## saver object is created to save all the variables to a file
         self.saver = tf.train.Saver()
 
     def define_teacher(self, images_placeholder, labels_placeholder, phase_train, global_step, sess):
@@ -342,10 +335,7 @@ class VGG16(object):
                                                 labels_placeholder, sess, 'Train', phase_train)
 
                 if FLAGS.student or FLAGS.teacher:
-
-                    #print("train function: independent student or teacher")
                     _, loss_value = sess.run([self.train_op, self.loss], feed_dict=feed_dict)
-
                     if i % 10 == 0:
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
@@ -446,7 +436,7 @@ class VGG16(object):
             print("batch_size: " + str(FLAGS.batch_size))
 
             if FLAGS.student:
-                self.define_independent_student(images_placeholder, labels_placeholder, seed, phase_train, global_step,sess)
+                self.define_independent_student(images_placeholder, labels_placeholder, seed, global_step, sess)
 
             elif FLAGS.teacher:
                 self.define_teacher(images_placeholder, labels_placeholder, phase_train, global_step, sess)
