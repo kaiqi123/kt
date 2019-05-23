@@ -15,19 +15,11 @@ class Mentee(object):
 	def __init__(self, seed):
 		self.parameters = []
 		self.seed = seed
-		self.num_channels = 3
-		self.trainable = True
 
 	def fc_student(self, input, layerName, out_filter):
 		with tf.name_scope(layerName):
-			#if layerName == "fc1":
-			#	shape = int(np.prod(input.get_shape()[1:]))
-			#	print(shape)
-			#if layerName == "fc2" or layerName == "fc3":
-			#	shape = 4096
 			shape = int(np.prod(input.get_shape()[1:]))
-			print(shape)
-			fc_weights = tf.Variable(tf.truncated_normal([shape, out_filter], dtype=tf.float32, stddev=1e-2),trainable=True, name='weights')
+			fc_weights = tf.Variable(tf.truncated_normal([shape, out_filter], dtype=tf.float32, stddev=1e-2, seed=self.seed),trainable=True, name='weights')
 			fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=True,name='biases')
 			input_flat = tf.reshape(input, [-1, shape])
 			fc = tf.nn.bias_add(tf.matmul(input_flat, fc_weights), fc_biases)
