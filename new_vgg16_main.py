@@ -14,7 +14,7 @@ from studentModels import Mentee
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 19550
+NUM_ITERATIONS = 11730
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -202,17 +202,22 @@ class VGG16(object):
                     self.mentee_data_dict.parameters[16].assign(var.eval(session=sess)).eval(session=sess)
 
     def caculate_rmse_loss(self):
-        #self.softloss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
-        #self.fc3loss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
-        self.l1 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1))))
+
+        def build_loss(teacher_layer, student_layer):
+            norm_teacher = tf.nn.l2_normalize(teacher_layer, axis=0)
+            norm_student = tf.nn.l2_normalize(student_layer, axis=0)
+            loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(norm_teacher, norm_student))))
+            return loss_layer
+
+        self.l1 = build_loss(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1)
         if FLAGS.num_optimizers >= 2:
-            self.l2 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1))))
+            self.l2 = build_loss(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1)
         if FLAGS.num_optimizers >= 3:
-            self.l3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv3_1, self.mentee_data_dict.conv3_1))))
+            self.l3 = build_loss(self.mentor_data_dict.conv3_1, self.mentee_data_dict.conv3_1)
         if FLAGS.num_optimizers >= 4:
-            self.l4 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1))))
+            self.l4 = build_loss(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1)
         if FLAGS.num_optimizers == 5:
-            self.l5 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1))))
+            self.l5 = build_loss(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1)
 
     def define_multiple_optimizers(self, lr):
 
@@ -224,27 +229,32 @@ class VGG16(object):
             print(var)
         print('num of mentee trainable_variables: %d' % len(tvars))
 
-        l1_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv1_1/weights"]
+        l1_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv1_1/weights"
+                       or var.op.name == "mentee/conv1_1/biases"]
         self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
         print(l1_var_list)
 
         if FLAGS.num_optimizers >= 2:
-            l2_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv2_1/weights"]
+            l2_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv2_1/weights"
+                           or var.op.name == "mentee/conv2_1/biases"]
             self.train_op2 = tf.train.AdamOptimizer(lr).minimize(self.l2, var_list=l2_var_list)
             print(l2_var_list)
 
         if FLAGS.num_optimizers >= 3:
-            l3_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv3_1/weights"]
+            l3_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv3_1/weights"
+                           or var.op.name == "mentee/conv3_1/biases"]
             self.train_op3 = tf.train.AdamOptimizer(lr).minimize(self.l3, var_list=l3_var_list)
             print(l3_var_list)
 
         if FLAGS.num_optimizers >= 4:
-            l4_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv4_1/weights"]
+            l4_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv4_1/weights"
+                           or var.op.name == "mentee/conv4_1/biases"]
             self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
             print(l4_var_list)
 
         if FLAGS.num_optimizers == 5:
-            l5_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv5_1/weights"]
+            l5_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv5_1/weights"
+                           or var.op.name == "mentee/conv5_1/biases"]
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
             print(l5_var_list)
 
@@ -275,16 +285,13 @@ class VGG16(object):
                     (var.op.name.endswith("biases") or var.op.name.endswith("weights"))
                     and (var.op.name != ("mentor/fc3/weights")
                          and var.op.name != ("mentor/fc3/biases"))]
-        mentor_variables_to_restore = [var for var in tf.global_variables() if var.op.name.startswith("mentor")
-                                       and var.op.name != ("mentor/fc3/weights")
-                                            and var.op.name != ("mentor/fc3/biases")]
+        mentor_variables_to_restore = [var for var in tf.global_variables() if var.op.name.startswith("mentor")]
         #mentor_variables_to_restore = get_mentor_variables_to_restore()
         for var in mentor_variables_to_restore:
             print(var)
         print('num of mentor_variables_to_restore: %d' % len(mentor_variables_to_restore))
         print('num of mentee_variables: %d' % len([var for var in tf.global_variables() if var.op.name.startswith("mentee")]))
         print('num of global_variables: %d' % len(tf.global_variables()))
-
 
         self.loss = vgg16_mentee.loss(labels_placeholder)
         num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
@@ -362,6 +369,40 @@ class VGG16(object):
             filter_count.append(count)
         print(filter_count)
 
+    def compute_0filter_of_teacherOutput(self, sess, feed_dict):
+        mentor_conv1_1, mentor_conv1_2, \
+        mentor_conv2_1, mentor_conv2_2, \
+        mentor_conv3_1, mentor_conv3_2, mentor_conv3_3, \
+        mentor_conv4_1, mentor_conv4_2, mentor_conv4_3, \
+        mentor_conv5_1, mentor_conv5_2, mentor_conv5_3, \
+        mentor_fc1, mentor_fc2 \
+            = sess.run([self.mentor_data_dict.conv1_1, self.mentor_data_dict.conv1_2,
+                        self.mentor_data_dict.conv2_1, self.mentor_data_dict.conv2_2,
+                        self.mentor_data_dict.conv3_1, self.mentor_data_dict.conv3_2, self.mentor_data_dict.conv3_3,
+                        self.mentor_data_dict.conv4_1, self.mentor_data_dict.conv4_2, self.mentor_data_dict.conv4_3,
+                        self.mentor_data_dict.conv5_1, self.mentor_data_dict.conv5_2, self.mentor_data_dict.conv5_3,
+                        self.mentor_data_dict.fc1, self.mentor_data_dict.fc2],
+                       feed_dict=feed_dict)
+        self.count_filter0_num(mentor_conv1_1, "conv1_1")
+        self.count_filter0_num(mentor_conv1_2, "conv1_2")
+        self.count_filter0_num(mentor_conv2_1, "conv2_1")
+        self.count_filter0_num(mentor_conv2_2, "conv2_2")
+        self.count_filter0_num(mentor_conv3_1, "conv3_1")
+        self.count_filter0_num(mentor_conv3_2, "conv3_2")
+        self.count_filter0_num(mentor_conv3_3, "conv3_3")
+        self.count_filter0_num(mentor_conv4_1, "conv4_1")
+        self.count_filter0_num(mentor_conv4_2, "conv4_2")
+        self.count_filter0_num(mentor_conv4_3, "conv4_3")
+        self.count_filter0_num(mentor_conv5_1, "conv5_1")
+        self.count_filter0_num(mentor_conv5_2, "conv5_2")
+        self.count_filter0_num(mentor_conv5_3, "conv5_3")
+
+        np.save("output_vgg16/filters_npy/mentor_conv1_1.npy", mentor_conv1_1)
+        np.save("output_vgg16/filters_npy/mentor_conv2_1.npy", mentor_conv2_1)
+        np.save("output_vgg16/filters_npy/mentor_conv3_1.npy", mentor_conv3_1)
+        np.save("output_vgg16/filters_npy/mentor_conv4_1.npy", mentor_conv4_1)
+        np.save("output_vgg16/filters_npy/mentor_conv5_1.npy", mentor_conv5_1)
+
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
                     phase_train):
 
@@ -383,38 +424,7 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    mentor_conv1_1, mentor_conv1_2, \
-                    mentor_conv2_1, mentor_conv2_2, \
-                    mentor_conv3_1, mentor_conv3_2, mentor_conv3_3,\
-                    mentor_conv4_1, mentor_conv4_2, mentor_conv4_3,\
-                    mentor_conv5_1, mentor_conv5_2, mentor_conv5_3,\
-                    mentor_fc1, mentor_fc2\
-                        = sess.run([self.mentor_data_dict.conv1_1,self.mentor_data_dict.conv1_2,
-                                    self.mentor_data_dict.conv2_1,self.mentor_data_dict.conv2_2,
-                                    self.mentor_data_dict.conv3_1,self.mentor_data_dict.conv3_2,self.mentor_data_dict.conv3_3,
-                                    self.mentor_data_dict.conv4_1,self.mentor_data_dict.conv4_2,self.mentor_data_dict.conv4_3,
-                                    self.mentor_data_dict.conv5_1,self.mentor_data_dict.conv5_2,self.mentor_data_dict.conv5_3,
-                                    self.mentor_data_dict.fc1, self.mentor_data_dict.fc2],
-                                   feed_dict=feed_dict)
-                    self.count_filter0_num(mentor_conv1_1, "conv1_1")
-                    self.count_filter0_num(mentor_conv1_2, "conv1_2")
-                    self.count_filter0_num(mentor_conv2_1, "conv2_1")
-                    self.count_filter0_num(mentor_conv2_2, "conv2_2")
-                    self.count_filter0_num(mentor_conv3_1, "conv3_1")
-                    self.count_filter0_num(mentor_conv3_2, "conv3_2")
-                    self.count_filter0_num(mentor_conv3_3, "conv3_3")
-                    self.count_filter0_num(mentor_conv4_1, "conv4_1")
-                    self.count_filter0_num(mentor_conv4_2, "conv4_2")
-                    self.count_filter0_num(mentor_conv4_3, "conv4_3")
-                    self.count_filter0_num(mentor_conv5_1, "conv5_1")
-                    self.count_filter0_num(mentor_conv5_2, "conv5_2")
-                    self.count_filter0_num(mentor_conv5_3, "conv5_3")
-
-                    np.save("output_vgg16/filters_npy/mentor_conv1_1.npy", mentor_conv1_1)
-                    np.save("output_vgg16/filters_npy/mentor_conv2_1.npy", mentor_conv2_1)
-                    np.save("output_vgg16/filters_npy/mentor_conv3_1.npy", mentor_conv3_1)
-                    np.save("output_vgg16/filters_npy/mentor_conv4_1.npy", mentor_conv4_1)
-                    np.save("output_vgg16/filters_npy/mentor_conv5_1.npy", mentor_conv5_1)
+                    # self.compute_0filter_of_teacherOutput(sess, feed_dict)
 
                     self.run_dependent_student(feed_dict, sess, i)
 
