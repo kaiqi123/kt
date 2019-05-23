@@ -16,7 +16,7 @@ class TeacherForCifar10(object):
 		self.trainable = trainable
 		#self.dropout = dropout
 		self.parameters = []
-		self.teacher_dict = {}
+		#self.teacher_dict = {}
 
 	def fc_teacher(self, input, layerName, out_filter, is_training):
 		with tf.name_scope(layerName):
@@ -51,7 +51,6 @@ class TeacherForCifar10(object):
 			out = tf.nn.bias_add(conv, biases)
 			out = BatchNormalization(axis=-1, name='bn')(out)
 			out = tf.nn.relu(out, name="relu")
-			self.teacher_dict[layerName] = out
 			return out
 
 	def build_vgg16_teacher(self, images, num_classes, temp_softmax, is_training):
