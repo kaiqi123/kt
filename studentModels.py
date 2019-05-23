@@ -41,7 +41,7 @@ class Mentee(object):
 
 	def build_student_conv6fc3(self, images, num_classes, temp_softmax):
 		K.set_learning_phase(True)
-		with tf.name_scope('mentor'):
+		with tf.name_scope('mentee'):
 			conv1_1 = self.build_student_oneConvLayer(images, "conv1_1", 64)
 			pool1 = tf.nn.max_pool(conv1_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
 			print(pool1)
