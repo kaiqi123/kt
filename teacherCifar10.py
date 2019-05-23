@@ -20,27 +20,16 @@ class TeacherForCifar10(object):
 
 	def fc_teacher(self, input, layerName, out_filter, is_training):
 		with tf.name_scope(layerName):
-			if layerName == "fc1":
-				shape = int(np.prod(input.get_shape()[1:]))
-				fc_weights = tf.Variable(tf.truncated_normal([shape, out_filter], dtype=tf.float32, stddev=1e-2),trainable=self.trainable, name='weights')
-				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=self.trainable,name='biases')
-				input_flat = tf.reshape(input, [-1, shape])
-				fc = tf.nn.bias_add(tf.matmul(input_flat, fc_weights), fc_biases)
-				fc = tf.nn.relu(fc)
-				fc = BatchNormalization(axis=-1, name=layerName + 'bn')(fc)
-			elif layerName == "fc2":
-				fc_weights = tf.Variable(tf.truncated_normal([4096, out_filter], dtype=tf.float32, stddev=1e-2),trainable=self.trainable, name='weights')
-				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=self.trainable,name='biases')
-				fc = tf.nn.bias_add(tf.matmul(input, fc_weights), fc_biases)
-				fc = tf.nn.relu(fc)
-				fc = BatchNormalization(axis=-1, name=layerName + 'bn')(fc)
-				if is_training == True:
-					fc = tf.nn.dropout(fc, 0.5)
-			elif layerName == "fc3":
-				fc_weights = tf.Variable(tf.truncated_normal([4096, out_filter], dtype=tf.float32, stddev=1e-2),trainable=self.trainable, name='weights')
-				fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=self.trainable,name='biases')
-				fc = tf.nn.bias_add(tf.matmul(input, fc_weights), fc_biases)
-			return fc
+			shape = int(np.prod(input.get_shape()[1:]))
+			fc_weights = tf.Variable(tf.truncated_normal([shape, out_filter], dtype=tf.float32, stddev=1e-2),trainable=self.trainable, name='weights')
+			fc_biases = tf.Variable(tf.constant(1.0, shape=[out_filter], dtype=tf.float32), trainable=self.trainable,name='biases')
+			input_flat = tf.reshape(input, [-1, shape])
+			fc = tf.nn.bias_add(tf.matmul(input_flat, fc_weights), fc_biases)
+			relu = tf.nn.relu(fc)
+			if layerName == "fc3":
+				return fc
+			else:
+				return relu
 
 	def build_teacher_oneConvLayer(self, input, layerName, out_filter):
 		with tf.name_scope(layerName):

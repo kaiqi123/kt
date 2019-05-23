@@ -282,9 +282,6 @@ class VGG16(object):
         print('num of mentor_variables_to_restore: %d' % len(mentor_variables_to_restore))
         print('num of mentee_variables: %d' % len([var for var in tf.global_variables() if var.op.name.startswith("mentee")]))
         print('num of global_variables: %d' % len(tf.global_variables()))
-        print('num of local_variables: %d' % len(tf.local_variables()))
-        test = [var for var in tf.global_variables() if "mentor" not in var.op.name and "mentee" not in var.op.name]
-        print(test)
 
 
         self.loss = vgg16_mentee.loss(labels_placeholder)
