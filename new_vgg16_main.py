@@ -243,7 +243,7 @@ class VGG16(object):
 
         if FLAGS.num_optimizers >= 3:
             l3_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv3_1/weights"
-                           or or var.op.name == "mentee/conv3_1/biases"]
+                           or var.op.name == "mentee/conv3_1/biases"]
             self.train_op3 = tf.train.AdamOptimizer(lr).minimize(self.l3, var_list=l3_var_list)
             print(l3_var_list)
 
