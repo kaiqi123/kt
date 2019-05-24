@@ -204,9 +204,9 @@ class VGG16(object):
     def caculate_rmse_loss(self):
 
         def build_loss(teacher_layer, student_layer):
-            #norm_teacher = tf.nn.l2_normalize(teacher_layer, axis=0)
-            #norm_student = tf.nn.l2_normalize(student_layer, axis=0)
-            loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(teacher_layer, student_layer))))
+            norm_teacher = tf.nn.l2_normalize(teacher_layer, axis=0)
+            norm_student = tf.nn.l2_normalize(student_layer, axis=0)
+            loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(norm_teacher, norm_student))))
             return loss_layer
 
         self.loss_softmax = build_loss(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
@@ -230,27 +230,32 @@ class VGG16(object):
             print(var)
         print('num of mentee trainable_variables: %d' % len(tvars))
 
-        l1_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv1_1/weights"]
+        l1_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv1_1/weights"
+                       or var.op.name == "mentee/conv1_1/biases"]
         self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
         print(l1_var_list)
 
         if FLAGS.num_optimizers >= 2:
-            l2_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv2_1/weights"]
+            l2_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv2_1/weights"
+                           or var.op.name == "mentee/conv2_1/biases"]
             self.train_op2 = tf.train.AdamOptimizer(lr).minimize(self.l2, var_list=l2_var_list)
             print(l2_var_list)
 
         if FLAGS.num_optimizers >= 3:
-            l3_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv3_1/weights"]
+            l3_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv3_1/weights"
+                           or or var.op.name == "mentee/conv3_1/biases"]
             self.train_op3 = tf.train.AdamOptimizer(lr).minimize(self.l3, var_list=l3_var_list)
             print(l3_var_list)
 
         if FLAGS.num_optimizers >= 4:
-            l4_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv4_1/weights"]
+            l4_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv4_1/weights"
+                           or var.op.name == "mentee/conv4_1/biases"]
             self.train_op4 = tf.train.AdamOptimizer(lr).minimize(self.l4, var_list=l4_var_list)
             print(l4_var_list)
 
         if FLAGS.num_optimizers == 5:
-            l5_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv5_1/weights"]
+            l5_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv5_1/weights"
+                           or var.op.name == "mentee/conv5_1/biases"]
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
             print(l5_var_list)
 
