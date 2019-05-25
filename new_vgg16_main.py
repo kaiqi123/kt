@@ -99,8 +99,14 @@ class VGG16(object):
         if FLAGS.num_optimizers == 6:
             #mentee_data_dict = student.build_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed)
             mentee_data_dict = student.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
-        if FLAGS.num_optimizers == 5:
-            mentee_data_dict = student.build_student_conv5fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+        elif FLAGS.num_optimizers == 5:
+            mentee_data_dict = student.build_student_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+        elif FLAGS.num_optimizers == 4:
+            mentee_data_dict = student.build_student_conv4fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+        elif FLAGS.num_optimizers == 3:
+            mentee_data_dict = student.build_student_conv3fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+        elif FLAGS.num_optimizers == 2:
+            mentee_data_dict = student.build_student_conv2fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         else:
             raise ValueError("Not found num_optimizers")
 
@@ -209,7 +215,7 @@ class VGG16(object):
             loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(norm_teacher, norm_student))))
             return loss_layer
 
-        self.loss_softmax = build_loss(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
+        #self.loss_softmax = build_loss(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
         self.l1 = build_loss(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1)
         if FLAGS.num_optimizers >= 2:
             self.l2 = build_loss(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1)
@@ -224,7 +230,7 @@ class VGG16(object):
 
         print("define multiple optimizers")
         tvars = [var for var in tf.trainable_variables() if var.op.name.startswith("mentee")]
-        self.train_op_softmax = tf.train.AdamOptimizer(lr).minimize(self.loss_softmax, var_list=tvars)
+        #self.train_op_softmax = tf.train.AdamOptimizer(lr).minimize(self.loss_softmax, var_list=tvars)
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
         for var in tvars:
             print(var)
