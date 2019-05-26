@@ -101,7 +101,7 @@ class VGG16(object):
 
         for tvar in tf.trainable_variables():
             print(tvar)
-        print('Mentor, trainable variables: %d' % len(tf.trainable_variables()))
+        print('Mentee, trainable variables: %d' % len(tf.trainable_variables()))
 
         student._calc_num_trainable_params()
         init = tf.initialize_all_variables()
@@ -136,7 +136,7 @@ class VGG16(object):
             variables_to_restore = get_mentor_variables_to_restore()
             for var in variables_to_restore:
                 print(var)
-            print("variables_to_restore: ", len(variables_to_restore))
+            print("num of variables_to_restore: ", len(variables_to_restore))
             self.train_op = mentor.training(self.loss, FLAGS.learning_rate_pretrained, lr, global_step, variables_to_restore, mentor.get_training_vars())
         elif FLAGS.dataset == 'cifar10':
             self.train_op = mentor.training(self.loss, lr, global_step)
