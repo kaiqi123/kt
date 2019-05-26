@@ -43,34 +43,41 @@ class MentorForCaltech101(object):
 			return out
 
 	def build_vgg16_teacher(self, rgb, num_classes, temp_softmax):
+		print("build vgg16 teacher for caltech 101")
 		with tf.name_scope('mentor'):
 			self.conv1_1 = self.build_convLayer(rgb, "conv1_1")
 			self.conv1_2 = self.build_convLayer(self.conv1_1, "conv1_2")
 			self.pool1 = tf.nn.max_pool(self.conv1_2,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool1')
+			print(self.pool1)
 
 			self.conv2_1 = self.build_convLayer(self.pool1, "conv2_1")
 			self.conv2_2 = self.build_convLayer(self.conv2_1, "conv2_2")
 			self.pool2 = tf.nn.max_pool(self.conv2_2,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool2')
+			print(self.pool2)
 
 			self.conv3_1 = self.build_convLayer(self.pool2, "conv3_1")
 			self.conv3_2 = self.build_convLayer(self.conv3_1, "conv3_2")
 			self.conv3_3 = self.build_convLayer(self.conv3_2, "conv3_3")
 			self.pool3 = tf.nn.max_pool(self.conv3_3,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool3')
+			print(self.pool3)
 
 			self.conv4_1 = self.build_convLayer(self.pool3, "conv4_1")
 			self.conv4_2 = self.build_convLayer(self.conv4_1, "conv4_2")
 			self.conv4_3 = self.build_convLayer(self.conv4_2, "conv4_3")
 			self.pool4 = tf.nn.max_pool(self.conv4_3,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool4')
+			print(self.pool4)
 
 			self.conv5_1 = self.build_convLayer(self.pool4, "conv5_1")
 			self.conv5_2 = self.build_convLayer(self.conv5_1, "conv5_2")
 			self.conv5_3 = self.build_convLayer(self.conv5_2, "conv5_3")
 			self.pool5 = tf.nn.max_pool(self.conv5_3,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool5')
+			print(self.pool5)
 
 			self.fc1 = self.build_fcLayer(self.pool5, "fc1", weightsDictName="fc6")
 			self.fc2 = self.build_fcLayer(self.fc1, "fc2", weightsDictName="fc7")
 			self.fc3 = self.build_fcLayer(self.fc2, "fc3", weightsDictName=None, num_classes=num_classes)
 			self.softmax = tf.nn.softmax(self.fc3 / temp_softmax)
+			print(self.softmax)
 			return self
 
 	# Variables of the last layer of the teacher.
@@ -96,3 +103,7 @@ class MentorForCaltech101(object):
 		train_op1 = optimizer1.minimize(loss, global_step=global_step, var_list = variables_to_restore)
 		train_op2 = optimizer2.minimize(loss, global_step=global_step, var_list = train_last_layer_variables)
 		return tf.group(train_op1, train_op2)
+
+	def _calc_num_trainable_params(self):
+		self.num_trainable_params = np.sum([np.prod(var.get_shape().as_list()) for var in tf.trainable_variables()])
+		print('number of trainable params: ' + str(self.num_trainable_params))
