@@ -18,7 +18,7 @@ class TeacherForCifar10(object):
 		self.parameters = []
 		#self.teacher_dict = {}
 
-	def fc_teacher(self, input, layerName, out_filter, is_training):
+	def fc_teacher(self, input, layerName, out_filter):
 		with tf.name_scope(layerName):
 			shape = int(np.prod(input.get_shape()[1:]))
 			fc_weights = tf.Variable(tf.truncated_normal([shape, out_filter], dtype=tf.float32, stddev=1e-2),trainable=self.trainable, name='weights')
@@ -42,7 +42,7 @@ class TeacherForCifar10(object):
 			out = tf.nn.relu(out, name="relu")
 			return out
 
-	def build_vgg16_teacher(self, images, num_classes, temp_softmax, is_training):
+	def build_vgg16_teacher(self, images, num_classes, temp_softmax):
 		print("build_vgg16_teacher")
 		K.set_learning_phase(True)
 		with tf.name_scope('mentor'):
@@ -74,16 +74,16 @@ class TeacherForCifar10(object):
 			pool5 = tf.nn.max_pool(self.conv5_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
 			print(pool5)
 
-			self.fc1 = self.fc_teacher(pool5, "fc1", 4096, is_training)
-			self.fc2 = self.fc_teacher(self.fc1, "fc2", 4096, is_training)
-			self.fc3 = self.fc_teacher(self.fc2, "fc3", num_classes, is_training)
+			self.fc1 = self.fc_teacher(pool5, "fc1", 4096)
+			self.fc2 = self.fc_teacher(self.fc1, "fc2", 4096)
+			self.fc3 = self.fc_teacher(self.fc2, "fc3", num_classes)
 			self.softmax = tf.nn.softmax(self.fc3 / temp_softmax)
 			print(self.fc1)
 			print(self.fc2)
 			print(self.fc3)
 			return self
 
-	def build_vgg16_teacher_deleteFilters(self, images, num_classes, temp_softmax, is_training):
+	def build_vgg16_teacher_deleteFilters(self, images, num_classes, temp_softmax):
 		print("build_vgg16_teacher")
 		K.set_learning_phase(True)
 		with tf.name_scope('mentor'):
@@ -115,7 +115,7 @@ class TeacherForCifar10(object):
 			pool5 = tf.nn.max_pool(self.conv5_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
 			print(pool5)
 
-			self.fc3 = self.fc_teacher(pool5, "fc3", num_classes, is_training)
+			self.fc3 = self.fc_teacher(pool5, "fc3", num_classes)
 			self.softmax = tf.nn.softmax(self.fc3)
 			print(self.fc3)
 			return self

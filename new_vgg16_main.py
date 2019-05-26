@@ -14,7 +14,7 @@ from studentModels import Mentee
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 11730
+NUM_ITERATIONS = 11700
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -52,44 +52,31 @@ class VGG16(object):
             raise ValueError("Not found top_1&3&5_accuracy")
         return tf.reduce_sum(tf.cast(correct, tf.int32))
 
-    def evaluation_teacher(self, logits, labels):
-
-        if FLAGS.top_1_accuracy:
-            print('evaluation: top 1 accuracy ')
-            correct = tf.nn.in_top_k(logits, labels, 1)
-        elif FLAGS.top_3_accuracy:
-            correct = tf.nn.in_top_k(logits, labels, 3)
-        elif FLAGS.top_5_accuracy:
-            correct = tf.nn.in_top_k(logits, labels, 5)
-
-        return tf.cast(correct, tf.int32)
-
     def do_eval(self, sess, eval_correct, logits, images_placeholder, labels_placeholder, dataset, mode, phase_train):
+        if mode == 'Test':
+            steps_per_epoch = FLAGS.num_testing_examples //FLAGS.batch_size
+            num_examples = steps_per_epoch * FLAGS.batch_size
+        if mode == 'Train':
+            steps_per_epoch = FLAGS.num_training_examples //FLAGS.batch_size
+            num_examples = steps_per_epoch * FLAGS.batch_size
+        if mode == 'Validation':
+            steps_per_epoch = FLAGS.num_validation_examples //FLAGS.batch_size
+            num_examples = steps_per_epoch * FLAGS.batch_size
 
-            if mode == 'Test':
-                steps_per_epoch = FLAGS.num_testing_examples //FLAGS.batch_size
-                num_examples = steps_per_epoch * FLAGS.batch_size
-            if mode == 'Train':
-                steps_per_epoch = FLAGS.num_training_examples //FLAGS.batch_size
-                num_examples = steps_per_epoch * FLAGS.batch_size
-            if mode == 'Validation':
-                steps_per_epoch = FLAGS.num_validation_examples //FLAGS.batch_size
-                num_examples = steps_per_epoch * FLAGS.batch_size
+        true_count = 0
+        for step in xrange(steps_per_epoch):
+            if FLAGS.dataset == 'mnist':
+                feed_dict = {images_placeholder: np.reshape(dataset.test.next_batch(FLAGS.batch_size)[0], [FLAGS.batch_size, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels]), labels_placeholder: dataset.test.next_batch(FLAGS.batch_size)[1]}
+            else:
+                feed_dict, images_feed, labels_feed = self.fill_feed_dict(dataset, images_placeholder, labels_placeholder,sess, mode, phase_train)
+            count = sess.run(eval_correct, feed_dict=feed_dict)
+            true_count = true_count + count
 
-            true_count = 0
-            for step in xrange(steps_per_epoch):
-                if FLAGS.dataset == 'mnist':
-                    feed_dict = {images_placeholder: np.reshape(dataset.test.next_batch(FLAGS.batch_size)[0], [FLAGS.batch_size, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels]), labels_placeholder: dataset.test.next_batch(FLAGS.batch_size)[1]}
-                else:
-                    feed_dict, images_feed, labels_feed = self.fill_feed_dict(dataset, images_placeholder, labels_placeholder,sess, mode, phase_train)
-                count = sess.run(eval_correct, feed_dict=feed_dict)
-                true_count = true_count + count
+        precision = float(true_count) / num_examples
+        print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' %(num_examples, true_count, precision))
 
-            precision = float(true_count) / num_examples
-            print ('  Num examples: %d, Num correct: %d, Precision @ 1: %0.04f' %(num_examples, true_count, precision))
-
-            if mode == 'Test':
-                test_accuracy_list.append(precision)
+        if mode == 'Test':
+            test_accuracy_list.append(precision)
 
     def define_independent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         print("Build Independent student")
@@ -127,7 +114,7 @@ class VGG16(object):
         sess.run(init)
         self.saver = tf.train.Saver()
 
-    def define_teacher(self, images_placeholder, labels_placeholder, phase_train, global_step, sess):
+    def define_teacher(self, images_placeholder, labels_placeholder, global_step, sess):
         if FLAGS.dataset == 'cifar10':
             print("Build Teacher (cifar10)")
             mentor = TeacherForCifar10()
@@ -141,13 +128,21 @@ class VGG16(object):
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
         lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,staircase=True)
 
-        #mentor_data_dict = mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
-        mentor_data_dict = mentor.build_vgg16_teacher_deleteFilters(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
+        mentor_data_dict = mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+        #mentor_data_dict = mentor.build_vgg16_teacher_deleteFilters(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
 
         self.loss = mentor.loss(labels_placeholder)
 
         if FLAGS.dataset == 'caltech101':
-            variables_to_restore = self.get_mentor_variables_to_restore()
+            def get_mentor_variables_to_restore():
+                return [var for var in tf.global_variables() if var.op.name.startswith("mentor") and
+                        (var.op.name.endswith("biases") or var.op.name.endswith("weights"))
+                        and (var.op.name != ("mentor/fc3/weights")
+                             and var.op.name != ("mentor/fc3/biases"))]
+            variables_to_restore = get_mentor_variables_to_restore()
+            for var in variables_to_restore:
+                print(var)
+            print("variables_to_restore: ", len(variables_to_restore))
             self.train_op = mentor.training(self.loss, FLAGS.learning_rate_pretrained, lr, global_step, variables_to_restore, mentor.get_training_vars())
         elif FLAGS.dataset == 'cifar10':
             self.train_op = mentor.training(self.loss, lr, global_step)
@@ -287,11 +282,6 @@ class VGG16(object):
 
         self.softmax = self.mentee_data_dict.softmax
 
-        def get_mentor_variables_to_restore():
-            return [var for var in tf.global_variables() if var.op.name.startswith("mentor") and
-                    (var.op.name.endswith("biases") or var.op.name.endswith("weights"))
-                    and (var.op.name != ("mentor/fc3/weights")
-                         and var.op.name != ("mentor/fc3/biases"))]
         mentor_variables_to_restore = [var for var in tf.global_variables() if var.op.name.startswith("mentor")]
         #mentor_variables_to_restore = get_mentor_variables_to_restore()
         for var in mentor_variables_to_restore:
@@ -530,7 +520,7 @@ class VGG16(object):
                 self.define_independent_student(images_placeholder, labels_placeholder, seed, global_step, sess)
 
             elif FLAGS.teacher:
-                self.define_teacher(images_placeholder, labels_placeholder, phase_train, global_step, sess)
+                self.define_teacher(images_placeholder, labels_placeholder, global_step, sess)
 
             elif FLAGS.dependent_student:
                 self.define_dependent_student(images_placeholder, labels_placeholder, phase_train, seed, global_step,sess)
@@ -560,10 +550,10 @@ if __name__ == '__main__':
     parser.add_argument('--teacher',type=bool,help='train teacher',default=False)
     parser.add_argument('--dependent_student',type=bool,help='train dependent student',default=False)
     parser.add_argument('--student',type=bool,help='train independent student',default=False)
-    parser.add_argument('--teacher_weights_filename',type=str,default="./summary-log/new_method_teacher_weights_filename_caltech101")
-    parser.add_argument('--student_filename',type=str,default="./summary-log/new_method_student_weights_filename_caltech101")
-    parser.add_argument('--dependent_student_filename',type=str,default="./summary-log/new_method_dependent_student_weights_filename_caltech101")
-    parser.add_argument( '--learning_rate',type=float,default=0.0001)
+    parser.add_argument('--teacher_weights_filename',type=str,default="./summary-log/teacher_weights_filename_caltech101")
+    parser.add_argument('--student_filename',type=str,default="./summary-log/independent_student_weights_filename_caltech101")
+    parser.add_argument('--dependent_student_filename',type=str,default="./summary-log/dependent_student_weights_filename_caltech101")
+    parser.add_argument('--learning_rate',type=float,default=0.0001)
     parser.add_argument('--batch_size',type=int,default=25)
     parser.add_argument('--image_height',type=int,default=224)
     parser.add_argument('--image_width',type=int,default=224)
@@ -578,7 +568,6 @@ if __name__ == '__main__':
     parser.add_argument('--num_testing_examples',type=int,default=1829)
     parser.add_argument('--num_validation_examples',type=int,default=1463)
     parser.add_argument('--dataset',type=str,help='name of the dataset',default='caltech101')
-    parser.add_argument('--mnist_data_dir',type=str,help='name of the dataset',default='./mnist_data')
     parser.add_argument('--num_channels',type=int,help='number of channels in the initial layer if it is RGB it will 3 , if it is gray scale it will be 1',default='3')
     parser.add_argument('--top_1_accuracy',type=bool,help='top-1-accuracy',default=True)
     parser.add_argument('--top_3_accuracy',type=bool,help='top-3-accuracy',default=False)

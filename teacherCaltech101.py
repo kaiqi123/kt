@@ -4,302 +4,92 @@ from tensorflow.python.framework import dtypes
 import random
 import pdb
 import numpy as np
-beta = 0.0005
-
-"""
-Removed all kinds of regularizers such as dropout and batch normalization
-"""
 
 class MentorForCaltech101(object):
 
-	def __init__(self, trainable=True, dropout=0.5):
+	def __init__(self, trainable=True):
 		self.trainable = trainable
-		self.dropout = dropout
-		## weights of pretrained network are loaded
 		self.data_dict = np.load("vgg16.npy").item()
-		self.parameters = []
-        
-	def build(self, rgb, num_classes, temp_softmax, train_mode=None):
+		#self.dropout = dropout
+		#self.parameters = []
 
-		with tf.name_scope('mentor_conv1_1') as scope:
-                        
-			kernel = tf.Variable(self.data_dict["conv1_1"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(rgb, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv1_1"][1], name='mentor_biases', trainable= self.trainable)
+	def build_convLayer(self, input, layerName):
+		with tf.name_scope(layerName) as scope:
+			kernel = tf.Variable(self.data_dict[layerName][0], name='weights', trainable=self.trainable)
+			biases = tf.Variable(self.data_dict[layerName][1], name='biases', trainable=self.trainable)
+			conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
 			out = tf.nn.bias_add(conv, biases)
 			mean, var = tf.nn.moments(out, axes=[0])
 			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
+			relu = tf.nn.relu(batch_norm, name=scope)
+			return relu
 
-			self.conv1_1 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv1_1, keep_prob=0.7)
-			self.parameters += [kernel, biases]
+	def build_fcLayer(self, input, layerName, weightsDictName=None, num_classes=None):
+		with tf.name_scope(layerName):
+			if layerName == "fc1" or layerName == "fc2":
+				fc_weights = tf.Variable(self.data_dict[weightsDictName][0], name="weights", trainable=self.trainable)
+				fc_biases = tf.Variable(self.data_dict[weightsDictName][1], name="biases", trainable=self.trainable)
+				shape = int(np.prod(input.get_shape()[1:]))
+				input_flat = tf.reshape(input, [-1, shape])
+				out = tf.nn.bias_add(tf.matmul(input_flat, fc_weights), fc_biases)
+				out = tf.nn.relu(out)
+				print(shape)
+			elif layerName == "fc3":
+				fc_weights = tf.Variable(tf.truncated_normal([4096, num_classes], dtype=tf.float32, stddev=1e-2),
+								   name='weights', trainable=self.trainable)
+				fc_biases = tf.Variable(tf.constant(1.0, shape=[num_classes], dtype=tf.float32),
+								   name='biases', trainable=self.trainable)
+				out = tf.nn.bias_add(tf.matmul(input, fc_weights), fc_biases)
+			return out
 
-			
+	def build_vgg16_teacher(self, rgb, num_classes, temp_softmax):
+		with tf.name_scope('mentor'):
+			self.conv1_1 = self.build_convLayer(rgb, "conv1_1")
+			self.conv1_2 = self.build_convLayer(self.conv1_1, "conv1_2")
+			self.pool1 = tf.nn.max_pool(self.conv1_2,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool1')
 
-		with tf.name_scope('mentor_conv1_2') as scope:
-			kernel = tf.Variable(self.data_dict["conv1_2"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(self.conv1_1, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv1_2"][1], name='mentor_biases', trainable= self.trainable)
-			out = tf.nn.bias_add(conv, biases)
-			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.conv1_2 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv1_2, keep_prob=0.7)
+			self.conv2_1 = self.build_convLayer(self.pool1, "conv2_1")
+			self.conv2_2 = self.build_convLayer(self.conv2_1, "conv2_2")
+			self.pool2 = tf.nn.max_pool(self.conv2_2,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool2')
 
-			self.parameters += [kernel, biases]
+			self.conv3_1 = self.build_convLayer(self.pool2, "conv3_1")
+			self.conv3_2 = self.build_convLayer(self.conv3_1, "conv3_2")
+			self.conv3_3 = self.build_convLayer(self.conv3_2, "conv3_3")
+			self.pool3 = tf.nn.max_pool(self.conv3_3,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool3')
 
-		self.pool1 = tf.nn.max_pool(self.conv1_2,
-									ksize=[1, 2, 2, 1],
-									strides=[1, 2, 2, 1],
-									padding='SAME',
-    									name='pool1')
-		print(self.pool1)
-                        
-		with tf.name_scope('mentor_conv2_1') as scope:
-			kernel = tf.Variable(self.data_dict["conv2_1"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(self.pool1, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv2_1"][1], name='mentor_biases', trainable= self.trainable)
-			out = tf.nn.bias_add(conv, biases)
-			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.conv2_1 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv2_1, keep_prob=0.6)
-			self.parameters += [kernel, biases]
+			self.conv4_1 = self.build_convLayer(self.pool3, "conv4_1")
+			self.conv4_2 = self.build_convLayer(self.conv4_1, "conv4_2")
+			self.conv4_3 = self.build_convLayer(self.conv4_2, "conv4_3")
+			self.pool4 = tf.nn.max_pool(self.conv4_3,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool4')
 
-		with tf.name_scope('mentor_conv2_2') as scope:
-			kernel = tf.Variable(self.data_dict["conv2_2"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(self.conv2_1, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv2_2"][1], name='mentor_biases', trainable= self.trainable)
-			out = tf.nn.bias_add(conv, biases)
-			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.conv2_2 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv2_2, keep_prob=0.6)
-			self.parameters += [kernel, biases]
+			self.conv5_1 = self.build_convLayer(self.pool4, "conv5_1")
+			self.conv5_2 = self.build_convLayer(self.conv5_1, "conv5_2")
+			self.conv5_3 = self.build_convLayer(self.conv5_2, "conv5_3")
+			self.pool5 = tf.nn.max_pool(self.conv5_3,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool5')
 
-		self.pool2 = tf.nn.max_pool(self.conv2_2,
-									ksize=[1, 2, 2, 1],
-									strides=[1, 2, 2, 1],
-									padding='SAME',
-									name='pool2')
-		print(self.pool2)
+			self.fc1 = self.build_fcLayer(self.pool5, "fc1", weightsDictName="fc6")
+			self.fc2 = self.build_fcLayer(self.fc1, "fc2", weightsDictName="fc7")
+			self.fc3 = self.build_fcLayer(self.fc2, "fc3", weightsDictName=None, num_classes=num_classes)
+			self.softmax = tf.nn.softmax(self.fc3 / temp_softmax)
+			return self
 
-		with tf.name_scope('mentor_conv3_1') as scope:
-			kernel = tf.Variable(self.data_dict["conv3_1"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(self.pool2, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv3_1"][1], name='mentor_biases', trainable= self.trainable)
-			out = tf.nn.bias_add(conv, biases)
-			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.conv3_1 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv3_1, keep_prob=0.6)
-			self.parameters += [kernel, biases]
-
-		with tf.name_scope('mentor_conv3_2') as scope:
-			kernel = tf.Variable(self.data_dict["conv3_2"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(self.conv3_1, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv3_2"][1], name='mentor_biases', trainable= self.trainable)
-			out = tf.nn.bias_add(conv, biases)
-			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.conv3_2 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv3_2, keep_prob=0.6)
-			self.parameters += [kernel, biases]
-
-		with tf.name_scope('mentor_conv3_3') as scope:
-			kernel = tf.Variable(self.data_dict["conv3_3"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(self.conv3_2, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv3_3"][1], name='mentor_biases', trainable= self.trainable)
-			out = tf.nn.bias_add(conv, biases)
-			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.conv3_3 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv3_3, keep_prob=0.6)
-			self.parameters += [kernel, biases]
-
-		self.pool3 = tf.nn.max_pool(self.conv3_3,
-									ksize=[1, 2, 2, 1],
-									strides=[1, 2, 2, 1],
-									padding='SAME',
-									name='pool3')
-		print(self.pool3)
-
-		# conv4_1
-		with tf.name_scope('mentor_conv4_1') as scope:
-			kernel = tf.Variable(self.data_dict["conv4_1"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(self.pool3, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv4_1"][1], name='mentor_biases', trainable= self.trainable)
-			out = tf.nn.bias_add(conv, biases)
-			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.conv4_1 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv4_1, keep_prob=0.6)
-			self.parameters += [kernel, biases]
-
-		# conv4_2
-		with tf.name_scope('mentor_conv4_2') as scope:
-			kernel = tf.Variable(self.data_dict["conv4_2"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(self.conv4_1, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv4_2"][1], name='mentor_biases', trainable= self.trainable)
-			out = tf.nn.bias_add(conv, biases)
-			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.conv4_2 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv4_2, keep_prob=0.6)
-			self.parameters += [kernel, biases]
-
-		# conv4_3
-		with tf.name_scope('mentor_conv4_3') as scope:
-			kernel = tf.Variable(self.data_dict["conv4_3"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(self.conv4_2, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv4_3"][1], name='mentor_biases', trainable= self.trainable)
-			out = tf.nn.bias_add(conv, biases)
-			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.conv4_3 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv4_3, keep_prob=0.6)
-			self.parameters += [kernel, biases]
-
-		# pool4
-		self.pool4 = tf.nn.max_pool(self.conv4_3,
-							   ksize=[1, 2, 2, 1],
-							   strides=[1, 2, 2, 1],
-							   padding='SAME',
-							   name='pool4')
-		print(self.pool4)
-
-		# conv5_1
-		with tf.name_scope('mentor_conv5_1') as scope:
-			kernel = tf.Variable(self.data_dict["conv5_1"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(self.pool4, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv5_1"][1], name='mentor_biases', trainable= self.trainable)
-			out = tf.nn.bias_add(conv, biases)
-			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.conv5_1 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv5_1, keep_prob=0.6)
-			self.parameters += [kernel, biases]
-
-		# conv5_2
-		with tf.name_scope('mentor_conv5_2') as scope:
-			kernel = tf.Variable(self.data_dict["conv5_2"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(self.conv5_1, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv5_2"][1], name='mentor_biases', trainable= self.trainable)
-			out = tf.nn.bias_add(conv, biases)
-			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.conv5_2 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv5_2, keep_prob=0.6)
-			self.parameters += [kernel, biases]
-
-		# conv5_3
-		with tf.name_scope('mentor_conv5_3') as scope:
-			kernel = tf.Variable(self.data_dict["conv5_3"][0], name='mentor_weights', trainable= self.trainable)
-			conv = tf.nn.conv2d(self.conv5_2, kernel, [1, 1, 1, 1], padding='SAME')
-			biases = tf.Variable(self.data_dict["conv5_3"][1], name='mentor_biases', trainable= self.trainable)
-			out = tf.nn.bias_add(conv, biases)
-			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.conv5_3 = tf.nn.relu(batch_norm, name=scope)
-			#tf.nn.dropout(self.conv5_3, keep_prob=0.6)
-			self.parameters += [kernel, biases]
-
-		# pool5
-		self.pool5 = tf.nn.max_pool(self.conv5_3,
-							   ksize=[1, 2, 2, 1],
-							   strides=[1, 2, 2, 1],
-							   padding='SAME',
-							   name='pool4')
-		print(self.pool5)
-
-		# fc1
-		with tf.name_scope('mentor_fc1') as scope:
-			shape = int(np.prod(self.pool5.get_shape()[1:]))
-			fc1w = tf.Variable(self.data_dict["fc6"][0], name = "mentor_weights", trainable= self.trainable)
-			pool5_flat = tf.reshape(self.pool5, [-1, shape])
-			fc1b = tf.Variable(self.data_dict["fc6"][1], name = "mentor_biases", trainable= self.trainable)
-			fc1l = tf.nn.bias_add(tf.matmul(pool5_flat, fc1w), fc1b)
-			mean, var = tf.nn.moments(fc1l, axes=[0])
-			batch_norm = (fc1l - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.fc1 = tf.nn.relu(fc1l)
-			#if train_mode == True:
-			#self.fc1 = tf.nn.dropout(self.fc1, 0.5)
-			self.parameters += [fc1w, fc1b]
-		print(self.fc1)
-
-
-		# fc2
-		with tf.name_scope('mentor_fc2') as scope:
-			fc2w = tf.Variable(self.data_dict["fc7"][0], name = "mentor_weights", trainable= self.trainable)
-			fc2b = tf.Variable(self.data_dict["fc7"][1], name = "mentor_biases", trainable= self.trainable)
-			fc2l = tf.nn.bias_add(tf.matmul(self.fc1, fc2w), fc2b)
-			mean, var = tf.nn.moments(fc2l, axes=[0])
-			batch_norm = (fc2l - mean) / tf.sqrt(var + tf.Variable(1e-10))
-			self.fc2 = tf.nn.relu(fc2l)
-			#if train_mode == True:
-			#self.fc2 = tf.nn.dropout(self.fc2, 0.5)
-			self.parameters += [fc2w, fc2b]
-		print(self.fc2)
-
-		# fc3
-		with tf.name_scope('mentor_fc3') as scope:
-			fc3w = tf.Variable(tf.truncated_normal([4096, num_classes],
-														 dtype=tf.float32,
-														 stddev=1e-2), name='mentor_weights', trainable= self.trainable)
-			fc3b = tf.Variable(tf.constant(1.0, shape=[num_classes], dtype=tf.float32),
-								 name='mentor_biases', trainable= self.trainable)
-			self.fc3l = tf.nn.bias_add(tf.matmul(self.fc2, fc3w), fc3b)
-                        
-			self.parameters += [fc3w, fc3b]        
-
-		self.softmax = tf.nn.softmax(self.fc3l/temp_softmax)
-		return self
-
-	def variables_for_l2(self):
-
-		variables_for_l2 = []
-		variables_for_l2.append([var for var in tf.global_variables() if var.op.name=="conv1_1/weights"][0])
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "conv1_2/weights:0"][0])
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "conv2_1/weights:0"][0])
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "conv2_2/weights:0"][0])
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "conv3_1/weights:0"][0])
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "conv3_2/weights:0"][0])
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "conv3_3/weights:0"][0])
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "conv4_1/weights:0"][0])
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "conv4_2/weights:0"][0])
-		variables_for_l2.append ([v for v in tf.global_variables() if v.name == "conv4_3/weights:0"][0])
-		variables_for_l2.append ([v for v in tf.global_variables() if v.name == "conv5_1/weights:0"][0])
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "conv5_2/weights:0"][0])
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "conv5_3/weights:0"][0])
-
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "fc1/weights:0"][0])
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "fc2/weights:0"][0])
-		variables_for_l2.append([v for v in tf.global_variables() if v.name == "fc3/weights:0"][0])
-
-		return variables_for_l2
-
-	#### variables of the last layer of the teacher.
+	# Variables of the last layer of the teacher.
 	def get_training_vars(self):
 		training_vars = []
-		independent_weights = [var for var in tf.global_variables() if var.op.name == "mentor_fc3/mentor_weights"]
-		independent_biases = [var for var in tf.global_variables() if var.op.name == "mentor_fc3/mentor_biases"]
+		independent_weights = [var for var in tf.global_variables() if var.op.name == "mentor/fc3/weights"]
+		independent_biases = [var for var in tf.global_variables() if var.op.name == "mentor/fc3/biases"]
 		training_vars.append(independent_weights)
 		training_vars.append(independent_biases)
+		print("independent_weights(mentor/fc3/weights): ", independent_weights)
+		print("independent_biases(mentor/fc3/biases): ", independent_biases)
 		return training_vars
 
 	def loss(self, labels):
 		labels = tf.to_int64(labels)
-		cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels,
-		logits=self.fc3l, name='xentropy')
-		#var_list = self.variables_for_l2()
-		#l2_loss= beta*tf.nn.l2_loss(var_list[0]) + beta*tf.nn.l2_loss(var_list[1]) + beta*tf.nn.l2_loss(var_list[2]) + beta*tf.nn.l2_loss(var_list[3]) + beta*tf.nn.l2_loss(var_list[4]) + beta*tf.nn.l2_loss(var_list[4]) + beta*tf.nn.l2_loss(var_list[5]) + beta*tf.nn.l2_loss(var_list[6])+beta*tf.nn.l2_loss(var_list[7])+beta*tf.nn.l2_loss(var_list[8]) + beta*tf.nn.l2_loss(var_list[9]) + beta*tf.nn.l2_loss(var_list[10]) + beta*tf.nn.l2_loss(var_list[11]) + beta*tf.nn.l2_loss(var_list[12]) + beta*tf.nn.l2_loss(var_list[13])+beta*tf.nn.l2_loss(var_list[14])
-	    #return tf.reduce_mean(cross_entropy + l2_loss, name='xentropy_mean')
+		cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=self.fc3, name='xentropy')
 		return tf.reduce_mean(cross_entropy, name='xentropy_mean')
 
-
-	def training(self, loss, learning_rate_pretrained, learning_rate_for_last_layer, global_step, variables_to_restore, train_last_layer_variables) :
-
-		tf.summary.scalar('loss', loss)
+	def training(self, loss, learning_rate_pretrained, learning_rate_for_last_layer, global_step, variables_to_restore, train_last_layer_variables):
 		### Adding Momentum of 0.9
 		optimizer1 = tf.train.AdamOptimizer(learning_rate_pretrained)
 		optimizer2 = tf.train.AdamOptimizer(learning_rate_for_last_layer)
