@@ -10,7 +10,6 @@ from DataInput import DataInput
 from teacherCifar10 import TeacherForCifar10
 from teacherCaltech101 import MentorForCaltech101
 from studentModels import Mentee
-#from vgg16mentee_temp import Mentee
 
 dataset_path = "./"
 tf.reset_default_graph()
@@ -31,14 +30,9 @@ teacher_alltrue_list_126 = []
 class VGG16(object):
 
     ### placeholders are filled with actual images and labels which are fed to the network while training.
-    def fill_feed_dict(self, data_input, images_pl, labels_pl, sess, mode, phase_train):
+    def fill_feed_dict(self, data_input, images_pl, labels_pl, sess):
         images_feed, labels_feed = sess.run([data_input.example_batch, data_input.label_batch])
-        if mode == 'Train':
-            feed_dict = {images_pl: images_feed, labels_pl: labels_feed, phase_train: True}
-        if mode == 'Test':
-            feed_dict = {images_pl: images_feed,labels_pl: labels_feed, phase_train: False }
-        if mode == 'Validation':
-            feed_dict = {images_pl: images_feed,labels_pl: labels_feed, phase_train: False}
+        feed_dict = {images_pl: images_feed, labels_pl: labels_feed}
         return feed_dict, images_feed, labels_feed
 
     def evaluation(self, logits, labels):
@@ -52,7 +46,7 @@ class VGG16(object):
             raise ValueError("Not found top_1&3&5_accuracy")
         return tf.reduce_sum(tf.cast(correct, tf.int32))
 
-    def do_eval(self, sess, eval_correct, logits, images_placeholder, labels_placeholder, dataset, mode, phase_train):
+    def do_eval(self, sess, eval_correct, logits, images_placeholder, labels_placeholder, dataset, mode):
         if mode == 'Test':
             steps_per_epoch = FLAGS.num_testing_examples //FLAGS.batch_size
             num_examples = steps_per_epoch * FLAGS.batch_size
@@ -68,7 +62,7 @@ class VGG16(object):
             if FLAGS.dataset == 'mnist':
                 feed_dict = {images_placeholder: np.reshape(dataset.test.next_batch(FLAGS.batch_size)[0], [FLAGS.batch_size, FLAGS.image_width, FLAGS.image_height, FLAGS.num_channels]), labels_placeholder: dataset.test.next_batch(FLAGS.batch_size)[1]}
             else:
-                feed_dict, images_feed, labels_feed = self.fill_feed_dict(dataset, images_placeholder, labels_placeholder,sess, mode, phase_train)
+                feed_dict, images_feed, labels_feed = self.fill_feed_dict(dataset, images_placeholder, labels_placeholder, sess)
             count = sess.run(eval_correct, feed_dict=feed_dict)
             true_count = true_count + count
 
@@ -129,7 +123,7 @@ class VGG16(object):
         lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,staircase=True)
 
         mentor_data_dict = mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
-        #mentor_data_dict = mentor.build_vgg16_teacher_deleteFilters(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, phase_train)
+        #mentor_data_dict = mentor.build_vgg16_teacher_deleteFilters(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
 
         self.loss = mentor.loss(labels_placeholder)
 
@@ -260,7 +254,7 @@ class VGG16(object):
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
             print(l5_var_list)
 
-    def define_dependent_student(self, images_placeholder, labels_placeholder, phase_train, seed, global_step, sess):
+    def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         if FLAGS.dataset == 'cifar10':
             print("Build dependent student (cifar10)")
             vgg16_mentor = TeacherForCifar10(False)
@@ -271,7 +265,7 @@ class VGG16(object):
             raise ValueError("Not found dataset name")
 
         vgg16_mentee = Mentee(seed)
-        self.mentor_data_dict = vgg16_mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax,phase_train)
+        self.mentor_data_dict = vgg16_mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
 
         if FLAGS.num_optimizers == 6:
             self.mentee_data_dict = vgg16_mentee.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
@@ -396,8 +390,7 @@ class VGG16(object):
         np.save("output_vgg16/filters_npy/mentor_conv4_1.npy", mentor_conv4_1)
         np.save("output_vgg16/filters_npy/mentor_conv5_1.npy", mentor_conv5_1)
 
-    def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess,
-                    phase_train):
+    def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess):
 
         try:
             print('Begin to train model.....................................................')
@@ -406,8 +399,7 @@ class VGG16(object):
 
             for i in range(NUM_ITERATIONS):
 
-                feed_dict, images_feed, labels_feed = self.fill_feed_dict(data_input_train, images_placeholder,
-                                                labels_placeholder, sess, 'Train', phase_train)
+                feed_dict, images_feed, labels_feed = self.fill_feed_dict(data_input_train, images_placeholder, labels_placeholder, sess)
 
                 if FLAGS.student or FLAGS.teacher:
 
@@ -459,10 +451,10 @@ class VGG16(object):
                     #    saver_new.save(sess, FLAGS.dependent_student_filename)
 
                     print ("Training Data Eval:")
-                    self.do_eval(sess,eval_correct,self.softmax,images_placeholder,labels_placeholder,data_input_train,'Train', phase_train)
+                    self.do_eval(sess,eval_correct,self.softmax,images_placeholder,labels_placeholder,data_input_train,'Train')
 
                     print ("Test  Data Eval:")
-                    self.do_eval(sess,eval_correct,self.softmax,images_placeholder,labels_placeholder,data_input_test,'Test', phase_train)
+                    self.do_eval(sess,eval_correct,self.softmax,images_placeholder,labels_placeholder,data_input_test,'Test')
                     print ("max test accuracy % f", max(test_accuracy_list))
 
                     print(test_accuracy_list)
@@ -509,7 +501,7 @@ class VGG16(object):
             coord = tf.train.Coordinator()
             threads = tf.train.start_queue_runners(sess=sess, coord=coord)
             global_step = tf.Variable(0, name='global_step', trainable=False)
-            phase_train = tf.placeholder(tf.bool, name='phase_train')
+            #phase_train = tf.placeholder(tf.bool, name='phase_train')
             #summary = tf.summary.merge_all()
 
             print("NUM_ITERATIONS: "+str(NUM_ITERATIONS))
@@ -523,9 +515,9 @@ class VGG16(object):
                 self.define_teacher(images_placeholder, labels_placeholder, global_step, sess)
 
             elif FLAGS.dependent_student:
-                self.define_dependent_student(images_placeholder, labels_placeholder, phase_train, seed, global_step,sess)
+                self.define_dependent_student(images_placeholder, labels_placeholder, seed, global_step,sess)
 
-            self.train_model(data_input_train, data_input_test, images_placeholder, labels_placeholder, sess, phase_train)
+            self.train_model(data_input_train, data_input_test, images_placeholder, labels_placeholder, sess)
 
             print(test_accuracy_list)
             #writer_tensorboard = tf.summary.FileWriter('tensorboard/', sess.graph)
