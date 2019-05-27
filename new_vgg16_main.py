@@ -300,8 +300,8 @@ class VGG16(object):
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, FLAGS.teacher_weights_filename)
 
-        #if FLAGS.initialization:
-        #    self.initilize(sess)
+        if FLAGS.initialization:
+            self.initilize(sess)
 
     def run_dependent_student(self, feed_dict, sess, i):
 

@@ -37,6 +37,7 @@ class Mentee(object):
 			conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
 			out = tf.nn.bias_add(conv, biases)
 			out = tf.nn.relu(out, name="relu")
+			self.parameters += [kernel, biases]
 			return out
 
 	def build_student_conv6fc3(self, images, num_classes, temp_softmax):
