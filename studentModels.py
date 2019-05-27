@@ -24,6 +24,7 @@ class Mentee(object):
 			input_flat = tf.reshape(input, [-1, shape])
 			fc = tf.nn.bias_add(tf.matmul(input_flat, fc_weights), fc_biases)
 			relu = tf.nn.relu(fc)
+			self.parameters += [fc_weights, fc_biases]
 			if layerName == "fc3":
 				return fc
 			else:
