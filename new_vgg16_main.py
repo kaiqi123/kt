@@ -419,12 +419,12 @@ class VGG16(object):
 
                     if i % 10 == 0:
                         # print("train function: dependent student, multiple optimizers")
-                        if FLAGS.num_optimizers == 6 or FLAGS.num_optimizers == 5:
+                        if FLAGS.num_optimizers == 6:
                             print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
                             print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
-                            print ('Step %d: loss_value_softmax = %.20f' % (i, self.loss_value_softmax))
+                            #print ('Step %d: loss_value_softmax = %.20f' % (i, self.loss_value_softmax))
                         else:
                             #print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
                             #print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
