@@ -199,9 +199,10 @@ class VGG16(object):
     def caculate_rmse_loss(self):
 
         def build_loss(teacher_layer, student_layer):
-            norm_teacher = tf.nn.l2_normalize(teacher_layer, axis=0)
-            norm_student = tf.nn.l2_normalize(student_layer, axis=0)
-            loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(norm_teacher, norm_student))))
+            #norm_teacher = tf.nn.l2_normalize(teacher_layer, axis=0)
+            #norm_student = tf.nn.l2_normalize(student_layer, axis=0)
+            loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(teacher_layer, student_layer))))
+            #loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(norm_teacher, norm_student))))
             return loss_layer
 
         #self.loss_softmax = build_loss(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
@@ -270,7 +271,7 @@ class VGG16(object):
         if FLAGS.num_optimizers == 6:
             self.mentee_data_dict = vgg16_mentee.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         elif FLAGS.num_optimizers == 5:
-            self.mentee_data_dict = vgg16_mentee.build_student_conv5fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+            self.mentee_data_dict = vgg16_mentee.build_student_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         else:
             raise ValueError("Not found num_optimizers")
 
