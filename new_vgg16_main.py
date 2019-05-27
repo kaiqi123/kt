@@ -180,9 +180,11 @@ class VGG16(object):
                     self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
 
                 if var.op.name == "mentor/fc1/weights":
+                    print("initialization: fc1")
                     self.mentee_data_dict.parameters[10].assign(var.eval(session=sess)).eval(session=sess)
 
                 if var.op.name == "mentor_fc3/weights":
+                    print("initialization: fc3")
                     self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
 
             if FLAGS.num_optimizers == 6:
