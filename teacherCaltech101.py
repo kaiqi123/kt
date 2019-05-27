@@ -20,7 +20,7 @@ class MentorForCaltech101(object):
 			conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
 			out = tf.nn.bias_add(conv, biases)
 			mean, var = tf.nn.moments(out, axes=[0])
-			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10))
+			batch_norm = (out - mean) / tf.sqrt(var + tf.Variable(1e-10, name="bn"))
 			relu = tf.nn.relu(batch_norm, name=scope)
 			return relu
 
