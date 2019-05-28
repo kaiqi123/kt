@@ -311,13 +311,7 @@ class VGG16(object):
 
         self.softmax = self.mentee_data_dict.softmax
 
-        def get_mentor_variables_to_restore():
-            return [var for var in tf.global_variables() if var.op.name.startswith("mentor") and
-                    (var.op.name.endswith("biases") or var.op.name.endswith("weights"))
-                    and (var.op.name != ("mentor/fc3/weights")
-                         and var.op.name != ("mentor/fc3/biases"))]
-        #mentor_variables_to_restore = [var for var in tf.global_variables() if var.op.name.startswith("mentor")]
-        mentor_variables_to_restore = get_mentor_variables_to_restore()
+        mentor_variables_to_restore = [var for var in tf.global_variables() if var.op.name.startswith("mentor")]
         for var in mentor_variables_to_restore:
             print(var)
         print('num of mentor_variables_to_restore: %d' % len(mentor_variables_to_restore))
