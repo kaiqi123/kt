@@ -201,12 +201,12 @@ class VGG16(object):
                     print("initialization: fc1 biases")
                     self.mentee_data_dict.parameters[11].assign(var.eval(session=sess)).eval(session=sess)
 
-                if var.op.name == "mentor/fc3/weights":
-                    print("initialization: fc3 weights")
-                    self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
-                if var.op.name == "mentor/fc3/biases":
-                    print("initialization: fc3 biases")
-                    self.mentee_data_dict.parameters[13].assign(var.eval(session=sess)).eval(session=sess)
+                #if var.op.name == "mentor/fc3/weights":
+                #    print("initialization: fc3 weights")
+                #    self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
+                #if var.op.name == "mentor/fc3/biases":
+                #    print("initialization: fc3 biases")
+                #    self.mentee_data_dict.parameters[13].assign(var.eval(session=sess)).eval(session=sess)
 
             if FLAGS.num_optimizers == 6:
                 if var.op.name == "mentor/conv5_1/weights":
@@ -311,8 +311,13 @@ class VGG16(object):
 
         self.softmax = self.mentee_data_dict.softmax
 
-        mentor_variables_to_restore = [var for var in tf.global_variables() if var.op.name.startswith("mentor")]
-        #mentor_variables_to_restore = get_mentor_variables_to_restore()
+        def get_mentor_variables_to_restore():
+            return [var for var in tf.global_variables() if var.op.name.startswith("mentor") and
+                    (var.op.name.endswith("biases") or var.op.name.endswith("weights"))
+                    and (var.op.name != ("mentor/fc3/weights")
+                         and var.op.name != ("mentor/fc3/biases"))]
+        #mentor_variables_to_restore = [var for var in tf.global_variables() if var.op.name.startswith("mentor")]
+        mentor_variables_to_restore = get_mentor_variables_to_restore()
         for var in mentor_variables_to_restore:
             print(var)
         print('num of mentor_variables_to_restore: %d' % len(mentor_variables_to_restore))
