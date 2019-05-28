@@ -310,7 +310,6 @@ class VGG16(object):
             raise ValueError("Not found num_optimizers")
 
         self.softmax = self.mentee_data_dict.softmax
-
         mentor_variables_to_restore = [var for var in tf.global_variables() if var.op.name.startswith("mentor")]
         for var in mentor_variables_to_restore:
             print(var)
