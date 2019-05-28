@@ -156,47 +156,79 @@ class VGG16(object):
     def initilize(self, sess):
         for var in tf.global_variables():
             if var.op.name == "mentor/conv1_1/weights":
-                print("initialization: conv1_1")
+                print("initialization: conv1_1 weights")
                 self.mentee_data_dict.parameters[0].assign(var.eval(session=sess)).eval(session=sess)
+            if var.op.name == "mentor/conv1_1/biases":
+                print("initialization: conv1_1 biases")
+                self.mentee_data_dict.parameters[1].assign(var.eval(session=sess)).eval(session=sess)
 
             if FLAGS.num_optimizers >= 2:
                 if var.op.name == "mentor/conv2_1/weights":
-                    print("initialization: conv2_1")
+                    print("initialization: conv2_1 weights")
                     self.mentee_data_dict.parameters[2].assign(var.eval(session=sess)).eval(session=sess)
+                if var.op.name == "mentor/conv2_1/biases":
+                    print("initialization: conv2_1 biases")
+                    self.mentee_data_dict.parameters[3].assign(var.eval(session=sess)).eval(session=sess)
 
             if FLAGS.num_optimizers >= 3:
                 if var.op.name == "mentor/conv3_1/weights":
-                    print("initialization: conv3_1")
+                    print("initialization: conv3_1 weights")
                     self.mentee_data_dict.parameters[4].assign(var.eval(session=sess)).eval(session=sess)
+                if var.op.name == "mentor/conv3_1/biases":
+                    print("initialization: conv3_1 biases")
+                    self.mentee_data_dict.parameters[5].assign(var.eval(session=sess)).eval(session=sess)
 
             if FLAGS.num_optimizers >= 4:
                 if var.op.name == "mentor/conv4_1/weights":
-                    print("initialization: conv4_1")
+                    print("initialization: conv4_1 weights")
                     self.mentee_data_dict.parameters[6].assign(var.eval(session=sess)).eval(session=sess)
+                if var.op.name == "mentor/conv4_1/biases":
+                    print("initialization: conv4_1 biases")
+                    self.mentee_data_dict.parameters[7].assign(var.eval(session=sess)).eval(session=sess)
 
             if FLAGS.num_optimizers == 5:
                 if var.op.name == "mentor/conv5_1/weights":
-                    print("initialization: conv5_1")
+                    print("initialization: conv5_1 weights")
                     self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
+                if var.op.name == "mentor/conv5_1/biases":
+                    print("initialization: conv5_1 biases")
+                    self.mentee_data_dict.parameters[9].assign(var.eval(session=sess)).eval(session=sess)
 
                 if var.op.name == "mentor/fc1/weights":
-                    print("initialization: fc1")
+                    print("initialization: fc1 weights")
                     self.mentee_data_dict.parameters[10].assign(var.eval(session=sess)).eval(session=sess)
+                if var.op.name == "mentor/fc1/biases":
+                    print("initialization: fc1 biases")
+                    self.mentee_data_dict.parameters[11].assign(var.eval(session=sess)).eval(session=sess)
 
                 if var.op.name == "mentor_fc3/weights":
-                    print("initialization: fc3")
+                    print("initialization: fc3 weights")
                     self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
+                if var.op.name == "mentor_fc3/biases":
+                    print("initialization: fc3 biases")
+                    self.mentee_data_dict.parameters[13].assign(var.eval(session=sess)).eval(session=sess)
 
             if FLAGS.num_optimizers == 6:
                 if var.op.name == "mentor/conv5_1/weights":
+                    print("initialization: conv5_1 weights")
                     self.mentee_data_dict.parameters[8].assign(var.eval(session=sess)).eval(session=sess)
+                if var.op.name == "mentor/conv5_1/biases":
+                    print("initialization: conv5_1 biases")
+                    self.mentee_data_dict.parameters[9].assign(var.eval(session=sess)).eval(session=sess)
 
                 if var.op.name == "mentor/fc2/weights":
-                    print("initialization: conv6_1")
+                    print("initialization: fc2 weights")
                     self.mentee_data_dict.parameters[14].assign(var.eval(session=sess)).eval(session=sess)
+                if var.op.name == "mentor/fc2/biases":
+                    print("initialization: fc2 biases")
+                    self.mentee_data_dict.parameters[15].assign(var.eval(session=sess)).eval(session=sess)
 
                 if var.op.name == "mentor/fc3/weights":
+                    print("initialization: fc3 weights")
                     self.mentee_data_dict.parameters[16].assign(var.eval(session=sess)).eval(session=sess)
+                if var.op.name == "mentor/fc3/biases":
+                    print("initialization: fc3 biases")
+                    self.mentee_data_dict.parameters[17].assign(var.eval(session=sess)).eval(session=sess)
 
     def caculate_rmse_loss(self):
 
