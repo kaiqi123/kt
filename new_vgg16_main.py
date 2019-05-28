@@ -201,12 +201,12 @@ class VGG16(object):
                     print("initialization: fc1 biases")
                     self.mentee_data_dict.parameters[11].assign(var.eval(session=sess)).eval(session=sess)
 
-                #if var.op.name == "mentor/fc3/weights":
-                #    print("initialization: fc3 weights")
-                #    self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
-                #if var.op.name == "mentor/fc3/biases":
-                #    print("initialization: fc3 biases")
-                #    self.mentee_data_dict.parameters[13].assign(var.eval(session=sess)).eval(session=sess)
+                if var.op.name == "mentor/fc3/weights":
+                    print("initialization: fc3 weights")
+                    self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
+                if var.op.name == "mentor/fc3/biases":
+                    print("initialization: fc3 biases")
+                    self.mentee_data_dict.parameters[13].assign(var.eval(session=sess)).eval(session=sess)
 
             if FLAGS.num_optimizers == 6:
                 if var.op.name == "mentor/conv5_1/weights":
