@@ -201,13 +201,6 @@ class VGG16(object):
                     print("initialization: fc1 biases")
                     self.mentee_data_dict.parameters[11].assign(var.eval(session=sess)).eval(session=sess)
 
-                if var.op.name == "mentor/fc3/weights":
-                    print("initialization: fc3 weights")
-                    self.mentee_data_dict.parameters[12].assign(var.eval(session=sess)).eval(session=sess)
-                if var.op.name == "mentor/fc3/biases":
-                    print("initialization: fc3 biases")
-                    self.mentee_data_dict.parameters[13].assign(var.eval(session=sess)).eval(session=sess)
-
             if FLAGS.num_optimizers == 6:
                 if var.op.name == "mentor/conv5_1/weights":
                     print("initialization: conv5_1 weights")
@@ -223,20 +216,13 @@ class VGG16(object):
                     print("initialization: fc2 biases")
                     self.mentee_data_dict.parameters[15].assign(var.eval(session=sess)).eval(session=sess)
 
-                if var.op.name == "mentor/fc3/weights":
-                    print("initialization: fc3 weights")
-                    self.mentee_data_dict.parameters[16].assign(var.eval(session=sess)).eval(session=sess)
-                if var.op.name == "mentor/fc3/biases":
-                    print("initialization: fc3 biases")
-                    self.mentee_data_dict.parameters[17].assign(var.eval(session=sess)).eval(session=sess)
-
     def caculate_rmse_loss(self):
 
         def build_loss(teacher_layer, student_layer):
-            #norm_teacher = tf.nn.l2_normalize(teacher_layer, axis=0)
-            #norm_student = tf.nn.l2_normalize(student_layer, axis=0)
-            loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(teacher_layer, student_layer))))
-            #loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(norm_teacher, norm_student))))
+            norm_teacher = tf.nn.l2_normalize(teacher_layer, axis=0)
+            norm_student = tf.nn.l2_normalize(student_layer, axis=0)
+            #loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(teacher_layer, student_layer))))
+            loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(norm_teacher, norm_student))))
             return loss_layer
 
         #self.loss_softmax = build_loss(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
@@ -555,7 +541,6 @@ class VGG16(object):
 
             self.train_model(data_input_train, data_input_test, images_placeholder, labels_placeholder, sess)
 
-            print(test_accuracy_list)
             #writer_tensorboard = tf.summary.FileWriter('tensorboard/', sess.graph)
 
             coord.request_stop()
