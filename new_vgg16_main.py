@@ -431,7 +431,7 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    # self.compute_0filter_of_teacherOutput(sess, feed_dict)
+                    self.compute_0filter_of_teacherOutput(sess, feed_dict)
 
                     self.run_dependent_student(feed_dict, sess, i)
 
