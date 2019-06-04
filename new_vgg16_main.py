@@ -378,7 +378,7 @@ class VGG16(object):
             filter_count.append(count)
         print(filter_count)
 
-    def compute_0filter_of_teacherOutput(self, sess, feed_dict, iteration):
+    def compute_0filter_of_teacherOutput(self, sess, feed_dict, images_feed, iteration):
         mentor_conv1_1, mentor_conv1_2, \
         mentor_conv2_1, mentor_conv2_2, \
         mentor_conv3_1, mentor_conv3_2, mentor_conv3_3, \
@@ -406,6 +406,8 @@ class VGG16(object):
         self.count_filter0_num(mentor_conv5_2, "conv5_2")
         self.count_filter0_num(mentor_conv5_3, "conv5_3")
 
+        print(images_feed.shape)
+        np.save("output_vgg16/filters_npy/images_feed_"+str(iteration)+".npy", images_feed)
         np.save("output_vgg16/filters_npy/mentor_conv1_1_iteration"+str(iteration)+".npy", mentor_conv1_1)
         np.save("output_vgg16/filters_npy/mentor_conv1_2_iteration"+str(iteration)+".npy", mentor_conv1_2)
         np.save("output_vgg16/filters_npy/mentor_conv2_1_iteration"+str(iteration)+".npy", mentor_conv2_1)
@@ -439,7 +441,7 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    self.compute_0filter_of_teacherOutput(sess, feed_dict, i)
+                    self.compute_0filter_of_teacherOutput(sess, feed_dict, images_feed, i)
 
                     self.run_dependent_student(feed_dict, sess, i)
 
