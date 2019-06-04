@@ -1,4 +1,5 @@
 101_ObjectCategories
+output_vgg16
 cifar10_images
 tensorboard
 summary-log 

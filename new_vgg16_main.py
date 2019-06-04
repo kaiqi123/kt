@@ -407,10 +407,18 @@ class VGG16(object):
         self.count_filter0_num(mentor_conv5_3, "conv5_3")
 
         np.save("output_vgg16/filters_npy/mentor_conv1_1_iteration"+str(iteration)+".npy", mentor_conv1_1)
+        np.save("output_vgg16/filters_npy/mentor_conv1_2_iteration"+str(iteration)+".npy", mentor_conv1_2)
         np.save("output_vgg16/filters_npy/mentor_conv2_1_iteration"+str(iteration)+".npy", mentor_conv2_1)
+        np.save("output_vgg16/filters_npy/mentor_conv2_2_iteration"+str(iteration)+".npy", mentor_conv2_2)
         np.save("output_vgg16/filters_npy/mentor_conv3_1_iteration"+str(iteration)+".npy", mentor_conv3_1)
+        np.save("output_vgg16/filters_npy/mentor_conv3_2_iteration"+str(iteration)+".npy", mentor_conv3_2)
+        np.save("output_vgg16/filters_npy/mentor_conv3_3_iteration"+str(iteration)+".npy", mentor_conv3_3)
         np.save("output_vgg16/filters_npy/mentor_conv4_1_iteration"+str(iteration)+".npy", mentor_conv4_1)
+        np.save("output_vgg16/filters_npy/mentor_conv4_2_iteration"+str(iteration)+".npy", mentor_conv4_2)
+        np.save("output_vgg16/filters_npy/mentor_conv4_3_iteration"+str(iteration)+".npy", mentor_conv4_3)
         np.save("output_vgg16/filters_npy/mentor_conv5_1_iteration"+str(iteration)+".npy", mentor_conv5_1)
+        np.save("output_vgg16/filters_npy/mentor_conv5_2_iteration"+str(iteration)+".npy", mentor_conv5_2)
+        np.save("output_vgg16/filters_npy/mentor_conv5_3_iteration"+str(iteration)+".npy", mentor_conv5_3)
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess):
 
