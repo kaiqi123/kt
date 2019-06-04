@@ -71,7 +71,7 @@ def plot_images_afterRelu(dirNpy, dirName, flag_norm=False):
         img = img.transpose(2, 0, 1)
         img_sum = np.sum(img, axis=0)
         fig = plt.figure(figsize=(80, 80))
-        rows = 13
+        rows = 26
         columns = 10
         for j in range(img.shape[0]):
         #for j in range(1):
@@ -95,7 +95,9 @@ def plot_images_afterRelu(dirNpy, dirName, flag_norm=False):
         plt.savefig(sum_pictureName)
         plt.show()
 
-teacher_dirNpy = "output_vgg16/filters_npy/mentor_conv2_1_iteration0.npy"
-teacher_dirFigureName = "output_vgg16/images/mentor_conv2_1_iteration0"
+teacher_dirNpy = "output_vgg16/filters_npy/mentor_conv4_1_iteration0.npy"
+teacher_dirFigureName = "output_vgg16/images/mentor_conv4_1_iteration0"
+#teacher_dirNpy = "output_vgg16/filters_npy/images_feed_iteration0.npy"
+#teacher_dirFigureName = "output_vgg16/images/images_feed_iteration0"
 #plot_images_afterRelu(teacher_dirNpy, teacher_dirFigureName, flag_norm=True)
 plot_images_afterRelu(teacher_dirNpy, teacher_dirFigureName, flag_norm=False)
