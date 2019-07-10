@@ -45,7 +45,7 @@ class Mentee(object):
 		print("build_student_conv5fc1")
 		K.set_learning_phase(True)
 		#num_filters = [64, 128, 256, 512, 512] # origin
-		num_filters = [64, 128, 256, 512, 512-96] # 100per, 90per
+		num_filters = [64, 128, 256, 512, 512-95] # 100per, 90per
 		with tf.name_scope('mentee'):
 			self.conv1_1 = self.build_student_oneConvLayer(images, "conv1_1", num_filters[0])
 			pool1 = tf.nn.max_pool(self.conv1_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
