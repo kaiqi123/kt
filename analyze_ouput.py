@@ -127,6 +127,6 @@ teacher_dirFigureName = "output_vgg16/images/mentor_conv1_1_iteration0"
 #plot_images_afterRelu(teacher_dirNpy, teacher_dirFigureName, flag_norm=False)
 
 readNpyPath = "output_vgg16/filters_npy/"
-logName = "output_vgg16/num_of_filter0/log_0.8.log"
-perOf0Filters = 0.8
+logName = "output_vgg16/num_of_filter0/log_0.5.log"
+perOf0Filters = 0.5
 readNpyFile_count0Filters_saveToLog_calculateMean(logName, readNpyPath, perOf0Filters)
