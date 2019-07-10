@@ -9,33 +9,8 @@ from os import listdir
 import logging
 import json
 from scipy import stats
+import os
 
-"""
-logName = "output_vgg16/num_of_filter0/log_50per.log"
-logging.basicConfig(filename=logName,level=logging.DEBUG)
-logging.FileHandler(logName, mode='w')
-
-def loadOutput(filename, findName):
-    print(findName)
-    logging.info(findName)
-    f = open(filename, "r")
-    data = f.readlines()
-    for i in range(len(data)):
-        r = data[i].find(findName)
-        if r > -1:
-            s = data[i + 1]
-            s = json.loads(s)
-            break
-    f.close()
-    print(s)
-    print(np.min(s), np.mean(s),stats.mode(s))
-    logging.info(str(s))
-    logging.info(str(np.min(s))+","+ str(np.mean(s))+","+str(stats.mode(s)))
-
-findNames=['conv1_1', 'conv2_1','conv3_1','conv4_1','conv5_1','conv5_2','conv5_3']
-for findName in findNames:
-    loadOutput("output_vgg16/num_of_filter0/numOfFliter0_one_batch_50per", findName)
-"""
 def l2_norm_one_batch(data):
     print("original data.shape: " + str(data.shape))
     data = data.transpose(0, 3, 1, 2)
@@ -71,8 +46,8 @@ def plot_images_afterRelu(dirNpy, dirName, flag_norm=False):
         img = img.transpose(2, 0, 1)
         img_sum = np.sum(img, axis=0)
         fig = plt.figure(figsize=(80, 80))
-        rows = 26
-        columns = 10
+        rows = 10
+        columns = 7
         for j in range(img.shape[0]):
         #for j in range(1):
             img_dim = img[j]
@@ -92,12 +67,66 @@ def plot_images_afterRelu(dirNpy, dirName, flag_norm=False):
 
         plt.imshow(img_sum)
         sum_pictureName = dirName + str(i) + "_norm" + str(flag_norm) + "_sum" + ".png"
-        plt.savefig(sum_pictureName)
+        #plt.savefig(sum_pictureName)
         plt.show()
 
-teacher_dirNpy = "output_vgg16/filters_npy/mentor_conv4_1_iteration0.npy"
-teacher_dirFigureName = "output_vgg16/images/mentor_conv4_1_iteration0"
+def count_filter0_num(output, perNum):
+    filter_count = []
+    for i in range(output.shape[0]):
+        img = output[i]
+        img = img.transpose(2, 0, 1)
+        count = 0
+        for j in range(img.shape[0]):
+
+            # count number filters whose 90% output_wrn are 0
+            num_sum = float(img[j].shape[0] * img[j].shape[1])
+            count0_perFIlter = (num_sum - np.count_nonzero(img[j])) / num_sum
+            if count0_perFIlter >= perNum:
+                count = count + 1
+
+
+        filter_count.append(count)
+    return filter_count
+
+def loadOutputLog_calcuteMean(filename, searchName):
+    logging.info(searchName)
+    f = open(filename, "r")
+    data = f.readlines()
+    for i in range(len(data)):
+        r = data[i].find(searchName)
+        if r > -1:
+            s = data[i + 1].split(":")[2]
+            s = json.loads(s)
+            break
+    f.close()
+    logging.info(s)
+    logging.info("Mean: {}, Min: {}, Mode: {}.\n".format(np.mean(s), np.min(s), stats.mode(s)))
+
+def readNpyFile_count0Filters_saveToLog_calculateMean(logName, readNpyPath, perOf0Filters):
+    logging.basicConfig(filename=logName, level=logging.DEBUG)
+    logging.FileHandler(logName, mode='w')
+
+    #searchNames = []
+    for filename in sorted(os.listdir(readNpyPath)):
+        logging.info(filename)
+        output = np.load(readNpyPath + filename)
+        filter_count = count_filter0_num(output, perOf0Filters)
+        logging.info(filter_count)
+        #searchNames.append(filename)
+
+    searchNames = ["conv1_2", "conv2_2", "conv3_3", "conv4_3", "conv5_3"]
+    logging.info("\n\nBegin to compute mean, min, and mode of every layer's output")
+    for searchName in searchNames:
+        loadOutputLog_calcuteMean(logName, searchName)
+
+teacher_dirNpy = "output_vgg16/filters_npy/mentor_conv1_1_iteration0.npy"
+teacher_dirFigureName = "output_vgg16/images/mentor_conv1_1_iteration0"
 #teacher_dirNpy = "output_vgg16/filters_npy/images_feed_iteration0.npy"
 #teacher_dirFigureName = "output_vgg16/images/images_feed_iteration0"
 #plot_images_afterRelu(teacher_dirNpy, teacher_dirFigureName, flag_norm=True)
-plot_images_afterRelu(teacher_dirNpy, teacher_dirFigureName, flag_norm=False)
+#plot_images_afterRelu(teacher_dirNpy, teacher_dirFigureName, flag_norm=False)
+
+readNpyPath = "output_vgg16/filters_npy/"
+logName = "output_vgg16/num_of_filter0/log_0.8.log"
+perOf0Filters = 0.8
+readNpyFile_count0Filters_saveToLog_calculateMean(logName, readNpyPath, perOf0Filters)

@@ -41,6 +41,37 @@ class Mentee(object):
 			self.parameters += [kernel, biases]
 			return out
 
+	def build_student_conv5fc1(self, images, num_classes, temp_softmax):
+		print("build_student_conv5fc1")
+		K.set_learning_phase(True)
+		#num_filters = [64, 128, 256, 512, 512] # origin
+		num_filters = [64, 128, 256, 512, 512-96] # 100per, 90per
+		with tf.name_scope('mentee'):
+			self.conv1_1 = self.build_student_oneConvLayer(images, "conv1_1", num_filters[0])
+			pool1 = tf.nn.max_pool(self.conv1_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
+			print(pool1)
+
+			self.conv2_1 = self.build_student_oneConvLayer(pool1, "conv2_1", num_filters[1])
+			pool2 = tf.nn.max_pool(self.conv2_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
+			print(pool2)
+
+			self.conv3_1 = self.build_student_oneConvLayer(pool2, "conv3_1", num_filters[2])
+			pool3 = tf.nn.max_pool(self.conv3_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
+			print(pool3)
+
+			self.conv4_1 = self.build_student_oneConvLayer(pool3, "conv4_1", num_filters[3])
+			pool4 = tf.nn.max_pool(self.conv4_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
+			print(pool4)
+
+			self.conv5_1 = self.build_student_oneConvLayer(pool4, "conv5_1", num_filters[4])
+			pool5 = tf.nn.max_pool(self.conv5_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
+			print(pool5)
+
+			self.fc3 = self.fc_student(pool5, "fc3", num_classes)
+			self.softmax = tf.nn.softmax(self.fc3 / temp_softmax)
+			print(self.fc3)
+			return self
+
 	def build_student_conv6fc3(self, images, num_classes, temp_softmax):
 		print("build_student_conv6fc3")
 		K.set_learning_phase(True)

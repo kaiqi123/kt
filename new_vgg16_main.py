@@ -13,7 +13,7 @@ from studentModels import Mentee
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 11700
+NUM_ITERATIONS = 19550
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -81,7 +81,7 @@ class VGG16(object):
             #mentee_data_dict = student.build_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed)
             mentee_data_dict = student.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         elif FLAGS.num_optimizers == 5:
-            mentee_data_dict = student.build_student_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+            mentee_data_dict = student.build_student_conv5fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         elif FLAGS.num_optimizers == 4:
             mentee_data_dict = student.build_student_conv4fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         elif FLAGS.num_optimizers == 3:
@@ -228,13 +228,13 @@ class VGG16(object):
         #self.loss_softmax = build_loss(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
         self.l1 = build_loss(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1)
         if FLAGS.num_optimizers >= 2:
-            self.l2 = build_loss(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1)
+            self.l2 = build_loss(self.mentor_data_dict.conv2_2, self.mentee_data_dict.conv2_1)
         if FLAGS.num_optimizers >= 3:
-            self.l3 = build_loss(self.mentor_data_dict.conv3_1, self.mentee_data_dict.conv3_1)
+            self.l3 = build_loss(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1)
         if FLAGS.num_optimizers >= 4:
-            self.l4 = build_loss(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1)
+            self.l4 = build_loss(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1)
         if FLAGS.num_optimizers == 5:
-            self.l5 = build_loss(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1)
+            self.l5 = build_loss(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1)
 
     def define_multiple_optimizers(self, lr):
 
