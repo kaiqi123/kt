@@ -86,8 +86,8 @@ class TeacherForCifar10(object):
 	def build_vgg16_teacher_deleteFilters(self, images, num_classes, temp_softmax):
 		print("build_vgg16_teacher")
 		K.set_learning_phase(True)
-		#width = [64-10, 64-6, 128-18, 128-26, 256-52, 256-46, 256-46, 512-138, 512-134, 512-132, 512-146, 512-172, 512-258, 4096-2540, 4096-3642] #60per,1.0
-		width = [64-58, 64-58, 128-112, 128-122, 256-238, 256-242, 256-246, 512-472, 512-476, 512-486, 512-384, 512-398, 512-416, 4096-2540, 4096-3642] #60per,1.0
+		width = [64-10, 64-6, 128-18, 128-26, 256-52, 256-46, 256-46, 512-138, 512-134, 512-132, 512-146, 512-172, 512-258, 4096-2540, 4096-3642] #60per,1.0
+		#width = [64-58, 64-58, 128-112, 128-122, 256-238, 256-242, 256-246, 512-472, 512-476, 512-486, 512-384, 512-398, 512-416, 4096-2540, 4096-3642] #60per,1.0
 
 		with tf.name_scope('mentor'):
 			self.conv1_1 = self.build_teacher_oneConvLayer(images, "conv1_1", width[0])
@@ -118,9 +118,11 @@ class TeacherForCifar10(object):
 			pool5 = tf.nn.max_pool(self.conv5_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
 			print(pool5)
 
-			self.fc1 = self.fc_teacher(pool5, "fc1", width[13])
-			self.fc2 = self.fc_teacher(self.fc1, "fc2", width[14])
-			self.fc3 = self.fc_teacher(self.fc2, "fc3", num_classes)
+			#self.fc1 = self.fc_teacher(pool5, "fc1", width[13])
+			#self.fc2 = self.fc_teacher(self.fc1, "fc2", width[14])
+			#self.fc3 = self.fc_teacher(self.fc2, "fc3", num_classes)
+			self.fc3 = self.fc_teacher(pool5, "fc3", num_classes)
+
 			self.softmax = tf.nn.softmax(self.fc3 / temp_softmax)
 			print(self.fc1)
 			print(self.fc2)
