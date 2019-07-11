@@ -118,8 +118,8 @@ class TeacherForCifar10(object):
 			pool5 = tf.nn.max_pool(self.conv5_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
 			print(pool5)
 
-			self.fc1 = self.fc_teacher(pool5, "fc1", 4096)
-			self.fc2 = self.fc_teacher(self.fc1, "fc2", 4096)
+			self.fc1 = self.fc_teacher(pool5, "fc1", width[13])
+			self.fc2 = self.fc_teacher(self.fc1, "fc2", width[14])
 			self.fc3 = self.fc_teacher(self.fc2, "fc3", num_classes)
 			self.softmax = tf.nn.softmax(self.fc3 / temp_softmax)
 			print(self.fc1)
