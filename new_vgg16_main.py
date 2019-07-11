@@ -225,7 +225,7 @@ class VGG16(object):
             loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(norm_teacher, norm_student))))
             return loss_layer
 
-        #self.loss_softmax = build_loss(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax)
+        self.loss_fc3 = build_loss(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3)
         self.l1 = build_loss(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1)
         if FLAGS.num_optimizers >= 2:
             self.l2 = build_loss(self.mentor_data_dict.conv2_2, self.mentee_data_dict.conv2_1)
@@ -240,7 +240,7 @@ class VGG16(object):
 
         print("define multiple optimizers")
         tvars = [var for var in tf.trainable_variables() if var.op.name.startswith("mentee")]
-        #self.train_op_softmax = tf.train.AdamOptimizer(lr).minimize(self.loss_softmax, var_list=tvars)
+        self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3, var_list=tvars)
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
         for var in tvars:
             print(var)
@@ -277,10 +277,10 @@ class VGG16(object):
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         if FLAGS.dataset == 'cifar10':
-            print("Build dependent student (cifar10)")
+            print("Build teacher of dependent student (cifar10)")
             vgg16_mentor = TeacherForCifar10(False)
         elif FLAGS.dataset == 'caltech101':
-            print("Build dependent student (caltech101)")
+            print("Build teacher of dependent student (caltech101)")
             vgg16_mentor = MentorForCaltech101(False)
         else:
             raise ValueError("Not found dataset name")
@@ -338,16 +338,24 @@ class VGG16(object):
                 _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
                 # _, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
             else:
-                #_, self.loss_value_soft = sess.run([self.train_op_soft, self.softloss], feed_dict=feed_dict)
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                #_, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
+                print("Run train_op0 (correct label)")
+                #print("Run train_op_fc3")
+
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+                print("Run train_op1")
                 if FLAGS.num_optimizers >= 2:
+                    print("Run train_op2")
                     _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
                 if FLAGS.num_optimizers >= 3:
+                    print("Run train_op3")
                     _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
                 if FLAGS.num_optimizers >= 4:
+                    print("Run train_op4")
                     _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
                 if FLAGS.num_optimizers == 5:
+                    print("Run train_op5")
                     _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
 
         else:
@@ -445,7 +453,7 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    self.compute_0filter_of_teacherOutput(sess, feed_dict, images_feed, i)
+                    #self.compute_0filter_of_teacherOutput(sess, feed_dict, images_feed, i)
 
                     self.run_dependent_student(feed_dict, sess, i)
 
@@ -456,9 +464,7 @@ class VGG16(object):
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
                             print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
-                            #print ('Step %d: loss_value_softmax = %.20f' % (i, self.loss_value_softmax))
                         else:
-                            #print ('Step %d: loss_value_soft = %.20f' % (i, self.loss_value_soft))
                             #print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
                             print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
