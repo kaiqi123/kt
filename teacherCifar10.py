@@ -124,9 +124,10 @@ class TeacherForCifar10(object):
 			self.fc3 = self.fc_teacher(pool5, "fc3", num_classes)
 
 			self.softmax = tf.nn.softmax(self.fc3 / temp_softmax)
-			print(self.fc1)
-			print(self.fc2)
+			#print(self.fc1)
+			#print(self.fc2)
 			print(self.fc3)
+
 			return self
 
 	def loss(self, labels):
