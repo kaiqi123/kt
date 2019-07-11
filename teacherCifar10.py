@@ -83,6 +83,50 @@ class TeacherForCifar10(object):
 			print(self.fc3)
 			return self
 
+	def build_vgg16_teacher_deleteFilters(self, images, num_classes, temp_softmax):
+		print("build_vgg16_teacher")
+		K.set_learning_phase(True)
+		width = [64-10, 64-6, 128-18, 128-26, 256-52, 256-46, 256-46, 512-138, 512-134, 512-132, 512-146, 512-172, 512-258, 4096-892, 4096-2768] #60per,0.5
+		#width = [64-10, 64-6, 128-18, 128-26, 256-52, 256-46, 256-46, 512-138, 512-134, 512-132, 512-146, 512-172, 512-258, 4096-1162, 4096-2984] #60per,0.5
+
+		with tf.name_scope('mentor'):
+			self.conv1_1 = self.build_teacher_oneConvLayer(images, "conv1_1", width[0])
+			self.conv1_2 = self.build_teacher_oneConvLayer(self.conv1_1, "conv1_2", width[1])
+			pool1 = tf.nn.max_pool(self.conv1_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
+			print(pool1)
+
+			self.conv2_1 = self.build_teacher_oneConvLayer(pool1, "conv2_1", width[2])
+			self.conv2_2 = self.build_teacher_oneConvLayer(self.conv2_1, "conv2_2", width[3])
+			pool2 = tf.nn.max_pool(self.conv2_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
+			print(pool2)
+
+			self.conv3_1 = self.build_teacher_oneConvLayer(pool2, "conv3_1", width[4])
+			self.conv3_2 = self.build_teacher_oneConvLayer(self.conv3_1, "conv3_2", width[5])
+			self.conv3_3 = self.build_teacher_oneConvLayer(self.conv3_2, "conv3_3", width[6])
+			pool3 = tf.nn.max_pool(self.conv3_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
+			print(pool3)
+
+			self.conv4_1 = self.build_teacher_oneConvLayer(pool3, "conv4_1", width[7])
+			self.conv4_2 = self.build_teacher_oneConvLayer(self.conv4_1, "conv4_2", width[8])
+			self.conv4_3 = self.build_teacher_oneConvLayer(self.conv4_2, "conv4_3", width[9])
+			pool4 = tf.nn.max_pool(self.conv4_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
+			print(pool4)
+
+			self.conv5_1 = self.build_teacher_oneConvLayer(pool4, "conv5_1", width[10])
+			self.conv5_2 = self.build_teacher_oneConvLayer(self.conv5_1, "conv5_2", width[11])
+			self.conv5_3 = self.build_teacher_oneConvLayer(self.conv5_2, "conv5_3", width[12])
+			pool5 = tf.nn.max_pool(self.conv5_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool5')
+			print(pool5)
+
+			self.fc1 = self.fc_teacher(pool5, "fc1", 4096)
+			self.fc2 = self.fc_teacher(self.fc1, "fc2", 4096)
+			self.fc3 = self.fc_teacher(self.fc2, "fc3", num_classes)
+			self.softmax = tf.nn.softmax(self.fc3 / temp_softmax)
+			print(self.fc1)
+			print(self.fc2)
+			print(self.fc3)
+			return self
+
 	def loss(self, labels):
 		labels = tf.to_int64(labels)
 		cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels,logits=self.fc3, name='xentropy')
