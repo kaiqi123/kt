@@ -343,7 +343,6 @@ class VGG16(object):
                 print("Run train_op_fc3")
                 print("Run train_op0 (correct label)")
 
-                """
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                 print("Run train_op1")
                 if FLAGS.num_optimizers >= 2:
@@ -358,7 +357,7 @@ class VGG16(object):
                 if FLAGS.num_optimizers == 5:
                     print("Run train_op5")
                     _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
-                """
+
 
         else:
             #print("do not connect teacher: "+str(i))
@@ -469,8 +468,6 @@ class VGG16(object):
                         else:
                             print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
                             print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
-
-                            """
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             if FLAGS.num_optimizers >= 2:
                                 print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
@@ -480,7 +477,7 @@ class VGG16(object):
                                 print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
                             if FLAGS.num_optimizers == 5:
                                 print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
-                            """
+
                         print ("\n")
 
 
