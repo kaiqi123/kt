@@ -194,12 +194,12 @@ class VGG16(object):
                     print("initialization: conv5_1 biases")
                     self.mentee_data_dict.parameters[9].assign(var.eval(session=sess)).eval(session=sess)
 
-                if var.op.name == "mentor/fc1/weights":
-                    print("initialization: fc1 weights")
-                    self.mentee_data_dict.parameters[10].assign(var.eval(session=sess)).eval(session=sess)
-                if var.op.name == "mentor/fc1/biases":
-                    print("initialization: fc1 biases")
-                    self.mentee_data_dict.parameters[11].assign(var.eval(session=sess)).eval(session=sess)
+                #if var.op.name == "mentor/fc1/weights":
+                #    print("initialization: fc1 weights")
+                #    self.mentee_data_dict.parameters[10].assign(var.eval(session=sess)).eval(session=sess)
+                #if var.op.name == "mentor/fc1/biases":
+                #    print("initialization: fc1 biases")
+                #    self.mentee_data_dict.parameters[11].assign(var.eval(session=sess)).eval(session=sess)
 
             if FLAGS.num_optimizers == 6:
                 if var.op.name == "mentor/conv5_1/weights":
@@ -291,7 +291,7 @@ class VGG16(object):
         if FLAGS.num_optimizers == 6:
             self.mentee_data_dict = vgg16_mentee.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         elif FLAGS.num_optimizers == 5:
-            self.mentee_data_dict = vgg16_mentee.build_student_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+            self.mentee_data_dict = vgg16_mentee.build_student_conv5fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         else:
             raise ValueError("Not found num_optimizers")
 
@@ -384,16 +384,16 @@ class VGG16(object):
         mentor_conv3_1, mentor_conv3_2, mentor_conv3_3, \
         mentor_conv4_1, mentor_conv4_2, mentor_conv4_3, \
         mentor_conv5_1, mentor_conv5_2, mentor_conv5_3, \
-        mentor_fc1, mentor_fc2 \
+        mentor_fc1, mentor_fc2, mentor_fc3 \
             = sess.run([self.mentor_data_dict.conv1_1, self.mentor_data_dict.conv1_2,
                         self.mentor_data_dict.conv2_1, self.mentor_data_dict.conv2_2,
                         self.mentor_data_dict.conv3_1, self.mentor_data_dict.conv3_2, self.mentor_data_dict.conv3_3,
                         self.mentor_data_dict.conv4_1, self.mentor_data_dict.conv4_2, self.mentor_data_dict.conv4_3,
                         self.mentor_data_dict.conv5_1, self.mentor_data_dict.conv5_2, self.mentor_data_dict.conv5_3,
-                        self.mentor_data_dict.fc1, self.mentor_data_dict.fc2],
+                        self.mentor_data_dict.fc1, self.mentor_data_dict.fc2, self.mentor_data_dict.fc3],
                        feed_dict=feed_dict)
+        """
         self.count_filter0_num(mentor_conv1_1, "conv1_1")
-        self.count_filter0_num(mentor_conv1_2, "conv1_2")
         self.count_filter0_num(mentor_conv2_1, "conv2_1")
         self.count_filter0_num(mentor_conv2_2, "conv2_2")
         self.count_filter0_num(mentor_conv3_1, "conv3_1")
@@ -405,6 +405,7 @@ class VGG16(object):
         self.count_filter0_num(mentor_conv5_1, "conv5_1")
         self.count_filter0_num(mentor_conv5_2, "conv5_2")
         self.count_filter0_num(mentor_conv5_3, "conv5_3")
+        """
 
         print(images_feed.shape)
         np.save("output_vgg16/filters_npy/images_feed_"+str(iteration)+".npy", images_feed)
@@ -421,6 +422,9 @@ class VGG16(object):
         np.save("output_vgg16/filters_npy/mentor_conv5_1_iteration"+str(iteration)+".npy", mentor_conv5_1)
         np.save("output_vgg16/filters_npy/mentor_conv5_2_iteration"+str(iteration)+".npy", mentor_conv5_2)
         np.save("output_vgg16/filters_npy/mentor_conv5_3_iteration"+str(iteration)+".npy", mentor_conv5_3)
+        np.save("output_vgg16/filters_npy/mentor_fc1_iteration"+str(iteration)+".npy", mentor_fc1)
+        np.save("output_vgg16/filters_npy/mentor_fc2_iteration"+str(iteration)+".npy", mentor_fc2)
+        np.save("output_vgg16/filters_npy/mentor_fc3_iteration"+str(iteration)+".npy", mentor_fc3)
 
     def train_model(self, data_input_train, data_input_test, images_placeholder, labels_placeholder, sess):
 
