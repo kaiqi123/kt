@@ -70,7 +70,7 @@ def plot_images_afterRelu(dirNpy, dirName, flag_norm=False):
         #plt.savefig(sum_pictureName)
         plt.show()
 
-def count_filter0_num(output, perNum):
+def count_filter0_num_convLayers(output, perNum):
     filter_count = []
     for i in range(output.shape[0]):
         img = output[i]
@@ -84,8 +84,20 @@ def count_filter0_num(output, perNum):
             if count0_perFIlter >= perNum:
                 count = count + 1
 
-
         filter_count.append(count)
+    return filter_count
+
+def count_filter0_num_fcLayers(output, about0num):
+    print(output.shape)
+    filter_count = []
+    for i in range(output.shape[0]):
+        #print(output[i].shape
+        count0Num_perImg = 0
+        for j in range(output.shape[1]):
+            if output[i][j] <= about0num:
+                count0Num_perImg = count0Num_perImg + 1
+        filter_count.append(count0Num_perImg)
+        #print(np.max(output[i]), np.min(output[i]))
     return filter_count
 
 def loadOutputLog_calcuteMean(filename, searchName):
@@ -106,15 +118,18 @@ def readNpyFile_count0Filters_saveToLog_calculateMean(logName, readNpyPath, perO
     logging.basicConfig(filename=logName, level=logging.DEBUG)
     logging.FileHandler(logName, mode='w')
 
-    #searchNames = []
+    searchNames = []
     for filename in sorted(os.listdir(readNpyPath)):
         logging.info(filename)
         output = np.load(readNpyPath + filename)
-        filter_count = count_filter0_num(output, perOf0Filters)
+        if "conv" in readNpyPath:
+            filter_count = count_filter0_num_convLayers(output, perOf0Filters)
+        elif "fc" in readNpyPath:
+            filter_count = count_filter0_num_fcLayers(output, perOf0Filters)
         logging.info(filter_count)
-        #searchNames.append(filename)
+        searchNames.append(filename)
 
-    searchNames = ["conv1_2", "conv2_2", "conv3_3", "conv4_3", "conv5_3"]
+    #searchNames = ["conv1_2", "conv2_2", "conv3_3", "conv4_3", "conv5_3"]
     logging.info("\n\nBegin to compute mean, min, and mode of every layer's output")
     for searchName in searchNames:
         loadOutputLog_calcuteMean(logName, searchName)
@@ -126,7 +141,12 @@ teacher_dirFigureName = "output_vgg16/images/mentor_conv1_1_iteration0"
 #plot_images_afterRelu(teacher_dirNpy, teacher_dirFigureName, flag_norm=True)
 #plot_images_afterRelu(teacher_dirNpy, teacher_dirFigureName, flag_norm=False)
 
-readNpyPath = "output_vgg16/filters_npy/"
-logName = "output_vgg16/num_of_filter0/log_0.1.log"
-perOf0Filters = 0.1
-readNpyFile_count0Filters_saveToLog_calculateMean(logName, readNpyPath, perOf0Filters)
+readNpyPath = "output_vgg16/filters_npy_conv/"
+logName = "output_vgg16/num_of_filter0/conv/log_0.6.log"
+perOf0Filters = 0.6
+#readNpyFile_count0Filters_saveToLog_calculateMean(logName, readNpyPath, perOf0Filters)
+
+readNpyPath_fc = "output_vgg16/filters_npy_fc/"
+logName_fc = "output_vgg16/num_of_filter0/fc/log_0.6.log"
+about0num = 0.6
+readNpyFile_count0Filters_saveToLog_calculateMean(logName_fc, readNpyPath_fc, about0num)
