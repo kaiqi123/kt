@@ -245,7 +245,7 @@ class VGG16(object):
         for var in tvars:
             print(var)
         print('num of mentee trainable_variables: %d' % len(tvars))
-        """
+
         l1_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv1_1/weights"
                        or var.op.name == "mentee/conv1_1/biases"]
         self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
@@ -274,7 +274,7 @@ class VGG16(object):
                            or var.op.name == "mentee/conv5_1/biases"]
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
             print(l5_var_list)
-        """
+
     def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         if FLAGS.dataset == 'cifar10':
             print("Build teacher of dependent student (cifar10)")
@@ -339,7 +339,6 @@ class VGG16(object):
             else:
                 _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
-                """
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                 if FLAGS.num_optimizers >= 2:
                     _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
@@ -349,7 +348,7 @@ class VGG16(object):
                     _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
                 if FLAGS.num_optimizers == 5:
                     _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
-                """
+
         else:
             #print("do not connect teacher: "+str(i))
             _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
@@ -459,7 +458,6 @@ class VGG16(object):
                         else:
                             print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
                             print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
-                            """
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             if FLAGS.num_optimizers >= 2:
                                 print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
@@ -469,7 +467,6 @@ class VGG16(object):
                                 print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
                             if FLAGS.num_optimizers == 5:
                                 print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
-                            """
 
                         print ("\n")
 
