@@ -219,10 +219,10 @@ class VGG16(object):
     def caculate_rmse_loss(self):
 
         def build_loss(teacher_layer, student_layer):
-            norm_teacher = tf.nn.l2_normalize(teacher_layer, axis=0)
-            norm_student = tf.nn.l2_normalize(student_layer, axis=0)
-            #loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(teacher_layer, student_layer))))
-            loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(norm_teacher, norm_student))))
+            #norm_teacher = tf.nn.l2_normalize(teacher_layer, axis=0)
+            #norm_student = tf.nn.l2_normalize(student_layer, axis=0)
+            #loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(norm_teacher, norm_student))))
+            loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(teacher_layer, student_layer))))
             return loss_layer
 
         self.loss_fc3 = build_loss(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3)
