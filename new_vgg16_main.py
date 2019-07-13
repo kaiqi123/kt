@@ -228,20 +228,20 @@ class VGG16(object):
         self.loss_fc3 = build_loss(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3)
         self.l1 = build_loss(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1)
         if FLAGS.num_optimizers >= 2:
-            self.l2 = build_loss(self.mentor_data_dict.conv2_2, self.mentee_data_dict.conv2_1)
+            self.l2 = build_loss(self.mentor_data_dict.conv2_1, self.mentee_data_dict.conv2_1)
         if FLAGS.num_optimizers >= 3:
-            self.l3 = build_loss(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1)
+            self.l3 = build_loss(self.mentor_data_dict.conv3_1, self.mentee_data_dict.conv3_1)
         if FLAGS.num_optimizers >= 4:
-            self.l4 = build_loss(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1)
+            self.l4 = build_loss(self.mentor_data_dict.conv4_2, self.mentee_data_dict.conv4_1)
         if FLAGS.num_optimizers == 5:
-            self.l5 = build_loss(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1)
+            self.l5 = build_loss(self.mentor_data_dict.conv5_2, self.mentee_data_dict.conv5_1)
 
     def define_multiple_optimizers(self, lr):
 
         print("define multiple optimizers")
         tvars = [var for var in tf.trainable_variables() if var.op.name.startswith("mentee")]
         self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3, var_list=tvars)
-        #self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
+        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
         for var in tvars:
             print(var)
         print('num of mentee trainable_variables: %d' % len(tvars))
@@ -337,8 +337,8 @@ class VGG16(object):
                 _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
                 _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
             else:
-                _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
-                #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                #_, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
+                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                 if FLAGS.num_optimizers >= 2:
                     _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
@@ -456,8 +456,8 @@ class VGG16(object):
                             print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
                             print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
                         else:
-                            print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
-                            #print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
+                            #print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
+                            print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             if FLAGS.num_optimizers >= 2:
                                 print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
