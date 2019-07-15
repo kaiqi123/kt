@@ -350,8 +350,9 @@ class VGG16(object):
                 if FLAGS.num_optimizers == 5:
                     _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
                 """
-                _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
                 _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
+
 
         else:
             #print("do not connect teacher: "+str(i))
@@ -460,8 +461,9 @@ class VGG16(object):
                             print ('Step %d: loss_value2 = %.20f' % (i, self.loss_value2))
                             print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
                         else:
-                            print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
                             print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
+                            print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
+
                             """
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             if FLAGS.num_optimizers >= 2:
