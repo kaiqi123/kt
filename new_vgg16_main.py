@@ -339,7 +339,6 @@ class VGG16(object):
                 _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
                 _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
             else:
-                _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
                 _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                 if FLAGS.num_optimizers >= 2:
                     _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
@@ -349,6 +348,7 @@ class VGG16(object):
                     _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
                 if FLAGS.num_optimizers == 5:
                     _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
+                _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
                 #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
         else:
@@ -459,7 +459,6 @@ class VGG16(object):
                             print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
                         else:
 
-                            print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
                             #print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             if FLAGS.num_optimizers >= 2:
@@ -470,6 +469,7 @@ class VGG16(object):
                                 print ('Step %d: loss_value4 = %.20f' % (i, self.loss_value4))
                             if FLAGS.num_optimizers == 5:
                                 print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
+                            print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
 
                         print ("\n")
 
