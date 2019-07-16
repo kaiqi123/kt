@@ -255,7 +255,7 @@ class VGG16(object):
         if FLAGS.num_optimizers >= 2:
             l2_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv2_1/weights"
                            or var.op.name == "mentee/conv2_1/biases"]
-            l2_var_list = l2_var_list + l1_var_list
+            l2_var_list =  l1_var_list + l2_var_list
             self.train_op2 = tf.train.AdamOptimizer(lr).minimize(self.l2, var_list=l2_var_list)
             print(l2_var_list)
 
@@ -276,7 +276,7 @@ class VGG16(object):
         if FLAGS.num_optimizers == 5:
             l5_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv5_1/weights"
                            or var.op.name == "mentee/conv5_1/biases"]
-            l5_var_list = l5_var_list + l4_var_list
+            l5_var_list = l4_var_list + l5_var_list
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
             print(l5_var_list)
 
