@@ -125,7 +125,7 @@ class VGG16(object):
         #mentor_data_dict = mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         mentor_data_dict = mentor.build_vgg16_teacher_deleteFilters(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
 
-        #self.loss = mentor.loss(labels_placeholder)
+        self.loss = mentor.loss(labels_placeholder)
 
         if FLAGS.dataset == 'caltech101':
             def get_mentor_variables_to_restore():
@@ -226,7 +226,6 @@ class VGG16(object):
             return loss_layer
 
         self.loss_fc3 = build_loss(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3)
-        """
         self.l1 = build_loss(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1)
         if FLAGS.num_optimizers >= 2:
             self.l2 = build_loss(self.mentor_data_dict.conv2_2, self.mentee_data_dict.conv2_1)
@@ -236,21 +235,16 @@ class VGG16(object):
             self.l4 = build_loss(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1)
         if FLAGS.num_optimizers == 5:
             self.l5 = build_loss(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1)
-        """
-
 
     def define_multiple_optimizers(self, lr):
 
         print("define multiple optimizers")
-
-
         tvars = [var for var in tf.trainable_variables() if var.op.name.startswith("mentee")]
         self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3, var_list=tvars)
-        #self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
+        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
         for var in tvars:
             print(var)
         print('num of mentee trainable_variables: %d' % len(tvars))
-        """
 
         l1_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv1_1/weights"
                        or var.op.name == "mentee/conv1_1/biases"]
@@ -280,7 +274,7 @@ class VGG16(object):
                            or var.op.name == "mentee/conv5_1/biases"]
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
             print(l5_var_list)
-        """
+
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         if FLAGS.dataset == 'cifar10':
@@ -353,10 +347,8 @@ class VGG16(object):
                 if FLAGS.num_optimizers == 5:
                     _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
                 """
-                #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                 _, self.loss_value_fc3 = sess.run([self.train_op_fc3, self.loss_fc3], feed_dict=feed_dict)
-
-
+                _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
 
         else:
             #print("do not connect teacher: "+str(i))
@@ -466,9 +458,8 @@ class VGG16(object):
                             print ('Step %d: loss_value3 = %.20f' % (i, self.loss_value3))
                         else:
 
-                            #print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             print ('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_fc3))
-
+                            print ('Step %d: loss_value0 = %.20f' % (i, self.loss_value0))
                             """
                             print ('Step %d: loss_value1 = %.20f' % (i, self.loss_value1))
                             if FLAGS.num_optimizers >= 2:
@@ -480,8 +471,6 @@ class VGG16(object):
                             if FLAGS.num_optimizers == 5:
                                 print ('Step %d: loss_value5 = %.20f' % (i, self.loss_value5))
                             """
-
-
                         print ("\n")
 
 
