@@ -142,11 +142,11 @@ teacher_dirFigureName = "output_vgg16/images/mentor_conv1_1_iteration0"
 #plot_images_afterRelu(teacher_dirNpy, teacher_dirFigureName, flag_norm=False)
 
 readNpyPath = "output_vgg16/filters_npy_conv/"
-logName = "output_vgg16/num_of_filter0/conv/log_0.2.log"
-perOf0Filters = 0.2
-#readNpyFile_count0Filters_saveToLog_calculateMean(logName, readNpyPath, perOf0Filters)
+logName = "output_vgg16/num_of_filter0/conv/log_0.1.log"
+perOf0Filters = 0.1
+readNpyFile_count0Filters_saveToLog_calculateMean(logName, readNpyPath, perOf0Filters)
 
 readNpyPath_fc = "output_vgg16/filters_npy_fc/"
 logName_fc = "output_vgg16/num_of_filter0/fc/log_2.0.log"
 about0num = 2.0
-readNpyFile_count0Filters_saveToLog_calculateMean(logName_fc, readNpyPath_fc, about0num)
+#readNpyFile_count0Filters_saveToLog_calculateMean(logName_fc, readNpyPath_fc, about0num)
