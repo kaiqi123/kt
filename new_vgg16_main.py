@@ -231,7 +231,8 @@ class VGG16(object):
         #self.l3 = build_loss(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1)
         #self.l4 = build_loss(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1)
         #self.l5 = build_loss(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1)
-        self.loss_list = [self.l1,self.l2,self.loss_fc3,self.loss]
+        #self.loss_list = [self.l1,self.l2,self.loss_fc3,self.loss]
+        self.loss_list = [self.l1,self.l2,self.loss_fc3]
 
     def define_multiple_optimizers(self, lr):
         print("define multiple optimizers")
@@ -267,7 +268,9 @@ class VGG16(object):
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
         print(l5_var_list)
         """
-        self.train_op_list = [self.train_op1, self.train_op2, self.train_op0, self.train_op_fc3]
+        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op0, self.train_op_fc3]
+        self.train_op_list = [self.train_op1, self.train_op2, self.train_op_fc3]
+        print("Number of optimizers is: "+str(len(self.train_op_list)))
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         if FLAGS.dataset == 'cifar10':
@@ -404,7 +407,7 @@ class VGG16(object):
 
                 if FLAGS.dependent_student:
 
-                    #self.compute_0filter_of_teacherOutput(sess, feed_dict, images_feed, i)
+                    # self.compute_0filter_of_teacherOutput(sess, feed_dict, images_feed, i)
                     # self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict, FLAGS.num_optimizers)
                     # cosine = sess.run(self.cosine, feed_dict=feed_dict)
                     # self.select_optimizers_and_loss(cosine)
@@ -413,8 +416,8 @@ class VGG16(object):
                     if i % 10 == 0:
                         print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
                         print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
-                        print('Step %d: loss_value0 = %.20f' % (i, self.loss_value_list[3]))
                         print('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_list[2]))
+                        #print('Step %d: loss_value0 = %.20f' % (i, self.loss_value_list[3]))
                         #print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                         #print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
                         #print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
