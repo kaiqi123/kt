@@ -147,6 +147,6 @@ perOf0Filters = 0.2
 #readNpyFile_count0Filters_saveToLog_calculateMean(logName, readNpyPath, perOf0Filters)
 
 readNpyPath_fc = "output_vgg16/filters_npy_fc/"
-logName_fc = "output_vgg16/num_of_filter0/fc/log_1.5.log"
-about0num = 1.5
+logName_fc = "output_vgg16/num_of_filter0/fc/log_1.3.log"
+about0num = 1.3
 readNpyFile_count0Filters_saveToLog_calculateMean(logName_fc, readNpyPath_fc, about0num)
