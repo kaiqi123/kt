@@ -278,7 +278,7 @@ class VGG16(object):
             #l5_var_list = l4_var_list + l5_var_list
             self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
             print(l5_var_list)
-        self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op_fc3]
+        self.train_op_list = [self.train_op_fc3, self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5]
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         if FLAGS.dataset == 'cifar10':
