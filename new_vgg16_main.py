@@ -246,12 +246,12 @@ class VGG16(object):
                        or var.op.name == "mentee/conv1_1/biases"]
         self.train_op1 = tf.train.AdamOptimizer(lr).minimize(self.l1, var_list=l1_var_list)
         print(l1_var_list)
-
+        """
         l2_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv2_1/weights"
                        or var.op.name == "mentee/conv2_1/biases"]
         self.train_op2 = tf.train.AdamOptimizer(lr).minimize(self.l2, var_list=l2_var_list)
         print(l2_var_list)
-        """
+
         l3_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/conv3_1/weights"
                        or var.op.name == "mentee/conv3_1/biases"]
         self.train_op3 = tf.train.AdamOptimizer(lr).minimize(self.l3, var_list=l3_var_list)
