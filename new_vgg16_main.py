@@ -218,10 +218,17 @@ class VGG16(object):
 
     def caculate_rmse_loss(self):
 
+        def zero_pad(inputs, in_filter, out_filter):
+            outputs = tf.pad(inputs,[[0, 0], [0, 0], [0, 0], [(out_filter - in_filter) // 2, (out_filter - in_filter) // 2]])
+            return outputs
+
         def build_loss(teacher_layer, student_layer):
             #norm_teacher = tf.nn.l2_normalize(teacher_layer, axis=0)
             #norm_student = tf.nn.l2_normalize(student_layer, axis=0)
             #loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(norm_teacher, norm_student))))
+            if student_layer.get_shape()[3] != teacher_layer.get_shape()[3]:
+                tf.logging.info("Zero padding on student: {}".format(student_layer))
+                student_layer = zero_pad(student_layer, student_layer.get_shape()[3], teacher_layer.get_shape()[3])
             loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(teacher_layer, student_layer))))
             return loss_layer
 
