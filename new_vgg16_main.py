@@ -276,7 +276,8 @@ class VGG16(object):
         print(l5_var_list)
         """
         #self.train_op_list = [self.train_op1, self.train_op2, self.train_op0, self.train_op_fc3]
-        self.train_op_list = [self.train_op1, self.train_op2, self.train_op_fc3]
+        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op_fc3]
+        self.train_op_list = [self.train_op_fc3]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
@@ -421,9 +422,9 @@ class VGG16(object):
                     _, self.loss_value_list = sess.run([self.train_op_list, self.loss_list], feed_dict=feed_dict)
 
                     if i % 10 == 0:
-                        print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
-                        print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
-                        print('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_list[2]))
+                        #print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
+                        #print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
+                        print('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_list[0]))
                         #print('Step %d: loss_value0 = %.20f' % (i, self.loss_value_list[3]))
                         #print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                         #print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
