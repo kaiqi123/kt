@@ -233,7 +233,6 @@ class VGG16(object):
             return loss_layer
 
         self.loss_fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
-        #self.loss_fc3 = build_loss(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3)
         self.l1 = build_loss(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1)
         self.l2 = build_loss(self.mentor_data_dict.conv2_2, self.mentee_data_dict.conv2_1)
         #self.l3 = build_loss(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1)

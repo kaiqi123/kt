@@ -46,8 +46,8 @@ class Mentee(object):
 		K.set_learning_phase(True)
 		#num_filters = [64, 128, 256, 512, 512] # origin
 		#num_filters = [64, 128, 256, 512, 512-96] # 100per, 90per
-		num_filters = [64-2, 128-6, 256-10, 512-30, 512-258] # 70per
-		#num_filters = [64-6, 128-26, 256-46, 512-132, 512-258] # 60per
+		#num_filters = [64-2, 128-6, 256-10, 512-30, 512-258] # 70per
+		num_filters = [64-6, 128-26, 256-46, 512-132, 512-258] # 60per
 		#num_filters = [64-22, 128-68, 256-136, 512-306, 512-416] # 50per
 		#num_filters = [64-58, 128-122, 256-246, 512-486, 512-416] # 30per
 
