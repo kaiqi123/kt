@@ -276,8 +276,8 @@ class VGG16(object):
         print(l5_var_list)
         """
         #self.train_op_list = [self.train_op1, self.train_op2, self.train_op0, self.train_op_fc3]
-        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op_fc3]
-        self.train_op_list = [self.train_op1, self.train_op_fc3]
+        self.train_op_list = [self.train_op1, self.train_op2, self.train_op_fc3]
+        #self.train_op_list = [self.train_op1, self.train_op_fc3]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
@@ -423,8 +423,8 @@ class VGG16(object):
 
                     if i % 10 == 0:
                         print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
-                        #print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
-                        print('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_list[1]))
+                        print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
+                        print('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_list[2]))
                         #print('Step %d: loss_value0 = %.20f' % (i, self.loss_value_list[3]))
                         #print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                         #print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
@@ -436,9 +436,9 @@ class VGG16(object):
 
                     # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
-                    if FLAGS.teacher:
-                        print("save teacher to: "+str(FLAGS.teacher_weights_filename))
-                        self.saver.save(sess, FLAGS.teacher_weights_filename)
+                    #if FLAGS.teacher:
+                    #    print("save teacher to: "+str(FLAGS.teacher_weights_filename))
+                    #    self.saver.save(sess, FLAGS.teacher_weights_filename)
                     #elif FLAGS.student:
                     #    saver.save(sess, FLAGS.student_filename)
                     #elif FLAGS.dependent_student:
