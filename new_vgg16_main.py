@@ -247,7 +247,7 @@ class VGG16(object):
         print("define multiple optimizers")
         tvars = [var for var in tf.trainable_variables() if var.op.name.startswith("mentee")]
         #self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3, var_list=tvars)
-        #self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
+        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
         for var in tvars:
             print(var)
         print('num of mentee trainable_variables: %d' % len(tvars))
@@ -420,17 +420,26 @@ class VGG16(object):
                     # self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict, FLAGS.num_optimizers)
                     # cosine = sess.run(self.cosine, feed_dict=feed_dict)
                     # self.select_optimizers_and_loss(cosine)
-                    _, self.loss_value_list = sess.run([self.train_op_list, self.loss_list], feed_dict=feed_dict)
+
+                    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                    _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
+                    _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
+                    _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
+                    _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
+                    _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
+                    self.loss_value_list = [self.loss_value1,self.loss_value2,self.loss_value3,self.loss_value4,self.loss_value5,self.loss_value0]
+
+                    #_, self.loss_value_list = sess.run([self.train_op_list, self.loss_list], feed_dict=feed_dict)
 
                     if i % 10 == 0:
                         print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
                         print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
-                        #print('Step %d: loss_value_fc3 = %.20f' % (i, self.loss_value_list[0]))
                         print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                         print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
                         print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
-                        #print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[5]))
+                        print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[5]))
                         print ("\n")
+
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
 
