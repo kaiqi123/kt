@@ -70,7 +70,21 @@ def plot_images_afterRelu(dirNpy, dirName, flag_norm=False):
         #plt.savefig(sum_pictureName)
         plt.show()
 
+def count_filter0_num_fcLayers(output, about0num):
+    #print(output.shape)
+    filter_count = []
+    for i in range(output.shape[0]):
+        #print(output[i].shape)
+        count0Num_perImg = 0
+        for j in range(output.shape[1]):
+            if output[i][j] <= about0num:
+                count0Num_perImg = count0Num_perImg + 1
+        filter_count.append(count0Num_perImg)
+        #print(np.max(output[i]), np.min(output[i]))
+    return filter_count
+
 def count_filter0_num_convLayers(output, perNum):
+    print(output.shape)
     filter_count = []
     for i in range(output.shape[0]):
         img = output[i]
@@ -85,19 +99,6 @@ def count_filter0_num_convLayers(output, perNum):
                 count = count + 1
 
         filter_count.append(count)
-    return filter_count
-
-def count_filter0_num_fcLayers(output, about0num):
-    print(output.shape)
-    filter_count = []
-    for i in range(output.shape[0]):
-        #print(output[i].shape
-        count0Num_perImg = 0
-        for j in range(output.shape[1]):
-            if output[i][j] <= about0num:
-                count0Num_perImg = count0Num_perImg + 1
-        filter_count.append(count0Num_perImg)
-        #print(np.max(output[i]), np.min(output[i]))
     return filter_count
 
 def loadOutputLog_calcuteMean(filename, searchName):

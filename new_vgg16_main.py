@@ -245,7 +245,7 @@ class VGG16(object):
         print("define multiple optimizers")
         tvars = [var for var in tf.trainable_variables() if var.op.name.startswith("mentee")]
         self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3, var_list=tvars)
-        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
+        #self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
         for var in tvars:
             print(var)
         print('num of mentee trainable_variables: %d' % len(tvars))
@@ -321,8 +321,8 @@ class VGG16(object):
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, FLAGS.teacher_weights_filename)
 
-        #if FLAGS.initialization:
-        #    self.initilize(sess)
+        if FLAGS.initialization:
+            self.initilize(sess)
 
     def count_filter0_num(self, output, name):
         print(name)
