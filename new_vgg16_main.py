@@ -81,7 +81,7 @@ class VGG16(object):
             #mentee_data_dict = student.build_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed)
             mentee_data_dict = student.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         elif FLAGS.num_optimizers == 5:
-            mentee_data_dict = student.build_student_conv5fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+            mentee_data_dict = student.build_student_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         elif FLAGS.num_optimizers == 4:
             mentee_data_dict = student.build_student_conv4fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         elif FLAGS.num_optimizers == 3:
@@ -294,7 +294,7 @@ class VGG16(object):
         self.mentor_data_dict = vgg16_mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
 
         if FLAGS.num_optimizers == 5:
-            self.mentee_data_dict = vgg16_mentee.build_student_conv5fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+            self.mentee_data_dict = vgg16_mentee.build_student_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         else:
             raise ValueError("Not found num_optimizers")
 
