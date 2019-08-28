@@ -115,6 +115,7 @@ class Mentee(object):
 			return self
 
 	def build_student_conv5fc2(self, images, num_classes, temp_softmax):
+		print("build_student_conv5fc2")
 		K.set_learning_phase(True)
 		num_filters = [64, 128, 256, 512, 512]
 		with tf.name_scope('mentee'):
