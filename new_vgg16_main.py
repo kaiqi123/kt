@@ -428,7 +428,7 @@ class VGG16(object):
                         print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                         print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
                         print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
-                        print('Step %d: loss_value0 = %.20f' % (i, self.loss_value_list[5]))
+                        print('Step %d: loss_with_label = %.20f' % (i, self.loss))
                         print ("\n")
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
