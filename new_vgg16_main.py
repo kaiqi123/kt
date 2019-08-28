@@ -238,8 +238,9 @@ class VGG16(object):
         self.l3 = build_loss(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1)
         self.l4 = build_loss(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1)
         self.l5 = build_loss(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1)
-        self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5]
+        self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5,self.loss]
         #self.loss_list = [self.loss_fc3]
+        print("Number of loss is: "+str(len(self.loss_list)))
 
 
     def define_multiple_optimizers(self, lr):
@@ -428,7 +429,7 @@ class VGG16(object):
                         print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                         print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
                         print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
-                        print('Step %d: loss_with_label = %.20f' % (i, self.loss))
+                        print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[5]))
                         print ("\n")
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
