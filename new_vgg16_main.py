@@ -238,11 +238,10 @@ class VGG16(object):
         self.l3 = build_loss(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1)
         self.l4 = build_loss(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1)
         self.l5 = build_loss(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1)
-        self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5]
+
+        #self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5]
         #self.loss_list = [self.loss_fc3]
-
-
-        print("Number of loss is: "+str(len(self.loss_list)))
+        #print("Number of loss is: "+str(len(self.loss_list)))
 
 
     def define_multiple_optimizers(self, lr):
@@ -281,7 +280,7 @@ class VGG16(object):
 
         #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5]
         #self.train_op_list = [self.train_op_fc3]
-        print("Number of optimizers is: "+str(len(self.train_op_list)))
+        #print("Number of optimizers is: "+str(len(self.train_op_list)))
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         if FLAGS.dataset == 'cifar10':
