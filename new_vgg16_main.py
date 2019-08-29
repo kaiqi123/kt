@@ -240,6 +240,8 @@ class VGG16(object):
         self.l5 = build_loss(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1)
         self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5]
         #self.loss_list = [self.loss_fc3]
+
+
         print("Number of loss is: "+str(len(self.loss_list)))
 
 
@@ -247,7 +249,7 @@ class VGG16(object):
         print("define multiple optimizers")
         tvars = [var for var in tf.trainable_variables() if var.op.name.startswith("mentee")]
         #self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3, var_list=tvars)
-        self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
+        #self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
         for var in tvars:
             print(var)
         print('num of mentee trainable_variables: %d' % len(tvars))
@@ -277,7 +279,7 @@ class VGG16(object):
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
         print(l5_var_list)
 
-        self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5]
+        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5]
         #self.train_op_list = [self.train_op_fc3]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
@@ -421,13 +423,13 @@ class VGG16(object):
                     # cosine = sess.run(self.cosine, feed_dict=feed_dict)
                     # self.select_optimizers_and_loss(cosine)
 
-                    _, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
+                    #_, self.loss_value0 = sess.run([self.train_op0, self.loss], feed_dict=feed_dict)
                     _, self.loss_value1 = sess.run([self.train_op1, self.l1], feed_dict=feed_dict)
                     _, self.loss_value2 = sess.run([self.train_op2, self.l2], feed_dict=feed_dict)
                     _, self.loss_value3 = sess.run([self.train_op3, self.l3], feed_dict=feed_dict)
                     _, self.loss_value4 = sess.run([self.train_op4, self.l4], feed_dict=feed_dict)
                     _, self.loss_value5 = sess.run([self.train_op5, self.l5], feed_dict=feed_dict)
-                    self.loss_value_list = [self.loss_value1,self.loss_value2,self.loss_value3,self.loss_value4,self.loss_value5,self.loss_value0]
+                    self.loss_value_list = [self.loss_value1,self.loss_value2,self.loss_value3,self.loss_value4,self.loss_value5]
 
                     #_, self.loss_value_list = sess.run([self.train_op_list, self.loss_list], feed_dict=feed_dict)
 
@@ -437,7 +439,7 @@ class VGG16(object):
                         print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                         print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
                         print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
-                        print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[5]))
+                        #print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[5]))
                         print ("\n")
 
 
