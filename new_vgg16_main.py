@@ -239,8 +239,8 @@ class VGG16(object):
         self.l4 = build_loss(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1)
         self.l5 = build_loss(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1)
 
-        self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5]
-        #self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss_fc3, self.loss]
+        #self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5]
+        self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss_fc3]
         #self.loss_list = [self.loss_fc3, self.loss]
         #self.loss_list = [self.loss_fc3]
         print("Number of loss is: "+str(len(self.loss_list)))
@@ -280,9 +280,9 @@ class VGG16(object):
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
         print(l5_var_list)
 
-        self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5]
+        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5]
         #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op0]
-        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op_fc3, self.train_op0]
+        self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op_fc3]
         #self.train_op_list = [self.train_op_fc3, self.train_op0]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
@@ -434,7 +434,7 @@ class VGG16(object):
                         print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                         print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
                         print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
-                        #print('Step %d: loss_value_fc = %.20f' % (i, self.loss_value_list[0]))
+                        print('Step %d: loss_value_fc = %.20f' % (i, self.loss_value_list[5]))
                         #print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[1]))
                         print ("\n")
 
