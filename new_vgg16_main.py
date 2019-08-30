@@ -77,17 +77,8 @@ class VGG16(object):
         student = Mentee(seed)
         #student = Mentee(FLAGS.num_channels)
 
-        if FLAGS.num_optimizers == 6:
-            #mentee_data_dict = student.build_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax, seed)
-            mentee_data_dict = student.build_student_conv6fc3(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
-        elif FLAGS.num_optimizers == 5:
-            mentee_data_dict = student.build_student_conv5fc2(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
-        elif FLAGS.num_optimizers == 4:
-            mentee_data_dict = student.build_student_conv4fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
-        elif FLAGS.num_optimizers == 3:
-            mentee_data_dict = student.build_student_conv3fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
-        elif FLAGS.num_optimizers == 2:
-            mentee_data_dict = student.build_student_conv2fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
+        if FLAGS.num_optimizers == 5:
+            mentee_data_dict = student.build_student_conv5fc1(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         else:
             raise ValueError("Not found num_optimizers")
 
@@ -232,15 +223,15 @@ class VGG16(object):
             loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(teacher_layer, student_layer))))
             return loss_layer
 
-        self.loss_fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
         self.l1 = build_loss(self.mentor_data_dict.conv1_2, self.mentee_data_dict.conv1_1)
         self.l2 = build_loss(self.mentor_data_dict.conv2_2, self.mentee_data_dict.conv2_1)
         self.l3 = build_loss(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1)
         self.l4 = build_loss(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1)
         self.l5 = build_loss(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1)
+        #self.loss_fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
 
+        self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss]
         #self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5]
-        self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss_fc3]
         #self.loss_list = [self.loss_fc3, self.loss]
         #self.loss_list = [self.loss_fc3]
         print("Number of loss is: "+str(len(self.loss_list)))
@@ -280,9 +271,9 @@ class VGG16(object):
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
         print(l5_var_list)
 
+        self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op0]
         #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5]
-        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op0]
-        self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op_fc3]
+        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op_fc3]
         #self.train_op_list = [self.train_op_fc3, self.train_op0]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
@@ -327,8 +318,8 @@ class VGG16(object):
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, FLAGS.teacher_weights_filename)
 
-        #if FLAGS.initialization:
-        #    self.initilize(sess)
+        if FLAGS.initialization:
+            self.initilize(sess)
 
     def count_filter0_num(self, output, name):
         print(name)
@@ -434,8 +425,8 @@ class VGG16(object):
                         print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                         print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
                         print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
-                        print('Step %d: loss_value_fc = %.20f' % (i, self.loss_value_list[5]))
-                        #print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[1]))
+                        print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[5]))
+                        #print('Step %d: loss_value_fc = %.20f' % (i, self.loss_value_list[5]))
                         print ("\n")
 
 
