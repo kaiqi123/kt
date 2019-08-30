@@ -318,8 +318,8 @@ class VGG16(object):
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, FLAGS.teacher_weights_filename)
 
-        if FLAGS.initialization:
-            self.initilize(sess)
+        #if FLAGS.initialization:
+        #    self.initilize(sess)
 
     def count_filter0_num(self, output, name):
         print(name)
