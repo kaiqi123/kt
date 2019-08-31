@@ -231,9 +231,6 @@ class VGG16(object):
         #self.loss_fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
 
         self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss]
-        #self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5]
-        #self.loss_list = [self.loss_fc3, self.loss]
-        #self.loss_list = [self.loss_fc3]
         print("Number of loss is: "+str(len(self.loss_list)))
 
 
@@ -272,9 +269,6 @@ class VGG16(object):
         print(l5_var_list)
 
         self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op0]
-        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5]
-        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op_fc3]
-        #self.train_op_list = [self.train_op_fc3, self.train_op0]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
@@ -434,9 +428,9 @@ class VGG16(object):
 
                     # checkpoint_file = os.path.join(SUMMARY_LOG_DIR, 'model.ckpt')
 
-                    if FLAGS.teacher:
-                        print("save teacher to: "+str(FLAGS.teacher_weights_filename))
-                        self.saver.save(sess, FLAGS.teacher_weights_filename)
+                    #if FLAGS.teacher:
+                    #    print("save teacher to: "+str(FLAGS.teacher_weights_filename))
+                    #    self.saver.save(sess, FLAGS.teacher_weights_filename)
                     #elif FLAGS.student:
                     #    saver.save(sess, FLAGS.student_filename)
                     #elif FLAGS.dependent_student:
