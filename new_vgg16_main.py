@@ -344,13 +344,14 @@ class VGG16(object):
         #self.define_multiple_optimizers(lr)
 
         # fitnet, phase 1
-        #self.build_optimizer_fitnet_phase1(lr)
+        if FLAGS.fitnet_phase1:
+            self.build_optimizer_fitnet_phase1(lr)
 
         # fitnet, phase 2
-        self.build_optimizer_fitnet_phase2(lr)
+        if FLAGS.fitnet_phase2:
+            self.build_optimizer_fitnet_phase2(lr)
 
         vgg16_mentee._calc_num_trainable_params()
-
         init = tf.initialize_all_variables()
         sess.run(init)
 
@@ -358,10 +359,12 @@ class VGG16(object):
         saver.restore(sess, FLAGS.teacher_weights_filename)
 
         # fitnet, phase 2
-        variables_for_fitnet_phase2 = self.get_variables_for_fitnet_phase1()
-        saver_fitnet_phase2 = tf.train.Saver(variables_for_fitnet_phase2)
-        saver_fitnet_phase2.restore(sess, FLAGS.fitnet_phase1_filename)
-        print(variables_for_fitnet_phase2)
+        if FLAGS.fitnet_phase2:
+            print("fitnet phase2, restore variables")
+            variables_for_fitnet_phase2 = self.get_variables_for_fitnet_phase1()
+            saver_fitnet_phase2 = tf.train.Saver(variables_for_fitnet_phase2)
+            saver_fitnet_phase2.restore(sess, FLAGS.fitnet_phase1_filename)
+            print(variables_for_fitnet_phase2)
 
         #if FLAGS.initialization:
         #    self.initilize(sess)
@@ -475,9 +478,7 @@ class VGG16(object):
                         #print('Step %d: loss_value_fc = %.20f' % (i, self.loss_value_list[5]))
                         print ("\n")
                         """
-                        #print('Step %d: loss_value_fitnet_phase1 = %.20f' % (i, self.loss_value_list[0]))
-                        print('Step %d: loss_value_fitnet_phase2 = %.20f' % (i, self.loss_value_list[0]))
-
+                        print('Step %d: loss_value_fitnet = %.20f' % (i, self.loss_value_list[0]))
                         print ("\n")
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
@@ -586,6 +587,7 @@ if __name__ == '__main__':
     parser.add_argument('--dependent_student',type=bool,help='train dependent student',default=False)
     parser.add_argument('--student',type=bool,help='train independent student',default=False)
     parser.add_argument('--fitnet_phase1',type=bool,help='fitnet_phase1',default=False)
+    parser.add_argument('--fitnet_phase2',type=bool,help='fitnet_phase1',default=False)
     parser.add_argument('--teacher_weights_filename',type=str,default="./summary-log/teacher_weights_filename_caltech101")
     parser.add_argument('--student_filename',type=str,default="./summary-log/independent_student_weights_filename_caltech101")
     parser.add_argument('--dependent_student_filename',type=str,default="./summary-log/dependent_student_weights_filename_caltech101")
