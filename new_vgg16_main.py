@@ -269,6 +269,13 @@ class VGG16(object):
         self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op0]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
+    def get_variables_for_fitnet_phase1(self):
+        l1_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv1_1/weights" or var.op.name == "mentee/conv1_1/biases"]
+        l2_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv2_1/weights" or var.op.name == "mentee/conv2_1/biases"]
+        l3_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv3_1/weights" or var.op.name == "mentee/conv3_1/biases"]
+        variables_for_fitnet_phase1 = l1_var_list + l2_var_list + l3_var_list
+        return variables_for_fitnet_phase1
+
     def build_optimizer_fitnet_phase1(self, lr):
         print("build_optimizer_fitnet_phase1")
         def zero_pad(inputs, in_filter, out_filter):
@@ -282,25 +289,24 @@ class VGG16(object):
             loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(teacher_layer, student_layer))))
             return loss_layer
 
-        def get_variables_for_fitnet_phase1():
-            l1_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv1_1/weights" or var.op.name == "mentee/conv1_1/biases"]
-            l2_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv2_1/weights" or var.op.name == "mentee/conv2_1/biases"]
-            l3_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv3_1/weights" or var.op.name == "mentee/conv3_1/biases"]
-            variables_for_fitnet_phase1 = l1_var_list + l2_var_list + l3_var_list
-            return variables_for_fitnet_phase1
-
         # phase 1
         self.loss_fitnet_phase1 = build_loss(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1)
-        variables_for_fitnet_phase1 = get_variables_for_fitnet_phase1()
+        variables_for_fitnet_phase1 = self.get_variables_for_fitnet_phase1()
         self.train_op_fitnet_phase1 = tf.train.AdamOptimizer(lr).minimize(self.loss_fitnet_phase1,var_list=variables_for_fitnet_phase1)
         self.train_op_list = [self.train_op_fitnet_phase1]
         self.loss_list = [self.loss_fitnet_phase1]
         print(variables_for_fitnet_phase1)
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
-    #def build_optimizer_fitnet_phase2(self, lr, alpha):
-    #    self.l7 = (tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.softmax, mentee_data_dict.softmax))))
-    #    self.train_op_fitNet = tf.train.AdamOptimizer(lr).minimize(alpha * self.loss + self.l7)
+    def build_optimizer_fitnet_phase2(self, lr):
+        print("build_optimizer_fitnet_phase2")
+        alpha = 0.2
+        self.loss_softmax = (tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
+        self.loss_fitnet_phase2 = alpha * self.loss + self.loss_softmax
+        self.train_op_fitNet_phase2 = tf.train.AdamOptimizer(lr).minimize(self.loss_fitnet_phase2)
+        self.train_op_list = [self.train_op_fitNet_phase2]
+        self.loss_list = [self.loss_fitnet_phase2]
+        print("Number of optimizers is: "+str(len(self.train_op_list)))
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         if FLAGS.dataset == 'cifar10':
@@ -338,7 +344,10 @@ class VGG16(object):
         #self.define_multiple_optimizers(lr)
 
         # fitnet, phase 1
-        self.build_optimizer_fitnet_phase1(lr)
+        #self.build_optimizer_fitnet_phase1(lr)
+
+        # fitnet, phase 2
+        self.build_optimizer_fitnet_phase2(lr)
 
         vgg16_mentee._calc_num_trainable_params()
 
@@ -347,6 +356,12 @@ class VGG16(object):
 
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, FLAGS.teacher_weights_filename)
+
+        # fitnet, phase 2
+        variables_for_fitnet_phase2 = self.get_variables_for_fitnet_phase1()
+        saver_fitnet_phase2 = tf.train.Saver(variables_for_fitnet_phase2)
+        saver_fitnet_phase2.restore(sess, FLAGS.fitnet_phase1_filename)
+        print(variables_for_fitnet_phase2)
 
         #if FLAGS.initialization:
         #    self.initilize(sess)
@@ -460,7 +475,9 @@ class VGG16(object):
                         #print('Step %d: loss_value_fc = %.20f' % (i, self.loss_value_list[5]))
                         print ("\n")
                         """
-                        print('Step %d: loss_value_fitnet_phase1 = %.20f' % (i, self.loss_value_list[0]))
+                        #print('Step %d: loss_value_fitnet_phase1 = %.20f' % (i, self.loss_value_list[0]))
+                        print('Step %d: loss_value_fitnet_phase2 = %.20f' % (i, self.loss_value_list[0]))
+
                         print ("\n")
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
