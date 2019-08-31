@@ -13,7 +13,8 @@ from studentModels import Mentee
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 23400
+#NUM_ITERATIONS = 23400
+NUM_ITERATIONS = 1
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -214,9 +215,6 @@ class VGG16(object):
             return outputs
 
         def build_loss(teacher_layer, student_layer):
-            #norm_teacher = tf.nn.l2_normalize(teacher_layer, axis=0)
-            #norm_student = tf.nn.l2_normalize(student_layer, axis=0)
-            #loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(norm_teacher, norm_student))))
             if student_layer.get_shape()[3] != teacher_layer.get_shape()[3]:
                 tf.logging.info("Zero padding on student: {}".format(student_layer))
                 student_layer = zero_pad(student_layer, student_layer.get_shape()[3], teacher_layer.get_shape()[3])
@@ -271,6 +269,38 @@ class VGG16(object):
         self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op0]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
+    def build_optimizer_fitnet_phase1(self, lr):
+        def zero_pad(inputs, in_filter, out_filter):
+            outputs = tf.pad(inputs,[[0, 0], [0, 0], [0, 0], [(out_filter - in_filter) // 2, (out_filter - in_filter) // 2]])
+            return outputs
+
+        def build_loss(teacher_layer, student_layer):
+            if student_layer.get_shape()[3] != teacher_layer.get_shape()[3]:
+                tf.logging.info("Zero padding on student: {}".format(student_layer))
+                student_layer = zero_pad(student_layer, student_layer.get_shape()[3], teacher_layer.get_shape()[3])
+            loss_layer = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(teacher_layer, student_layer))))
+            return loss_layer
+
+        def get_variables_for_fitnet_phase1():
+            l1_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv1_1/weights" or var.op.name == "mentee/conv1_1/biases"]
+            l2_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv2_1/weights" or var.op.name == "mentee/conv2_1/biases"]
+            l3_var_list = [var for var in tf.trainable_variables() if var.op.name == "mentee/conv3_1/weights" or var.op.name == "mentee/conv3_1/biases"]
+            variables_for_fitnet_phase1 = l1_var_list + l2_var_list + l3_var_list
+            return variables_for_fitnet_phase1
+
+        # phase 1
+        self.loss_fitnet_phase1 = build_loss(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1)
+        variables_for_fitnet_phase1 = get_variables_for_fitnet_phase1()
+        self.train_op_fitnet_phase1 = tf.train.AdamOptimizer(lr).minimize(self.loss_fitnet_phase1,var_list=variables_for_fitnet_phase1)
+        self.train_op_list = [self.train_op_fitnet_phase1]
+        self.loss_list = [self.loss_fitnet_phase1]
+        print(variables_for_fitnet_phase1)
+        print("Number of optimizers is: "+str(len(self.train_op_list)))
+
+    #def build_optimizer_fitnet_phase2(self, lr, alpha):
+    #    self.l7 = (tf.reduce_mean(tf.square(tf.subtract(mentor_data_dict.softmax, mentee_data_dict.softmax))))
+    #    self.train_op_fitNet = tf.train.AdamOptimizer(lr).minimize(alpha * self.loss + self.l7)
+
     def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         if FLAGS.dataset == 'cifar10':
             print("Build teacher of dependent student (cifar10)")
@@ -302,8 +332,13 @@ class VGG16(object):
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
         lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR, staircase=True)
 
-        self.caculate_rmse_loss()
-        self.define_multiple_optimizers(lr)
+        # proposed method
+        #self.caculate_rmse_loss()
+        #self.define_multiple_optimizers(lr)
+
+        # fitnet, phase 1
+        self.build_optimizer_fitnet_phase1(lr)
+
         vgg16_mentee._calc_num_trainable_params()
 
         init = tf.initialize_all_variables()
@@ -414,6 +449,7 @@ class VGG16(object):
                     _, self.loss_value_list = sess.run([self.train_op_list, self.loss_list], feed_dict=feed_dict)
 
                     if i % 10 == 0:
+                        """
                         print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
                         print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
                         print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
@@ -422,7 +458,9 @@ class VGG16(object):
                         print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[5]))
                         #print('Step %d: loss_value_fc = %.20f' % (i, self.loss_value_list[5]))
                         print ("\n")
-
+                        """
+                        print('Step %d: loss_value_fitnet_phase1 = %.20f' % (i, self.loss_value_list[0]))
+                        print ("\n")
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
 
@@ -433,9 +471,9 @@ class VGG16(object):
                     #    self.saver.save(sess, FLAGS.teacher_weights_filename)
                     #elif FLAGS.student:
                     #    saver.save(sess, FLAGS.student_filename)
-                    #elif FLAGS.dependent_student:
-                    #    saver_new = tf.train.Saver()
-                    #    saver_new.save(sess, FLAGS.dependent_student_filename)
+                    if FLAGS.fitnet_phase1:
+                        saver_new = tf.train.Saver()
+                        saver_new.save(sess, FLAGS.fitnet_phase1_filename)
 
                     print ("Training Data Eval:")
                     self.do_eval(sess,eval_correct,self.softmax,images_placeholder,labels_placeholder,data_input_train,'Train')
@@ -528,6 +566,7 @@ if __name__ == '__main__':
     parser.add_argument('--teacher',type=bool,help='train teacher',default=False)
     parser.add_argument('--dependent_student',type=bool,help='train dependent student',default=False)
     parser.add_argument('--student',type=bool,help='train independent student',default=False)
+    parser.add_argument('--fitnet_phase1',type=bool,help='fitnet_phase1',default=False)
     parser.add_argument('--teacher_weights_filename',type=str,default="./summary-log/teacher_weights_filename_caltech101")
     parser.add_argument('--student_filename',type=str,default="./summary-log/independent_student_weights_filename_caltech101")
     parser.add_argument('--dependent_student_filename',type=str,default="./summary-log/dependent_student_weights_filename_caltech101")
@@ -555,6 +594,7 @@ if __name__ == '__main__':
     parser.add_argument('--interval_lossValue_train',type=bool,help='interval_lossValue_train',default=False)
     parser.add_argument('--initialization',type=bool,help='initialization',default=False)
     parser.add_argument('--num_optimizers',type=int,help='number of mapping layers from teacher',default=5)
+    parser.add_argument('--fitnet_phase1_filename',type=str,help='save dependent student of fitnet_phase1',default="./summary-log/fitnet/")
 
     FLAGS, unparsed = parser.parse_known_args()
     ex = VGG16()
