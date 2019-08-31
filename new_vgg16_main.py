@@ -361,6 +361,7 @@ class VGG16(object):
         # fitnet, phase 2
         if FLAGS.fitnet_phase2:
             print("fitnet phase2, restore variables")
+            print("restore from"+str(FLAGS.fitnet_phase1_filename))
             variables_for_fitnet_phase2 = self.get_variables_for_fitnet_phase1()
             saver_fitnet_phase2 = tf.train.Saver(variables_for_fitnet_phase2)
             saver_fitnet_phase2.restore(sess, FLAGS.fitnet_phase1_filename)
