@@ -270,6 +270,7 @@ class VGG16(object):
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
     def build_optimizer_fitnet_phase1(self, lr):
+        print("build_optimizer_fitnet_phase1")
         def zero_pad(inputs, in_filter, out_filter):
             outputs = tf.pad(inputs,[[0, 0], [0, 0], [0, 0], [(out_filter - in_filter) // 2, (out_filter - in_filter) // 2]])
             return outputs
