@@ -475,6 +475,7 @@ class VGG16(object):
                     if FLAGS.fitnet_phase1:
                         saver_new = tf.train.Saver()
                         saver_new.save(sess, FLAGS.fitnet_phase1_filename)
+                        print("save fitnet_phase1 to: "+str(FLAGS.fitnet_phase1_filename))
 
                     print ("Training Data Eval:")
                     self.do_eval(sess,eval_correct,self.softmax,images_placeholder,labels_placeholder,data_input_train,'Train')
