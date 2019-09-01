@@ -299,13 +299,26 @@ class VGG16(object):
 
     def build_optimizer_fitnet_phase2(self, lr):
         print("build_optimizer_fitnet_phase2")
-        alpha = 0.2
-        self.loss_softmax = (tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
-        self.loss_fitnet_phase2 = alpha * self.loss + self.loss_softmax
+
+        # ragini's code
+        # alpha = 0.2
+        # self.loss_softmax = (tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
+        # self.loss_fitnet_phase2 = alpha * self.loss + self.loss_softmax
+
+
+        # fitnet paper
+        self.lamma_KD = tf.Variable(4.0, name='lamma_KD', trainable=False)
+        t = 3.0
+        teacher_softmax = tf.nn.softmax(self.mentor_data_dict.fc3 / t)
+        student_softmax = tf.nn.softmax(self.mentee_data_dict.fc3 / t)
+        loss_softmax = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(teacher_softmax, student_softmax))))
+        self.loss_fitnet_phase2 = self.loss + self.lamma_KD * loss_softmax
+
         self.train_op_fitNet_phase2 = tf.train.AdamOptimizer(lr).minimize(self.loss_fitnet_phase2)
         self.train_op_list = [self.train_op_fitNet_phase2]
         self.loss_list = [self.loss_fitnet_phase2]
-        print("Number of optimizers is: "+str(len(self.train_op_list)))
+        print("Number of optimizers is: " + str(len(self.train_op_list)))
+
 
     def define_dependent_student(self, images_placeholder, labels_placeholder, seed, global_step, sess):
         if FLAGS.dataset == 'cifar10':
@@ -465,7 +478,15 @@ class VGG16(object):
                     # cosine = sess.run(self.cosine, feed_dict=feed_dict)
                     # self.select_optimizers_and_loss(cosine)
 
+                    if FLAGS.fitnet_phase2:
+                        lamma_decay_rate = (FLAGS.lamma_KD_initial - 1.0) / NUM_ITERATIONS
+                        lamma = FLAGS.lamma_KD_initial - lamma_decay_rate * i
+                        self.lamma_KD.load(lamma, session=sess)
+                        if i % 1 == 0:
+                            tf.logging.info('lamma_KD of {} for iteration {}'.format(lamma, i))
+
                     _, self.loss_value_list = sess.run([self.train_op_list, self.loss_list], feed_dict=feed_dict)
+
 
                     if i % 10 == 0:
                         """
@@ -616,6 +637,7 @@ if __name__ == '__main__':
     parser.add_argument('--initialization',type=bool,help='initialization',default=False)
     parser.add_argument('--num_optimizers',type=int,help='number of mapping layers from teacher',default=5)
     parser.add_argument('--fitnet_phase1_filename',type=str,help='save dependent student of fitnet_phase1',default="./summary-log/fitnet/")
+    parser.add_argument('--lamma_KD_initial',type=float,default=4.0)
 
     FLAGS, unparsed = parser.parse_known_args()
     ex = VGG16()
