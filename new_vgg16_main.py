@@ -501,7 +501,8 @@ class VGG16(object):
                             #print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                             #print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
                             #print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
-                            print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[3]))
+                            #print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[3]))
+                            print('Step %d: loss_softmax = %.20f' % (i, self.loss_value_list[0]))
                         elif FLAGS.fitnet_phase1:
                             print('Step %d: loss_value_fitnet_phase1 = %.20f' % (i, self.loss_value_list[0]))
                         elif FLAGS.fitnet_phase2:
