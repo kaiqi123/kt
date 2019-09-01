@@ -228,7 +228,7 @@ class VGG16(object):
         #self.loss_fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
 
         #self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss]
-        self.loss_list = [self.l1,self.l2, self.loss]
+        self.loss_list = [self.l1,self.l2, self.l3, self.loss]
         print("Number of loss is: "+str(len(self.loss_list)))
 
 
@@ -267,7 +267,8 @@ class VGG16(object):
         print(l5_var_list)
 
         #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op0]
-        self.train_op_list = [self.train_op1, self.train_op2, self.train_op0]
+        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op0]
+        self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op0]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
     def get_variables_for_fitnet_phase1(self):
@@ -492,10 +493,10 @@ class VGG16(object):
                         if FLAGS.proposed_method:
                             print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
                             print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
-                            #print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
+                            print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                             #print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
                             #print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
-                            #print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[5]))
+                            print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[3]))
                         elif FLAGS.fitnet_phase1:
                             print('Step %d: loss_value_fitnet_phase1 = %.20f' % (i, self.loss_value_list[0]))
                         elif FLAGS.fitnet_phase2:
