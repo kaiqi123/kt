@@ -14,9 +14,7 @@ from studentModels import Mentee
 dataset_path = "./"
 tf.reset_default_graph()
 NUM_ITERATIONS = 23400
-#NUM_ITERATIONS = 702 # 234*3=702
-#NUM_ITERATIONS = 936 # 234*4=936
-#NUM_ITERATIONS = 1170 # 234*5=1170
+NUM_ITERATIONS = 702 # 234*3=702
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
