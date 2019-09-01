@@ -13,8 +13,8 @@ from studentModels import Mentee
 
 dataset_path = "./"
 tf.reset_default_graph()
-#NUM_ITERATIONS = 23400
-NUM_ITERATIONS = 702 # 234*3=702
+NUM_ITERATIONS = 23400
+#NUM_ITERATIONS = 702 # 234*3=702
 #NUM_ITERATIONS = 936 # 234*4=936
 #NUM_ITERATIONS = 1170 # 234*5=1170
 SUMMARY_LOG_DIR="./summary-log"
@@ -381,7 +381,7 @@ class VGG16(object):
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, FLAGS.teacher_weights_filename)
 
-        """
+
         # fitnet, phase 2
         if FLAGS.fitnet_phase2:
             print("fitnet phase2, restore variables")
@@ -390,7 +390,7 @@ class VGG16(object):
             saver_fitnet_phase2 = tf.train.Saver(variables_for_fitnet_phase2)
             saver_fitnet_phase2.restore(sess, FLAGS.fitnet_phase1_filename)
             print(variables_for_fitnet_phase2)
-        """
+
         #if FLAGS.initialization:
         #    self.initilize(sess)
 
