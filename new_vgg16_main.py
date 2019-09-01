@@ -483,7 +483,7 @@ class VGG16(object):
                         lamma = FLAGS.lamma_KD_initial - lamma_decay_rate * i
                         self.lamma_KD.load(lamma, session=sess)
                         #if i % 1 == 0:
-                        tf.logging.info('lamma_KD of {} for iteration {}'.format(lamma, i))
+                        print('lamma_KD of {} for iteration {}'.format(lamma, i))
 
                     _, self.loss_value_list = sess.run([self.train_op_list, self.loss_list], feed_dict=feed_dict)
 
