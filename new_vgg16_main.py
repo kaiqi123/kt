@@ -226,9 +226,13 @@ class VGG16(object):
         self.l4 = build_loss(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1)
         self.l5 = build_loss(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1)
         #self.loss_fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
+        self.loss_softmax = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
 
         #self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss]
-        self.loss_list = [self.l1,self.l2, self.l3, self.loss]
+        #self.loss_list = [self.l1,self.l2, self.l3, self.loss]
+        self.loss_list = [self.loss_softmax]
+        #self.loss_list = [self.loss_softmax, self.loss]
+        #self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss_softmax, self.loss]
         print("Number of loss is: "+str(len(self.loss_list)))
 
 
@@ -236,6 +240,7 @@ class VGG16(object):
         print("define multiple optimizers")
         tvars = [var for var in tf.trainable_variables() if var.op.name.startswith("mentee")]
         #self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3, var_list=tvars)
+        self.train_op_softmax = tf.train.AdamOptimizer(lr).minimize(self.loss_softmax, var_list=tvars)
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
         for var in tvars:
             print(var)
@@ -266,9 +271,10 @@ class VGG16(object):
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
         print(l5_var_list)
 
+        self.train_op_list = [self.train_op_softmax]
+        #self.train_op_list = [self.train_op_softmax, self.train_op0]
         #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op0]
         #self.train_op_list = [self.train_op1, self.train_op2, self.train_op0]
-        self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op0]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
     def get_variables_for_fitnet_phase1(self):
@@ -307,7 +313,6 @@ class VGG16(object):
         # alpha = 0.2
         # self.loss_softmax = (tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
         # self.loss_fitnet_phase2 = alpha * self.loss + self.loss_softmax
-
 
         # fitnet paper
         self.lamma_KD = tf.Variable(4.0, name='lamma_KD', trainable=False)
@@ -491,9 +496,9 @@ class VGG16(object):
 
                     if i % 10 == 0:
                         if FLAGS.proposed_method:
-                            print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
-                            print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
-                            print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
+                            #print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
+                            #print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
+                            #print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                             #print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
                             #print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
                             print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[3]))
