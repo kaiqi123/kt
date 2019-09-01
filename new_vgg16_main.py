@@ -231,8 +231,8 @@ class VGG16(object):
         #self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss]
         #self.loss_list = [self.l1,self.l2, self.l3, self.loss]
         #self.loss_list = [self.loss_softmax]
-        self.loss_list = [self.loss_softmax, self.loss]
-        #self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss_softmax, self.loss]
+        #self.loss_list = [self.loss_softmax, self.loss]
+        self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss_softmax, self.loss]
         print("Number of loss is: "+str(len(self.loss_list)))
 
 
@@ -272,7 +272,8 @@ class VGG16(object):
         print(l5_var_list)
 
         #self.train_op_list = [self.train_op_softmax]
-        self.train_op_list = [self.train_op_softmax, self.train_op0]
+        #self.train_op_list = [self.train_op_softmax, self.train_op0]
+        self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op_softmax, self.train_op0]
         #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op0]
         #self.train_op_list = [self.train_op1, self.train_op2, self.train_op0]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
