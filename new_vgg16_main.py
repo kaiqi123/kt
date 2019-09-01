@@ -227,7 +227,8 @@ class VGG16(object):
         self.l5 = build_loss(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1)
         #self.loss_fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
 
-        self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss]
+        #self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss]
+        self.loss_list = [self.l1,self.l2, self.loss]
         print("Number of loss is: "+str(len(self.loss_list)))
 
 
@@ -265,7 +266,8 @@ class VGG16(object):
         self.train_op5 = tf.train.AdamOptimizer(lr).minimize(self.l5, var_list=l5_var_list)
         print(l5_var_list)
 
-        self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op0]
+        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op0]
+        self.train_op_list = [self.train_op1, self.train_op2, self.train_op0]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
     def get_variables_for_fitnet_phase1(self):
@@ -351,17 +353,15 @@ class VGG16(object):
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
         lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR, staircase=True)
 
-        # proposed method
-        #self.caculate_rmse_loss()
-        #self.define_multiple_optimizers(lr)
-
-        # fitnet, phase 1
-        if FLAGS.fitnet_phase1:
+        if FLAGS.proposed_method:
+            self.caculate_rmse_loss()
+            self.define_multiple_optimizers(lr)
+        elif FLAGS.fitnet_phase1:
             self.build_optimizer_fitnet_phase1(lr)
-
-        # fitnet, phase 2
-        if FLAGS.fitnet_phase2:
+        elif FLAGS.fitnet_phase2:
             self.build_optimizer_fitnet_phase2(lr)
+        else:
+            raise ValueError("Not found method")
 
         vgg16_mentee._calc_num_trainable_params()
         init = tf.initialize_all_variables()
@@ -489,17 +489,19 @@ class VGG16(object):
 
 
                     if i % 10 == 0:
-                        """
-                        print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
-                        print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
-                        print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
-                        print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
-                        print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
-                        print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[5]))
-                        #print('Step %d: loss_value_fc = %.20f' % (i, self.loss_value_list[5]))
-                        print ("\n")
-                        """
-                        print('Step %d: loss_value_fitnet = %.20f' % (i, self.loss_value_list[0]))
+                        if FLAGS.proposed_method:
+                            print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
+                            print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
+                            #print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
+                            #print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
+                            #print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
+                            #print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[5]))
+                        elif FLAGS.fitnet_phase1:
+                            print('Step %d: loss_value_fitnet_phase1 = %.20f' % (i, self.loss_value_list[0]))
+                        elif FLAGS.fitnet_phase2:
+                            print('Step %d: loss_value_fitnet_phase2 = %.20f' % (i, self.loss_value_list[0]))
+                        else:
+                            raise ValueError("Not found method")
                         print ("\n")
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
@@ -609,6 +611,7 @@ if __name__ == '__main__':
     parser.add_argument('--student',type=bool,help='train independent student',default=False)
     parser.add_argument('--fitnet_phase1',type=bool,help='fitnet_phase1',default=False)
     parser.add_argument('--fitnet_phase2',type=bool,help='fitnet_phase1',default=False)
+    parser.add_argument('--proposed_method',type=bool,help='fitnet_phase1',default=False)
     parser.add_argument('--teacher_weights_filename',type=str,default="./summary-log/teacher_weights_filename_caltech101")
     parser.add_argument('--student_filename',type=str,default="./summary-log/independent_student_weights_filename_caltech101")
     parser.add_argument('--dependent_student_filename',type=str,default="./summary-log/dependent_student_weights_filename_caltech101")
