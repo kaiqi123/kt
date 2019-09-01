@@ -311,10 +311,11 @@ class VGG16(object):
         print("build_optimizer_fitnet_phase2")
 
         # ragini's code
-        # alpha = 0.2
-        # self.loss_softmax = (tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
-        # self.loss_fitnet_phase2 = alpha * self.loss + self.loss_softmax
+        alpha = 0.2
+        self.loss_softmax = (tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
+        self.loss_fitnet_phase2 = alpha * self.loss + self.loss_softmax
 
+        """
         # fitnet paper
         self.lamma_KD = tf.Variable(4.0, name='lamma_KD', trainable=False)
         t = 3.0
@@ -322,7 +323,7 @@ class VGG16(object):
         student_softmax = tf.nn.softmax(self.mentee_data_dict.fc3 / t)
         loss_softmax = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(teacher_softmax, student_softmax))))
         self.loss_fitnet_phase2 = self.loss + self.lamma_KD * loss_softmax
-
+        """
         self.train_op_fitNet_phase2 = tf.train.AdamOptimizer(lr).minimize(self.loss_fitnet_phase2)
         self.train_op_list = [self.train_op_fitNet_phase2]
         self.loss_list = [self.loss_fitnet_phase2]
@@ -486,12 +487,12 @@ class VGG16(object):
                     # cosine = sess.run(self.cosine, feed_dict=feed_dict)
                     # self.select_optimizers_and_loss(cosine)
 
-                    if FLAGS.fitnet_phase2:
-                        lamma_decay_rate = (FLAGS.lamma_KD_initial - 1.0) / NUM_ITERATIONS
-                        lamma = FLAGS.lamma_KD_initial - lamma_decay_rate * i
-                        self.lamma_KD.load(lamma, session=sess)
-                        if i % 100 == 0:
-                            print('lamma_KD of {} for iteration {}'.format(lamma, i))
+                    #if FLAGS.fitnet_phase2:
+                    #    lamma_decay_rate = (FLAGS.lamma_KD_initial - 1.0) / NUM_ITERATIONS
+                    #    lamma = FLAGS.lamma_KD_initial - lamma_decay_rate * i
+                    #    self.lamma_KD.load(lamma, session=sess)
+                    #    if i % 100 == 0:
+                    #        print('lamma_KD of {} for iteration {}'.format(lamma, i))
 
                     _, self.loss_value_list = sess.run([self.train_op_list, self.loss_list], feed_dict=feed_dict)
 
