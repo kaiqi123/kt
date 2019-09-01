@@ -478,7 +478,7 @@ class VGG16(object):
                 if FLAGS.student or FLAGS.teacher:
 
                     _, loss_value = sess.run([self.train_op, self.loss], feed_dict=feed_dict)
-                    if i % 10 == 0:
+                    if i % 500 == 0:
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
