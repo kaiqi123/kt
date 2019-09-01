@@ -480,10 +480,11 @@ class VGG16(object):
 
                     if FLAGS.fitnet_phase2:
                         lamma_decay_rate = (FLAGS.lamma_KD_initial - 1.0) / NUM_ITERATIONS
+                        print(lamma_decay_rate)
                         lamma = FLAGS.lamma_KD_initial - lamma_decay_rate * i
                         self.lamma_KD.load(lamma, session=sess)
-                        #if i % 1 == 0:
-                        print('lamma_KD of {} for iteration {}'.format(lamma, i))
+                        if i % 1 == 0:
+                            print('lamma_KD of {} for iteration {}'.format(lamma, i))
 
                     _, self.loss_value_list = sess.run([self.train_op_list, self.loss_list], feed_dict=feed_dict)
 
