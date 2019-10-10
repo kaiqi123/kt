@@ -247,10 +247,10 @@ class VGG16(object):
         print("Number of loss is: "+str(len(self.loss_list)))
 
 
-    def define_multiple_optimizers(self, lr):
-        print("define multiple optimizers")
+    def define_multiple_optimizers(self, lr, global_step): #Note global_step!!!!
+        print("define multiple optimizers.")
         tvars = [var for var in tf.trainable_variables() if var.op.name.startswith("mentee")]
-        self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3, var_list=tvars)
+        self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3, var_list=tvars, global_step=global_step)
         self.train_op_softmax = tf.train.AdamOptimizer(lr).minimize(self.loss_softmax, var_list=tvars)
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
         for var in tvars:
@@ -374,7 +374,7 @@ class VGG16(object):
 
         if FLAGS.proposed_method:
             self.caculate_rmse_loss()
-            self.define_multiple_optimizers(self.lr)
+            self.define_multiple_optimizers(self.lr, global_step)
         elif FLAGS.fitnet_phase1:
             self.build_optimizer_fitnet_phase1(self.lr)
         elif FLAGS.fitnet_phase2:
