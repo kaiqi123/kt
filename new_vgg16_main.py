@@ -477,7 +477,7 @@ class VGG16(object):
                 if FLAGS.student or FLAGS.teacher:
 
                     _, loss_value = sess.run([self.train_op, self.loss], feed_dict=feed_dict)
-                    if i % 500 == 0:
+                    if i % 100 == 0:
                         print ('Step %d: loss_value = %.20f' % (i, loss_value))
 
                 if FLAGS.dependent_student:
@@ -523,6 +523,7 @@ class VGG16(object):
                     #    print("save teacher to: "+str(FLAGS.teacher_weights_filename))
                     #    self.saver.save(sess, FLAGS.teacher_weights_filename)
                     if FLAGS.student:
+                        print("Save student weights to: "+str(FLAGS.student_filename))
                         self.saver.save(sess, FLAGS.student_filename)
                     #if FLAGS.fitnet_phase1:
                     #    saver_new = tf.train.Saver()

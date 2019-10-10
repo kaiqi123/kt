@@ -15,6 +15,7 @@ class DataInput(object):
 		self.seed = seed
 		self.dataset = dataset
 
+		self.check_data(train_labels_file)
 		# Create the File Name queue
 		self.filename_queue = tf.train.string_input_producer([self.dataset_path + self.train_labels_file], num_epochs=None)
 		# Reading the file line by line
@@ -44,3 +45,18 @@ class DataInput(object):
 		distorted_image = tf.image.random_flip_left_right(self.train_image)
 		self.train_image = tf.image.per_image_standardization(distorted_image)
 		self.train_image = tf.image.resize_images(self.train_image, [self.image_width, self.image_height])
+
+	def check_data(self, train_labels_file):
+		f = open(train_labels_file)
+		lines = f.readlines()
+		f.close()
+		labels = []
+		for line in lines:
+			label = int(line.split(",")[0])
+			if  label not in labels:
+				labels.append(label)
+		print("Read data from file: "+str(train_labels_file))
+		print("The number of data is: " + str(len(lines)))
+		print("The labels are: " + str(labels))
+
+
