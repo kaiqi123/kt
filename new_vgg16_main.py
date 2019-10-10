@@ -523,7 +523,7 @@ class VGG16(object):
                     #    print("save teacher to: "+str(FLAGS.teacher_weights_filename))
                     #    self.saver.save(sess, FLAGS.teacher_weights_filename)
                     if FLAGS.student:
-                        self.saver.save(sess, FLAGS.independent_student_filename)
+                        self.saver.save(sess, FLAGS.student_filename)
                     #if FLAGS.fitnet_phase1:
                     #    saver_new = tf.train.Saver()
                     #    saver_new.save(sess, FLAGS.fitnet_phase1_filename)
@@ -624,8 +624,7 @@ if __name__ == '__main__':
     parser.add_argument('--fitnet_phase2',type=bool,help='fitnet_phase1',default=False)
     parser.add_argument('--proposed_method',type=bool,help='fitnet_phase1',default=False)
     parser.add_argument('--teacher_weights_filename',type=str,default="./summary-log/teacher_weights_filename_caltech101")
-    parser.add_argument('--independent_student_filename',type=str,default="./summary-log/####")
-    parser.add_argument('--dependent_student_filename',type=str,default="./summary-log/#####")
+    parser.add_argument('--student_filename',type=str,default="./summary-log/####")
     parser.add_argument('--learning_rate',type=float,default=0.0001)
     parser.add_argument('--batch_size',type=int,default=25)
     parser.add_argument('--image_height',type=int,default=224)
