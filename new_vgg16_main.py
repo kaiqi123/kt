@@ -90,7 +90,7 @@ class VGG16(object):
         self.softmax = mentee_data_dict.softmax
         self.train_op = student.training(self.loss, self.lr, global_step)
 
-        # DeCAF
+        # DeCAF phase2
         #fc_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/fc3/weights"
         #               or var.op.name == "mentee/fc3/biases"]
         #self.train_op = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=global_step, var_list=fc_var_list)
@@ -105,7 +105,7 @@ class VGG16(object):
         sess.run(init)
         self.saver = tf.train.Saver()
 
-        # DeCAF, restore all weights
+        # DeCAF phase2, restore all weights
         #saverDeCAF = tf.train.Saver(tf.trainable_variables())
         #saverDeCAF.restore(sess, FLAGS.student_filename)
 
@@ -533,9 +533,9 @@ class VGG16(object):
                     #if FLAGS.teacher:
                     #    print("save teacher to: "+str(FLAGS.teacher_weights_filename))
                     #    self.saver.save(sess, FLAGS.teacher_weights_filename)
-                    #if FLAGS.student:
-                    #    print("Save student weights to: "+str(FLAGS.student_filename))
-                    #    self.saver.save(sess, FLAGS.student_filename)
+                    if FLAGS.student:
+                        print("Save student weights to: "+str(FLAGS.student_filename))
+                        self.saver.save(sess, FLAGS.student_filename)
                     #if FLAGS.fitnet_phase1:
                     #    saver_new = tf.train.Saver()
                     #    saver_new.save(sess, FLAGS.fitnet_phase1_filename)
