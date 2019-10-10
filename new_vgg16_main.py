@@ -225,21 +225,21 @@ class VGG16(object):
         self.l3 = build_loss(self.mentor_data_dict.conv3_3, self.mentee_data_dict.conv3_1)
         self.l4 = build_loss(self.mentor_data_dict.conv4_3, self.mentee_data_dict.conv4_1)
         self.l5 = build_loss(self.mentor_data_dict.conv5_3, self.mentee_data_dict.conv5_1)
-        #self.loss_fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
+        self.loss_fc3 = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.fc3, self.mentee_data_dict.fc3))))
         self.loss_softmax = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.mentor_data_dict.softmax, self.mentee_data_dict.softmax))))
 
         #self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss]
         #self.loss_list = [self.l1,self.l2, self.l3, self.loss]
         #self.loss_list = [self.loss_softmax]
         #self.loss_list = [self.loss_softmax, self.loss]
-        self.loss_list = [self.l1,self.l2,self.l3,self.l4,self.l5, self.loss_softmax, self.loss]
+        self.loss_list = [self.l1,self.l2,self.loss_fc3]
         print("Number of loss is: "+str(len(self.loss_list)))
 
 
     def define_multiple_optimizers(self, lr):
         print("define multiple optimizers")
         tvars = [var for var in tf.trainable_variables() if var.op.name.startswith("mentee")]
-        #self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3, var_list=tvars)
+        self.train_op_fc3 = tf.train.AdamOptimizer(lr).minimize(self.loss_fc3, var_list=tvars)
         self.train_op_softmax = tf.train.AdamOptimizer(lr).minimize(self.loss_softmax, var_list=tvars)
         self.train_op0 = tf.train.AdamOptimizer(lr).minimize(self.loss, var_list=tvars)
         for var in tvars:
@@ -273,9 +273,9 @@ class VGG16(object):
 
         #self.train_op_list = [self.train_op_softmax]
         #self.train_op_list = [self.train_op_softmax, self.train_op0]
-        self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op_softmax, self.train_op0]
+        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op_softmax, self.train_op0]
         #self.train_op_list = [self.train_op1, self.train_op2, self.train_op3, self.train_op4, self.train_op5, self.train_op0]
-        #self.train_op_list = [self.train_op1, self.train_op2, self.train_op0]
+        self.train_op_list = [self.train_op1, self.train_op2, self.train_op_fc3]
         print("Number of optimizers is: "+str(len(self.train_op_list)))
 
     def get_variables_for_fitnet_phase1(self):
@@ -377,7 +377,6 @@ class VGG16(object):
 
         saver = tf.train.Saver(mentor_variables_to_restore)
         saver.restore(sess, FLAGS.teacher_weights_filename)
-
 
         # fitnet, phase 2
         if FLAGS.fitnet_phase2:
@@ -486,26 +485,27 @@ class VGG16(object):
                     # self.cosine = cosine_similarity_of_same_width(self.mentee_data_dict, self.mentor_data_dict, sess, feed_dict, FLAGS.num_optimizers)
                     # cosine = sess.run(self.cosine, feed_dict=feed_dict)
                     # self.select_optimizers_and_loss(cosine)
-
+                    """
                     if FLAGS.fitnet_phase2:
                         lamma_decay_rate = (FLAGS.lamma_KD_initial - 1.0) / NUM_ITERATIONS
                         lamma = FLAGS.lamma_KD_initial - lamma_decay_rate * i
                         self.lamma_KD.load(lamma, session=sess)
                         if i % 300 == 0:
                             print('lamma_KD of {} for iteration {}'.format(lamma, i))
+                    """
 
                     _, self.loss_value_list = sess.run([self.train_op_list, self.loss_list], feed_dict=feed_dict)
 
-                    """
-                    if i % 10 == 0:
+
+                    if i % 100 == 0:
                         if FLAGS.proposed_method:
-                            #print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
-                            #print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
+                            print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
+                            print('Step %d: loss_value2 = %.20f' % (i, self.loss_value_list[1]))
                             #print('Step %d: loss_value3 = %.20f' % (i, self.loss_value_list[2]))
                             #print('Step %d: loss_value4 = %.20f' % (i, self.loss_value_list[3]))
                             #print('Step %d: loss_value5 = %.20f' % (i, self.loss_value_list[4]))
-                            print('Step %d: loss_softmax = %.20f' % (i, self.loss_value_list[0]))
-                            print('Step %d: loss_with_label = %.20f' % (i, self.loss_value_list[1]))
+                            #print('Step %d: loss_softmax = %.20f' % (i, self.loss_value_list[0]))
+                            print('Step %d: loss_fc = %.20f' % (i, self.loss_value_list[2]))
                         elif FLAGS.fitnet_phase1:
                             print('Step %d: loss_value_fitnet_phase1 = %.20f' % (i, self.loss_value_list[0]))
                         elif FLAGS.fitnet_phase2:
@@ -513,7 +513,7 @@ class VGG16(object):
                         else:
                             raise ValueError("Not found method")
                         print ("\n")
-                    """
+
 
                 if (i) % (FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size) == 0 or (i) == NUM_ITERATIONS - 1:
 
@@ -522,7 +522,7 @@ class VGG16(object):
                     #if FLAGS.teacher:
                     #    print("save teacher to: "+str(FLAGS.teacher_weights_filename))
                     #    self.saver.save(sess, FLAGS.teacher_weights_filename)
-                    if FLAGS.student:
+                    if FLAGS.student or FLAGS.dependent_student:
                         print("Save student weights to: "+str(FLAGS.student_filename))
                         self.saver.save(sess, FLAGS.student_filename)
                     #if FLAGS.fitnet_phase1:
@@ -623,7 +623,7 @@ if __name__ == '__main__':
     parser.add_argument('--student',type=bool,help='train independent student',default=False)
     parser.add_argument('--fitnet_phase1',type=bool,help='fitnet_phase1',default=False)
     parser.add_argument('--fitnet_phase2',type=bool,help='fitnet_phase1',default=False)
-    parser.add_argument('--proposed_method',type=bool,help='fitnet_phase1',default=False)
+    parser.add_argument('--proposed_method',type=bool,help='proposed_method',default=False)
     parser.add_argument('--teacher_weights_filename',type=str,default="./summary-log/teacher_weights_filename_caltech101")
     parser.add_argument('--student_filename',type=str,default="./summary-log/####")
     parser.add_argument('--learning_rate',type=float,default=0.0001)
