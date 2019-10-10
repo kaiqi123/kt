@@ -57,6 +57,6 @@ class DataInput(object):
 				labels.append(label)
 		print("Read data from file: "+str(train_labels_file))
 		print("The number of data is: " + str(len(lines)))
-		print("The labels are: " + str(labels))
+		print("The labels are: " + str(sorted(labels)))
 
 
