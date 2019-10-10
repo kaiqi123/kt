@@ -370,15 +370,15 @@ class VGG16(object):
         self.loss = vgg16_mentee.loss(labels_placeholder)
         num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
-        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR, staircase=True)
+        self.lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR, staircase=True)
 
         if FLAGS.proposed_method:
             self.caculate_rmse_loss()
-            self.define_multiple_optimizers(lr)
+            self.define_multiple_optimizers(self.lr)
         elif FLAGS.fitnet_phase1:
-            self.build_optimizer_fitnet_phase1(lr)
+            self.build_optimizer_fitnet_phase1(self.lr)
         elif FLAGS.fitnet_phase2:
-            self.build_optimizer_fitnet_phase2(lr)
+            self.build_optimizer_fitnet_phase2(self.lr)
         else:
             raise ValueError("Not found method")
 
