@@ -84,16 +84,16 @@ class VGG16(object):
 
         num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
-        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,staircase=True)
+        self.lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,staircase=True)
 
         self.loss = student.loss(labels_placeholder)
         self.softmax = mentee_data_dict.softmax
-        #self.train_op = student.training(self.loss, lr, global_step)
+        #self.train_op = student.training(self.loss, self.lr, global_step)
 
         # DeCAF
         fc_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/fc3/weights"
                        or var.op.name == "mentee/fc3/biases"]
-        self.train_op = tf.train.AdamOptimizer(lr).minimize(self.loss, global_step=global_step, var_list=fc_var_list)
+        self.train_op = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=global_step, var_list=fc_var_list)
         print("fc_var_list is: "+str(fc_var_list))
 
         for tvar in tf.trainable_variables():
@@ -540,6 +540,11 @@ class VGG16(object):
                     #    saver_new = tf.train.Saver()
                     #    saver_new.save(sess, FLAGS.fitnet_phase1_filename)
                     #    print("save fitnet_phase1 to: "+str(FLAGS.fitnet_phase1_filename))
+
+                    # check learning rate
+                    num_epoch = int(i / float(FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size))
+                    learning_rate = sess.run(self.lr)
+                    print('Epoch is: {},learning rate is: {}.', num_epoch, learning_rate)
 
                     print ("Training Data Eval:")
                     self.do_eval(sess,eval_correct,self.softmax,images_placeholder,labels_placeholder,data_input_train,'Train')
