@@ -522,7 +522,7 @@ class VGG16(object):
                     #if FLAGS.teacher:
                     #    print("save teacher to: "+str(FLAGS.teacher_weights_filename))
                     #    self.saver.save(sess, FLAGS.teacher_weights_filename)
-                    if FLAGS.student or FLAGS.dependent_student:
+                    if FLAGS.student:
                         print("Save student weights to: "+str(FLAGS.student_filename))
                         self.saver.save(sess, FLAGS.student_filename)
                     #if FLAGS.fitnet_phase1:
