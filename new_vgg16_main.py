@@ -13,8 +13,8 @@ from studentModels import Mentee
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 23400
-#NUM_ITERATIONS = 702 # 234*3=702
+NUM_ITERATIONS = 19500  #ciafr10: 50000/128=390, 390*50=19500; caltech101: 234*50=11700
+#NUM_ITERATIONS = 702   # 234*3=702
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
 NUM_EPOCHS_PER_DECAY = 1.0
@@ -87,8 +87,14 @@ class VGG16(object):
         lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,staircase=True)
 
         self.loss = student.loss(labels_placeholder)
-        self.train_op = student.training(self.loss, lr, global_step)
         self.softmax = mentee_data_dict.softmax
+        #self.train_op = student.training(self.loss, lr, global_step)
+
+        # DeCAF
+        fc_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/fc3/weights"
+                       or var.op.name == "mentee/fc3/biases"]
+        self.train_op = tf.train.AdamOptimizer(lr).minimize(self.loss, global_step=global_step, var_list=fc_var_list)
+        print("fc_var_list is: "+str(fc_var_list))
 
         for tvar in tf.trainable_variables():
             print(tvar)
@@ -98,6 +104,11 @@ class VGG16(object):
         init = tf.initialize_all_variables()
         sess.run(init)
         self.saver = tf.train.Saver()
+
+        # DeCAF, restore all weights
+        saverDeCAF = tf.train.Saver(tf.trainable_variables())
+        saverDeCAF.restore(sess, FLAGS.student_filename)
+
 
     def define_teacher(self, images_placeholder, labels_placeholder, global_step, sess):
         if FLAGS.dataset == 'cifar10':
@@ -522,9 +533,9 @@ class VGG16(object):
                     #if FLAGS.teacher:
                     #    print("save teacher to: "+str(FLAGS.teacher_weights_filename))
                     #    self.saver.save(sess, FLAGS.teacher_weights_filename)
-                    if FLAGS.student:
-                        print("Save student weights to: "+str(FLAGS.student_filename))
-                        self.saver.save(sess, FLAGS.student_filename)
+                    #if FLAGS.student:
+                    #    print("Save student weights to: "+str(FLAGS.student_filename))
+                    #    self.saver.save(sess, FLAGS.student_filename)
                     #if FLAGS.fitnet_phase1:
                     #    saver_new = tf.train.Saver()
                     #    saver_new.save(sess, FLAGS.fitnet_phase1_filename)

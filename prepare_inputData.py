@@ -68,5 +68,7 @@ def select_subset(readFileName, writeFileName, target_labels):
 #create_cifar10_txtfile_allData("./cifar10_images/test", "./cifar10_input/cifar10-test.txt")
 #create_cifar10_txtfile_allData("./cifar10_images/train", "./cifar10_input/cifar10-train.txt")
 
-select_subset("./cifar10_input/cifar10-train.txt", "./cifar10_input/cifar10-train-7categories06.txt",target_labels=[0,1,2,3,4,5,6])
-select_subset("./cifar10_input/cifar10-test.txt", "./cifar10_input/cifar10-test-3categories789.txt", target_labels=[7,8,9])
+#select_subset("./cifar10_input/cifar10-train.txt", "./cifar10_input/cifar10-train-7categories06.txt",target_labels=[0,1,2,3,4,5,6])
+#select_subset("./cifar10_input/cifar10-test.txt", "./cifar10_input/cifar10-test-3categories789.txt", target_labels=[7,8,9])
+
+select_subset("./cifar10_input/cifar10-train.txt", "./cifar10_input/cifar10-train-3categories789.txt",target_labels=[7,8,9])
