@@ -544,7 +544,7 @@ class VGG16(object):
                     # check learning rate
                     num_epoch = int(i / float(FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN // FLAGS.batch_size))
                     learning_rate = sess.run(self.lr)
-                    print('Epoch is: %d,learning rate is: %f', num_epoch, learning_rate)
+                    print('Epoch is: {},learning rate is: {}'.format(num_epoch, learning_rate))
 
                     print ("Training Data Eval:")
                     self.do_eval(sess,eval_correct,self.softmax,images_placeholder,labels_placeholder,data_input_train,'Train')
