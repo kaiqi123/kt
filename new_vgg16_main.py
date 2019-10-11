@@ -13,7 +13,7 @@ from studentModels import Mentee
 
 dataset_path = "./"
 tf.reset_default_graph()
-NUM_ITERATIONS = 1950  #ciafr10: 50000/128=390, 390*50=19500; caltech101: 234*50=11700
+NUM_ITERATIONS = 19500  #ciafr10: 50000/128=390, 390*50=19500; caltech101: 234*50=11700
 #NUM_ITERATIONS = 702   # 234*3=702
 SUMMARY_LOG_DIR="./summary-log"
 LEARNING_RATE_DECAY_FACTOR = 0.9809
