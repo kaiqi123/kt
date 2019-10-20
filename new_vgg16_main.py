@@ -125,7 +125,7 @@ class VGG16(object):
 
         num_batches_per_epoch = FLAGS.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
         decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
-        lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,staircase=True)
+        self.lr = tf.train.exponential_decay(FLAGS.learning_rate, global_step, decay_steps, LEARNING_RATE_DECAY_FACTOR,staircase=True)
 
         mentor_data_dict = mentor.build_vgg16_teacher(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
         #mentor_data_dict = mentor.build_vgg16_teacher_deleteFilters(images_placeholder, FLAGS.num_classes, FLAGS.temp_softmax)
@@ -142,9 +142,9 @@ class VGG16(object):
             for var in variables_to_restore:
                 print(var)
             print("num of variables_to_restore: ", len(variables_to_restore))
-            self.train_op = mentor.training(self.loss, FLAGS.learning_rate_pretrained, lr, global_step, variables_to_restore, mentor.get_training_vars())
+            self.train_op = mentor.training(self.loss, FLAGS.learning_rate_pretrained, self.lr, global_step, variables_to_restore, mentor.get_training_vars())
         elif FLAGS.dataset == 'cifar10':
-            self.train_op = mentor.training(self.loss, lr, global_step)
+            self.train_op = mentor.training(self.loss, self.lr, global_step)
         else:
             raise ValueError("Not found dataset name")
 
