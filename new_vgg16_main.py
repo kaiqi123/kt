@@ -42,6 +42,7 @@ class VGG16(object):
         elif FLAGS.top_3_accuracy:
             correct = tf.nn.in_top_k(logits, labels, 3)
         elif FLAGS.top_5_accuracy:
+            print("top_5_accuracy")
             correct = tf.nn.in_top_k(logits, labels, 5)
         else:
             raise ValueError("Not found top_1&3&5_accuracy")
@@ -88,13 +89,15 @@ class VGG16(object):
 
         self.loss = student.loss(labels_placeholder)
         self.softmax = mentee_data_dict.softmax
-        #self.train_op = student.training(self.loss, self.lr, global_step)
+        self.train_op = student.training(self.loss, self.lr, global_step)
 
+        """
         # DeCAF phase2
         fc_var_list = [var for var in tf.trainable_variables() if var.op.name=="mentee/fc3/weights"
                        or var.op.name == "mentee/fc3/biases"]
         self.train_op = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=global_step, var_list=fc_var_list)
         print("fc_var_list is: "+str(fc_var_list))
+        """
 
         for tvar in tf.trainable_variables():
             print(tvar)
@@ -106,8 +109,8 @@ class VGG16(object):
         self.saver = tf.train.Saver()
 
         # DeCAF phase2, restore all weights
-        saverDeCAF = tf.train.Saver(tf.trainable_variables())
-        saverDeCAF.restore(sess, FLAGS.student_filename)
+        #saverDeCAF = tf.train.Saver(tf.trainable_variables())
+        #saverDeCAF.restore(sess, FLAGS.student_filename)
 
 
     def define_teacher(self, images_placeholder, labels_placeholder, global_step, sess):
@@ -658,7 +661,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_validation_examples',type=int,default=1463)
     parser.add_argument('--dataset',type=str,help='name of the dataset',default='caltech101')
     parser.add_argument('--num_channels',type=int,help='number of channels in the initial layer if it is RGB it will 3 , if it is gray scale it will be 1',default='3')
-    parser.add_argument('--top_1_accuracy',type=bool,help='top-1-accuracy',default=True)
+    parser.add_argument('--top_1_accuracy',type=bool,help='top-1-accuracy',default=False)
     parser.add_argument('--top_3_accuracy',type=bool,help='top-3-accuracy',default=False)
     parser.add_argument('--top_5_accuracy',type=bool,help='top-5-accuracy',default=False)
     parser.add_argument('--num_iterations',type=int,help='num_iterations',default=1)
