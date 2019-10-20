@@ -510,7 +510,6 @@ class VGG16(object):
 
                     _, self.loss_value_list = sess.run([self.train_op_list, self.loss_list], feed_dict=feed_dict)
 
-
                     if i % 100 == 0:
                         if FLAGS.proposed_method:
                             print('Step %d: loss_value1 = %.20f' % (i, self.loss_value_list[0]))
