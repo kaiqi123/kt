@@ -18,13 +18,17 @@ class DataInput(object):
 		self.check_data(train_labels_file)
 		# Create the File Name queue
 		self.filename_queue = tf.train.string_input_producer([self.dataset_path + self.train_labels_file], num_epochs=None)
+		print(self.filename_queue)
 		# Reading the file line by line
 		self.reader = tf.TextLineReader()
+		print(self.reader)
 		# Parse the line of CSV
 		self.key_temp, self.value_temp =  self.reader.read(self.filename_queue)
+		print(self.key_temp, self.value_temp)
 		self.record_defaults = [[1], ['']]
 		self.col1, self.col2 = tf.decode_csv(self.value_temp, record_defaults=self.record_defaults)
-    
+		print(self.col1, self.col2)
+
 		# Decode the data into JPEG
 		self.decode_jpeg()
 
